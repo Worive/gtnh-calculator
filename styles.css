@@ -1,0 +1,42 @@
+@font-face {
+    font-family: 'Minecraftia';
+    src: url('./assets/fonts/MinecraftiaRegular.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Minecraftia', sans-serif;
+    image-rendering: pixelated;
+    margin: 0;
+    padding: 0;
+}
+
+#root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 8px; /* After scaling (x2), this becomes 16px */
+    transform-origin: top left;
+    image-rendering: pixelated;
+}
+
+.panel {
+    width: 192px;
+    height: 192px;
+    border-style: solid;
+    border-width: 5px;
+    
+    border-image: url('./assets/images/Panel.png');
+    border-image-slice: 5 fill;
+}
+
+.icon {
+    width: 16px;  /* Width of each icon */
+    height: 16px; /* Height of each icon */
+    background-size: 1024px 1024px; /* Size of the atlas image */
+    background-repeat: no-repeat;
+
+    background-image: url('./data/atlas/0.png');
+    background-position: 
+        calc((var(--icon-id) % 64) * -64px) /* Column position */
+        calc(floor(var(--icon-id) / 64) * -64px); /* Row position */
+}
