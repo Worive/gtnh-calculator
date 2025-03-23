@@ -1,3 +1,5 @@
+import { SearchQuery } from "./searchQuery.js";
+
 export class Repository
 {
     static current:Repository;
@@ -8,6 +10,7 @@ export class Repository
     objects: {[index:number]: (MemMappedObject | Int32Array | string)} = {}
     items:Int32Array;
     fluids:Int32Array;
+    recipeTypes:Int32Array;
 
     constructor(data: ArrayBuffer)
     {
@@ -16,6 +19,17 @@ export class Repository
         this.textReader = new TextDecoder();
         this.items = this.GetSlice(this.elements[0]);
         this.fluids = this.GetSlice(this.elements[1]);
+        this.recipeTypes = this.GetSlice(this.elements[2]);
+    }
+
+    public ObjectMatchQueryBits(query:SearchQuery, pointer:number):boolean
+    {
+        var arr = query.indexBits;
+        for (var i=0; i<4; i++) {
+            if ((this.elements[pointer+i] & arr[i]) !== arr[i])
+                return false;
+        }
+        return true;
     }
 
     GetString(pointer:number):string
@@ -53,6 +67,16 @@ export class Repository
     private ReadObject<T extends MemMappedObject>(pointer:number, prototype:IMemMappedObjectPrototype<T>):T
     {
         return new prototype(this, pointer);
+    }
+
+    GetObjectIfMatchingSearch<T extends SearchableObject>(query:SearchQuery | null, pointer:number, prototype:IMemMappedObjectPrototype<T>):T | null
+    {
+        if (query == null)
+            return this.GetObject(pointer, prototype);
+        if (!this.ObjectMatchQueryBits(query, pointer))
+            return null;
+        var inst = this.GetObject(pointer, prototype);
+        return inst.MatchSearchText(query) ? inst : null;
     }
 }
 
@@ -93,33 +117,43 @@ class MemMappedObject
     }
 }
 
-abstract class RecipeObject extends MemMappedObject
+abstract class SearchableObject extends MemMappedObject
 {
-    get name():string {return this.GetString(0);}
+    // First 4 elements are reserved for 128-bit index
+    abstract MatchSearchText(query:SearchQuery):boolean;
+}
+
+abstract class RecipeObject extends SearchableObject
+{
+    get name():string {return this.GetString(4);}
 }
 
 export abstract class Goods extends RecipeObject
 {
-    get id(): string {return this.GetString(1);}
-    get mod(): string {return this.GetString(2);}
-    get internalName(): string {return this.GetString(3);}
-    get numericId(): number {return this.GetInt(4);}
-    get iconId(): number {return this.GetInt(5);}
-    get tooltip(): string | null {return this.GetString(6);}
-    get unlocalizedName(): string {return this.GetString(7);}
-    get nbt(): string | null {return this.GetString(8);}
-    get production(): Int32Array {return this.GetSlice(9);}
-    get consumption(): Int32Array {return this.GetSlice(10);}
+    get id(): string {return this.GetString(5);}
+    get mod(): string {return this.GetString(6);}
+    get internalName(): string {return this.GetString(7);}
+    get numericId(): number {return this.GetInt(8);}
+    get iconId(): number {return this.GetInt(9);}
+    get tooltip(): string | null {return this.GetString(10);}
+    get unlocalizedName(): string {return this.GetString(11);}
+    get nbt(): string | null {return this.GetString(12);}
+    get production(): Int32Array {return this.GetSlice(13);}
+    get consumption(): Int32Array {return this.GetSlice(14);}
 
     abstract get tooltipDebugInfo():string;
+
+    MatchSearchText(query: SearchQuery): boolean {
+        return query.Match(this.name) || query.Match(this.tooltip);
+    }
 }
 
 export class Item extends Goods
 {
-    get stackSize():number {return this.GetInt(11);}
-    get damage():number {return this.GetInt(12);}
-    get fluid():Fluid | null {return this.GetObject(13, Fluid);}
-    get fluidAmount():number {return this.GetInt(14);}
+    get stackSize():number {return this.GetInt(15);}
+    get damage():number {return this.GetInt(16);}
+    get fluid():Fluid | null {return this.GetObject(17, Fluid);}
+    get fluidAmount():number {return this.GetInt(18);}
     
     get tooltipDebugInfo(): string {
         var baseInfo = `${this.mod}:${this.internalName} (${this.numericId}:${this.damage})`;
@@ -132,8 +166,8 @@ export class Item extends Goods
 
 export class Fluid extends Goods
 {
-    get isGas():boolean {return this.GetInt(11) === 1;}
-    get containers():Int32Array {return this.GetSlice(12);}
+    get isGas():boolean {return this.GetInt(15) === 1;}
+    get containers():Int32Array {return this.GetSlice(16);}
     get tooltipDebugInfo(): string {
         return `${this.mod}:${this.internalName} (${this.numericId})`;
     }
@@ -141,16 +175,46 @@ export class Fluid extends Goods
 
 class OreDict extends RecipeObject
 {
-    get items():Int32Array {return this.GetSlice(1);}
+    get items():Int32Array {return this.GetSlice(5);}
+    MatchSearchText(query: SearchQuery): boolean
+    {
+        var items = this.items;
+        for (var i = 0; i < items.length; i++) {
+            var ptr = items[i];
+            if (repository.ObjectMatchQueryBits(query, ptr) && repository.GetObject(ptr, Item).MatchSearchText(query))
+                return true;
+        }
+        return false;
+    }
 }
 
-class RecipeType extends MemMappedObject
+export class RecipeType extends MemMappedObject
 {
     get name():string {return this.GetString(0);}
     get category():string {return this.GetString(1);}
     get dimensions():Int32Array {return this.GetSlice(2);}
     get craftItems():Int32Array {return this.GetSlice(3);}
     get shapeless():boolean {return this.GetInt(4) === 1;}
+
+    CalculateWidth():number
+    {
+        var dims = this.dimensions;
+        return Math.max(dims[0] + dims[2]) + Math.max(dims[4] + dims[6]) + 3;
+    }
+
+    CalculateHeight(recipe:Recipe):number
+    {
+        var dims = this.dimensions;
+        var h = Math.max(dims[1] + dims[3], dims[5] + dims[7]) + 1;
+        var gtRecipe = recipe.gtRecipe;
+        if (gtRecipe != null)
+        {
+            h++;
+            if (gtRecipe.additionalInfo !== null)
+                h++;
+        }
+        return h;
+    }
 }
 
 class GtRecipe extends MemMappedObject
@@ -177,6 +241,7 @@ enum RecipeIoType
 type RecipeInOut =
 {
     type: RecipeIoType;
+    goodsPtr: number;
     goods: RecipeObject;
     slot: number;
     amount: number;
@@ -185,31 +250,50 @@ type RecipeInOut =
 
 const RecipeIoTypePrototypes:IMemMappedObjectPrototype<RecipeObject>[] = [Item, OreDict, Fluid, Item, Fluid];
 
-class Recipe extends MemMappedObject
+export class Recipe extends SearchableObject
 {
-    get recipeType():RecipeType {return this.GetObject(1, RecipeType) as RecipeType;}
-    get gtRecipe():GtRecipe {return this.GetObject(2, GtRecipe)}
+    readonly recipeType:RecipeType = this.GetObject(5, RecipeType);
+    get gtRecipe():GtRecipe {return this.GetObject(6, GtRecipe)}
     private computedIo:RecipeInOut[] | undefined;
 
     get items():RecipeInOut[] { return this.computedIo ?? (this.computedIo = this.ComputeItems());}
 
     private ComputeItems():RecipeInOut[]
     {
-        var slice = this.GetSlice(0);
+        var slice = this.GetSlice(4);
         var elements = slice.length / 5;
         var result:RecipeInOut[] = new Array(elements);
         var index = 0;
         for(var i=0; i<elements; i++) {
-            var type:RecipeIoType = this.repository.elements[index++];
+            var type:RecipeIoType = slice[index++];
+            var ptr = slice[index++];
             result[i] = {
                 type:type, 
-                goods:this.repository.GetObject<RecipeObject>(index++, RecipeIoTypePrototypes[type]),
-                slot: this.repository.elements[index++],
-                amount: this.repository.elements[index++],
-                probability: this.repository.elements[index++] / 100,
+                goodsPtr: ptr,
+                goods:this.repository.GetObject<RecipeObject>(ptr, RecipeIoTypePrototypes[type]),
+                slot: slice[index++],
+                amount: slice[index++],
+                probability: slice[index++] / 100,
             }
         }
         return result;
+    }
+
+    MatchSearchText(query: SearchQuery): boolean 
+    {
+        var slice = this.GetSlice(4);
+        var count = slice.length / 5;
+        for (var i=0; i<count; i++) 
+        {
+            var pointer = slice[i*5+1];
+            if (!repository.ObjectMatchQueryBits(query, pointer))
+                continue;
+            var objType = RecipeIoTypePrototypes[slice[i*5]];
+            var obj = this.repository.GetObject<RecipeObject>(pointer, objType);
+            if (obj.MatchSearchText(query))
+                return true;
+        }
+        return false;
     }
 }
 

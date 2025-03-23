@@ -1,6 +1,6 @@
 @font-face {
     font-family:'Minecraftia';
-    src: url('./../fonts/MinecraftiaRegular.ttf');
+    src: url('./../fonts/F77MinecraftRegular-0VYv.ttf');
 }
 
 body {
@@ -12,6 +12,31 @@ body {
     font-size: 16px;
     line-height: 1.5;
     overflow: hidden;
+    color: #3F3F3F;
+    word-break: break-word;
+}
+
+input {
+    font-family:'Minecraftia', sans-serif;
+    font-size: 16px;
+    line-height: 8px;
+    color: white;
+    text-shadow: 2px 2px #342C34;
+}
+
+input:focus {
+    outline: none;
+}
+
+.hgroup
+{
+    display: flex;
+    width: 100%;
+    align-items: center; 
+}
+
+input::placeholder {
+    color:#B3B3B3;
 }
 
 .text-count {
