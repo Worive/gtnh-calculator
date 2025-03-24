@@ -71,12 +71,21 @@ export class Repository
 
     GetObjectIfMatchingSearch<T extends SearchableObject>(query:SearchQuery | null, pointer:number, prototype:IMemMappedObjectPrototype<T>):T | null
     {
-        if (query == null)
+        if (query === null)
             return this.GetObject(pointer, prototype);
         if (!this.ObjectMatchQueryBits(query, pointer))
             return null;
         var inst = this.GetObject(pointer, prototype);
         return inst.MatchSearchText(query) ? inst : null;
+    }
+
+    IsObjectMatchingSearch(obj:SearchableObject, query:SearchQuery | null):boolean
+    {
+        if (query === null)
+            return true;
+        if (!this.ObjectMatchQueryBits(query, obj.objectOffset))
+            return false;
+        return obj.MatchSearchText(query);
     }
 }
 
@@ -195,26 +204,6 @@ export class RecipeType extends MemMappedObject
     get dimensions():Int32Array {return this.GetSlice(2);}
     get craftItems():Int32Array {return this.GetSlice(3);}
     get shapeless():boolean {return this.GetInt(4) === 1;}
-
-    CalculateWidth():number
-    {
-        var dims = this.dimensions;
-        return Math.max(dims[0] + dims[2]) + Math.max(dims[4] + dims[6]) + 3;
-    }
-
-    CalculateHeight(recipe:Recipe):number
-    {
-        var dims = this.dimensions;
-        var h = Math.max(dims[1] + dims[3], dims[5] + dims[7]) + 1;
-        var gtRecipe = recipe.gtRecipe;
-        if (gtRecipe != null)
-        {
-            h++;
-            if (gtRecipe.additionalInfo !== null)
-                h++;
-        }
-        return h;
-    }
 }
 
 class GtRecipe extends MemMappedObject
@@ -225,11 +214,11 @@ class GtRecipe extends MemMappedObject
     get amperage():number {return this.GetInt(2);}
     get voltageTier():number {return this.GetInt(3);}
     get cleanRoom():boolean {return (this.GetInt(4) & 1) === 1;}
-    get lowGravity():boolean {return (this.GetInt(4) & 2) === 1;}
+    get lowGravity():boolean {return (this.GetInt(4) & 2) === 2;}
     get additionalInfo():string {return this.GetString(5);}
 }
 
-enum RecipeIoType
+export enum RecipeIoType
 {
     ItemInput = 0,
     OreDictInput,
@@ -238,7 +227,7 @@ enum RecipeIoType
     FluidOutput
 }
 
-type RecipeInOut =
+export type RecipeInOut =
 {
     type: RecipeIoType;
     goodsPtr: number;

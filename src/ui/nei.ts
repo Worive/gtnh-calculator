@@ -1,8 +1,7 @@
-import { GetScrollbarWidth } from "../utils.js";
-import { Goods, Fluid, Item, Repository, IMemMappedObjectPrototype, Recipe, RecipeType } from "../data/repository.js";
-import { IconBox } from "./iconBox.js";
+import { GetScrollbarWidth, voltageTier } from "../utils.js";
+import { Goods, Fluid, Item, Repository, IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, RecipeInOut } from "../data/repository.js";
+import { IconBox } from "./itemIcon.js";
 import { SearchQuery } from "../data/searchQuery.js";
-import { RecipeBox } from "./recipeBox.js";
 
 const repository = Repository.current;
 const nei = document.getElementById("nei")!;
@@ -15,7 +14,7 @@ searchBox.addEventListener("input", SearchChanged);
 neiScrollBox.addEventListener("scroll", UpdateVisibleItems);
 
 let unitWidth = 0, unitHeight = 0;
-const scrollWidth = GetScrollbarWidth();
+let scrollWidth = GetScrollbarWidth();
 window.addEventListener("resize", Resize);
 
 type NeiFiller = (grid:NeiGrid, search : SearchQuery | null, recipes:NeiRecipeMap) => void;
@@ -24,6 +23,117 @@ class ItemAllocator implements NeiRowAllocator<Goods>
 {
     CalculateWidth(): number { return 1; }
     CalculateHeight(obj: Goods): number { return 1; }
+    BuildRowDom(elements:Goods[], elementWidth:number, elementHeight:number, rowY:number):string
+    {
+        var dom:string[] = [];
+        dom.push(`<div class="nei-items-row icon-grid" style="--grid-width:${elements.length}; top:${elementSize*rowY}px">`);
+        for (var i=0; i<elements.length; i++) {
+            var elem = elements[i];
+            var ptr = elements instanceof Item ? elem.objectOffset : -elem.objectOffset;
+            dom.push(`<item-icon style="--grid-position:${i}; --icon-id:${elem.iconId}" data-obj="${ptr}"></item-icon>`);
+        }
+        dom.push(`<\div>`);
+        return dom.join("");
+    }
+}
+
+class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
+{
+    type:RecipeType;
+    dimensions:Int32Array;
+
+    constructor(type:RecipeType)
+    {
+        super();
+        this.type = type;
+        this.dimensions = type.dimensions;
+    }
+
+    CalculateWidth():number
+    {
+        var dims = this.dimensions;
+        return Math.max(dims[0] + dims[2]) + Math.max(dims[4] + dims[6]) + 3;
+    }
+
+    CalculateHeight(recipe:Recipe):number
+    {
+        var dims = this.dimensions;
+        var h = Math.max(dims[1] + dims[3], dims[5] + dims[7]) + 1;
+        var gtRecipe = recipe.gtRecipe;
+        if (gtRecipe != null)
+        {
+            h++;
+            if (gtRecipe.additionalInfo !== null)
+                h++;
+        }
+        return h;
+    }
+
+    BuildRecipeItemGrid(dom:string[], items:RecipeInOut[], index:number, type:RecipeIoType, dimensionOffset:number):number
+    {
+        var dimX = this.dimensions[dimensionOffset];
+        if (dimX == 0)
+            return index;
+        var dimY = this.dimensions[dimensionOffset + 1];
+        dom.push(`<div class="icon-grid" style="--grid-width: ${dimX}; --grid-height: ${dimY}">`);
+        for (;index<items.length;index++) {
+            var item = items[index];
+            if (item.type > type)
+                break;
+            var goods = item.goods;
+            if (goods instanceof Goods) {
+                var isItem = goods instanceof Item;
+                var ptr = isItem ? item.goodsPtr : -item.goodsPtr;
+                dom.push(`<item-icon style="--grid-position:${item.slot}; --icon-id:${goods.iconId}" data-obj="${ptr}">`);
+                if (!isItem || item.amount != 1)
+                    dom.push(`<span class="${isItem && item.amount > 0 ? "item-amount" : "item-amount-small"}">${item.amount == 0 ? "NC" : item.amount}</span>`)
+                dom.push(`</item-icon>`);
+            }
+        }
+        dom.push(`</div>`);
+        return index;
+    }
+
+    BuildRecipeIoDom(dom:string[], items:RecipeInOut[], index:number, item:RecipeIoType, fluid:RecipeIoType, dimensionOffset:number):number
+    {
+        dom.push(`<div class = "nei-recipe-items">`);
+        index = this.BuildRecipeItemGrid(dom, items, index, item, dimensionOffset);
+        index = this.BuildRecipeItemGrid(dom, items, index, fluid, dimensionOffset+2);
+        dom.push(`</div>`);
+        return index;
+    }
+
+    BuildRowDom(elements:Recipe[], elementWidth:number, elementHeight:number, rowY:number):string
+    {
+        let dom:string[] = [];
+        for (let i=0; i<elements.length; i++) {
+            let recipe = elements[i];
+            let recipeItems = recipe.items;
+            dom.push(`<div class="nei-recipe-box" style="left:${Math.round(i * elementWidth * elementSize)}px; top:${rowY*elementSize}px; width:${Math.round(elementWidth*elementSize)}px; height:${elementHeight*elementSize}px">`);
+            dom.push(`<div class="nei-recipe-io">`);
+            let index = this.BuildRecipeIoDom(dom, recipeItems, 0, RecipeIoType.ItemInput, RecipeIoType.FluidInput, 0);
+            dom.push(`<div class="arrow"></div>`);
+            this.BuildRecipeIoDom(dom, recipeItems, index, RecipeIoType.ItemOutput, RecipeIoType.FluidOutput, 4);
+            dom.push(`</div>`);
+            if (recipe.gtRecipe != null) {
+                dom.push(`<span>${voltageTier[recipe.gtRecipe.voltageTier].name} • ${recipe.gtRecipe.durationSeconds}s`);
+                if (recipe.gtRecipe.cleanRoom)
+                    dom.push(` • Cleanroom`);
+                if (recipe.gtRecipe.lowGravity)
+                    dom.push(` • Low gravity`);
+                if (recipe.gtRecipe.amperage != 1)
+                    dom.push(` • ${recipe.gtRecipe.amperage}A`);
+                dom.push(`</span><span class="text-small">${recipe.gtRecipe.voltage}v • ${recipe.gtRecipe.voltage * recipe.gtRecipe.amperage * recipe.gtRecipe.durationTicks}eu</span>`);
+                if (recipe.gtRecipe.additionalInfo != null) {
+                    dom.push(`<span class="text-small">`);
+                    dom.push(recipe.gtRecipe.additionalInfo);
+                    dom.push(`</span>`);
+                }
+            }
+            dom.push(`</div>`);
+        }
+        return dom.join("");
+    }
 }
 
 let itemAllocator = new ItemAllocator();
@@ -49,9 +159,11 @@ var FillNeiAllRecipes:NeiFiller = function(grid:NeiGrid, search : SearchQuery | 
     for (const recipeType of allRecipeTypes) {
         var list = recipes[recipeType.name];
         if (list.length >= 0) {
-            let allocator = grid.BeginAllocation(recipeType)
-            for (let i=0; i<list.length; i++)
-                allocator.Add(list[i]);
+            let allocator = grid.BeginAllocation(list)
+            for (let i=0; i<list.length; i++) {
+                if (search == null || repository.IsObjectMatchingSearch(list[i], search))
+                    allocator.Add(list[i]);
+            }
         }
     }
 }
@@ -61,9 +173,10 @@ function FillNeiSpecificRecipes(recipeType:RecipeType) : NeiFiller
     return function(grid:NeiGrid, search : SearchQuery | null, recipes:NeiRecipeMap)
     {
         var list = recipes[recipeType.name];
-        let allocator = grid.BeginAllocation(recipeType)
+        let allocator = grid.BeginAllocation(list)
         for (let i=0; i<list.length; i++)
-            allocator.Add(list[i]);
+            if (search == null || repository.IsObjectMatchingSearch(list[i], search))
+                allocator.Add(list[i]);
     }
 }
 
@@ -75,7 +188,7 @@ function SearchChanged()
     RefreshNeiContents();
 }
 
-type NeiRecipeMap = {[type:string]: Recipe[]};
+type NeiRecipeMap = {[type:string]: NeiRecipeTypeInfo};
 const mapRecipeTypeToRecipeList:NeiRecipeMap = {};
 let allRecipeTypes:RecipeType[];
 let filler:NeiFiller = FillNeiAllItems;
@@ -87,7 +200,7 @@ let search:SearchQuery | null = null;
     for (var i=0; i<allRecipeTypePointers.length; i++)
     {
         var recipeType = repository.GetObject(allRecipeTypePointers[i], RecipeType);
-        mapRecipeTypeToRecipeList[recipeType.name] = [];
+        mapRecipeTypeToRecipeList[recipeType.name] = new NeiRecipeTypeInfo(recipeType);
         allRecipeTypes[i] = recipeType;
     }
 }
@@ -104,9 +217,11 @@ export function ShowNei(goods:Goods | null, mode:ShowNeiMode)
     for (var i=0; i<pointerList.length; i++) {
         var recipe = repository.GetObject(pointerList[i], Recipe);
         var recipeType = recipe.recipeType;
-        var list:Recipe[] = (mapRecipeTypeToRecipeList[recipeType.name] ??= []);
+        var list = mapRecipeTypeToRecipeList[recipeType.name];
         list.push(recipe);
     }
+    search = null;
+    searchBox.value = "";
 
     filler = goods === null ? FillNeiAllItems : FillNeiAllRecipes;
     Resize();
@@ -118,6 +233,7 @@ interface NeiRowAllocator<T extends NeiGridContents>
 {
     CalculateWidth():number;
     CalculateHeight(obj:T):number;
+    BuildRowDom(elements:T[], elementWidth:number, elementHeight:number, rowY:number):string;
 }
 
 class NeiGridRow
@@ -150,7 +266,7 @@ interface NeiGridAllocator<T extends NeiGridContents>
     Add(element:T):void;
 }
 
-class NeiGrid
+class NeiGrid implements NeiGridAllocator<any>
 {
     rows:NeiGridRow[] = [];
     rowCount:number = 0;
@@ -178,7 +294,7 @@ class NeiGrid
         this.allocator = allocator;
         this.elementWidth = allocator.CalculateWidth();
         this.elementsPerRow = Math.max(1, Math.trunc(this.width/this.elementWidth));
-        this.elementWidth = this.width / this.elementsPerRow;
+        //this.elementWidth = this.width / this.elementsPerRow;
         return this;
     }
 
@@ -207,6 +323,9 @@ class NeiGrid
         var row = this.currentRow;
         if (row === null || row.elements.length >= this.elementsPerRow)
             row = this.NextRow();
+        var height = this.allocator?.CalculateHeight(element) ?? 1;
+        if (row.height < height)
+            row.height = height;
         row.elements.push(element);
     }
 }
@@ -215,69 +334,55 @@ function Resize()
 {
     var newUnitWidth = Math.round((window.innerWidth - 120 - scrollWidth) / elementSize);
     var newUnitHeight = Math.round((window.innerHeight - 160) / elementSize);
+    var widthRemainder = window.innerWidth - newUnitWidth;
     if (newUnitWidth !== unitWidth || newUnitHeight !== unitHeight)
     {
         unitWidth = newUnitWidth;
         unitHeight = newUnitHeight;
-        neiScrollBox.style.width = `${unitWidth * elementSize + scrollWidth}px`;
-        neiScrollBox.style.height = `${unitHeight * elementSize}px`;
+        var windowWidth = unitWidth * elementSize + scrollWidth;
+        var windowHeight = unitHeight * elementSize;
+        if ((window.innerWidth - windowWidth) % 2 == 1)
+            windowWidth++;
+        if ((window.innerWidth - windowHeight) % 2 == 1)
+            windowHeight++;
+        neiScrollBox.style.width = `${windowWidth}px`;
+        neiScrollBox.style.height = `${windowHeight}px`;
     }
     RefreshNeiContents();
 }
 
 let grid = new NeiGrid();
+let maxVisibleRow = 0;
 function RefreshNeiContents()
 {
     grid.Clear(unitWidth);
     filler(grid, search, mapRecipeTypeToRecipeList);
     grid.FinishRow();
     neiContent.style.minHeight = `${grid.height*elementSize}px`
+    maxVisibleRow = 0;
+    neiContent.innerHTML = "";
+    
     UpdateVisibleItems();
 }
 
 function UpdateVisibleItems()
 {
-    neiContent.innerHTML = "";
     var top = Math.floor(neiScrollBox.scrollTop/elementSize);
     var bottom = top + unitHeight + 1;
-    for (var i=0; i<grid.rowCount; i++) {
+    for (var i=maxVisibleRow; i<grid.rowCount; i++) {
         var row = grid.rows[i];
-        if (row.y > bottom || row.y + row.height <= top)
-            continue;
+        if (row.y >= bottom)
+            return;
         FillDomWithGridRow(row);
+        maxVisibleRow = i+1;
     }
 }
 
 function FillDomWithGridRow(row: NeiGridRow)
 {
-    let rawLeft = 0;
-    let left = 0;
-    for (var i=0; i<row.elements.length; i++) {
-        let rawRight = rawLeft + row.elementWidth;
-        let right = Math.round(rawRight);
-        AddDomElement(left, row.y, right-left, row.height, row.elements[i]);
-        left = right;
-        rawLeft = rawRight;
-    }
-}
-
-function AddDomElement(x:number, y:number, width:number, height:number, element:NeiGridContents)
-{
-    let addedElement:HTMLElement;
-    if (element instanceof Goods) {
-        let itemBox = document.createElement("icon-box") as IconBox;
-        itemBox.SetGoods(element);
-        addedElement = itemBox;
-    } else {
-        let recipeBox = document.createElement("recipe-box") as RecipeBox;
-        recipeBox.SetRecipe(element);
-        addedElement = recipeBox;
-    }
-    let style = addedElement.style;
-    style.position = "absolute";
-    style.left = `${x*elementSize}px`;
-    style.top = `${y*elementSize}px`;
-    style.width = `${width*elementSize}px`;
-    style.height = `${height*elementSize}px`;
-    neiContent.append(addedElement);
+    var allocator = row.allocator;
+    if (allocator == null)
+        return;
+    var dom = allocator.BuildRowDom(row.elements, row.elementWidth, row.height, row.y);
+    neiContent.insertAdjacentHTML("beforeend", dom);
 }

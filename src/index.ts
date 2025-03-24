@@ -1,6 +1,6 @@
 import "./data/repository.js";
 import "./ui/recipeBox.js";
-import "./ui/iconBox.js";
+import "./ui/itemIcon.js";
 import "./ui/tooltip.js";
 import "./ui/nei.js";
 import { ShowNei, ShowNeiMode } from "./ui/nei.js";
