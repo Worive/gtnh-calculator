@@ -119,6 +119,17 @@ item-icon {
     pointer-events: none;
 }
 
+.probability
+{
+    position: absolute;
+    top: -5px;
+    right: 1px;
+    font-size: 8px;
+    color: #FFD700;
+    text-shadow: 1px 1px #342C34;
+    pointer-events: none;
+}
+
 p {
     margin: 0.5em 0;
 }

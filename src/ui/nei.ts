@@ -56,7 +56,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
     CalculateWidth():number
     {
         var dims = this.dimensions;
-        return Math.max(dims[0] + dims[2]) + Math.max(dims[4] + dims[6]) + 3;
+        return Math.max(dims[0], dims[2]) + Math.max(dims[4], dims[6]) + 3;
     }
 
     CalculateHeight(recipe:Recipe):number
@@ -79,14 +79,20 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
         if (dimX == 0)
             return index;
         var dimY = this.dimensions[dimensionOffset + 1];
+        var count = dimX * dimY;
         dom.push(`<div class="icon-grid" style="--grid-width: ${dimX}; --grid-height: ${dimY}">`);
         for (;index<items.length;index++) {
             var item = items[index];
             if (item.type > type)
                 break;
+            if (item.slot >= count)
+                continue;
             var goods = item.goods;
             var iconAttrs = `style="--grid-position:${item.slot}" data-obj="${item.goodsPtr}"`;
-            var amountText = item.amount == 0 ? "NC" : item.amount;
+            var amountText = item.amount == 0 ? "NC" : 
+                           item.amount <= 100000 ? item.amount :
+                           item.amount <= 10000000 ? Math.round(item.amount/1000) + "K" :
+                           Math.round(item.amount/1000000) + "M";
             
             var isFluid = goods instanceof Fluid;
             var isGoods = goods instanceof Goods;
@@ -95,6 +101,8 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
             dom.push(`<item-icon ${iconAttrs} data-type="${iconType}">`);
             if (isFluid || item.amount != 1)
                 dom.push(`<span class="${amountClass}">${amountText}</span>`);
+            if (item.probability < 1 && (type == RecipeIoType.ItemOutput || type == RecipeIoType.FluidOutput))
+                dom.push(`<span class="probability">${Math.round(item.probability*100)}%</span>`);
             dom.push(`</item-icon>`);
         }
         dom.push(`</div>`);
