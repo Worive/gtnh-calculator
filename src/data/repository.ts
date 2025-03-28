@@ -184,7 +184,7 @@ export class Fluid extends Goods
     }
 }
 
-class OreDict extends RecipeObject
+export class OreDict extends RecipeObject
 {
     get items():Int32Array {return this.GetSlice(5);}
     MatchSearchText(query: SearchQuery): boolean

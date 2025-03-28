@@ -1,6 +1,6 @@
 import { Goods } from "../data/repository.js";
 
-var currentTooltipElement:HTMLElement | undefined;
+export var currentTooltipElement:HTMLElement | undefined;
 const tooltip = document.getElementById("tooltip")!;
 const tooltipHeader = tooltip.querySelector("#tooltip-header") as HTMLElement;
 const tooltipDebugInfo = tooltip.querySelector("#tooltip-debug") as HTMLElement;
@@ -61,4 +61,9 @@ export function HideTooltip(target:HTMLElement)
         return;
     currentTooltipElement = undefined;
     tooltip.style.display = "none";
+}
+
+export function IsHovered(obj:HTMLElement):boolean
+{
+    return currentTooltipElement === obj;
 }

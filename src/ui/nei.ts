@@ -92,7 +92,10 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
                     dom.push(`<span class="${isItem && item.amount > 0 ? "item-amount" : "item-amount-small"}">${item.amount == 0 ? "NC" : item.amount}</span>`)
                 dom.push(`</item-icon>`);
             } else {
-                
+                dom.push(`<item-icon style="--grid-position:${item.slot}" data-obj="${item.goodsPtr}" data-type="oredict">`);
+                if (item.amount != 1)
+                    dom.push(`<span class="item-amount-small">${item.amount == 0 ? "NC" : item.amount}</span>`)
+                dom.push(`</item-icon>`);
             }
         }
         dom.push(`</div>`);
@@ -116,7 +119,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
             let recipeItems = recipe.items;
             dom.push(`<div class="nei-recipe-box" style="left:${Math.round(i * elementWidth * elementSize)}px; top:${rowY*elementSize}px; width:${Math.round(elementWidth*elementSize)}px; height:${elementHeight*elementSize}px">`);
             dom.push(`<div class="nei-recipe-io">`);
-            let index = this.BuildRecipeIoDom(dom, recipeItems, 0, RecipeIoType.ItemInput, RecipeIoType.FluidInput, 0);
+            let index = this.BuildRecipeIoDom(dom, recipeItems, 0, RecipeIoType.OreDictInput, RecipeIoType.FluidInput, 0);
             dom.push(`<div class="arrow"></div>`);
             this.BuildRecipeIoDom(dom, recipeItems, index, RecipeIoType.ItemOutput, RecipeIoType.FluidOutput, 4);
             dom.push(`</div>`);
