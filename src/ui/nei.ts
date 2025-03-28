@@ -241,7 +241,20 @@ export enum ShowNeiMode
     Production, Consumption
 }
 
-export function ShowNei(goods:Goods | null, mode:ShowNeiMode)
+export enum ShowNeiContext
+{
+    None, Click, SelectRecipe, SelectGoods
+}
+
+export type ShowNeiCallback
+{
+    canSelectGoods():boolean;
+    canSelectRecipe():boolean;
+    onSelectGoods(goods:Goods):void;
+    onSelectRecipe(recipe:Recipe):void;
+}
+
+export function ShowNei(goods:Goods | null, mode:ShowNeiMode, callback:ShowNeiCallback | null = null)
 {
     nei.style.display = "block";
     currentGoods = goods;

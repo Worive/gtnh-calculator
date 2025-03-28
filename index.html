@@ -8,9 +8,39 @@
     <link rel="stylesheet" href="./assets/styles/nei.css">
     <link rel="stylesheet" href="./assets/styles/tabs.css">
     <link rel="stylesheet" href="./assets/styles/tooltip.css">
+    <link rel="stylesheet" href="./assets/styles/recipe-list.css">
 </head>
 <body>
     <script type="module" src="./dist/index.js"></script>
+
+    <!-- Recipe List Panel -->
+    <div id="recipe-list" class="scroll-area">
+        <div class="recipe-list-header">
+            <div class="recipe-list-title">Recipe List</div>
+            <div class="recipe-list-controls">
+                <button class="recipe-list-add">Add Recipe</button>
+            </div>
+        </div>
+        
+        <div class="recipe-list-content">
+            <!-- Products Section -->
+            <div class="products-section">
+                <div class="section-title">Products</div>
+                <div class="products-grid">
+                    <!-- Product items will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Recipes Section -->
+            <div class="recipes-section">
+                <div class="section-title">Recipes</div>
+                <div class="recipes-list">
+                    <!-- Recipe items will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="panels">
         <div id="loading" class="panel">LOADING...</div>
 
