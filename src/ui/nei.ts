@@ -2,13 +2,17 @@ import { GetScrollbarWidth, voltageTier } from "../utils.js";
 import { Goods, Fluid, Item, Repository, IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, RecipeInOut } from "../data/repository.js";
 import { IconBox } from "./itemIcon.js";
 import { SearchQuery } from "../data/searchQuery.js";
+import { ShowTooltip, HideTooltip } from "./tooltip.js";
 
 const repository = Repository.current;
 const nei = document.getElementById("nei")!;
 const neiScrollBox = nei.querySelector("#nei-scroll") as HTMLElement;
 const neiContent = nei.querySelector("#nei-content") as HTMLElement;
 const searchBox = nei.querySelector("#nei-search") as HTMLInputElement;
+const neiTabs = nei.querySelector("#nei-tabs") as HTMLElement;
 const elementSize = 36;
+
+let currentGoods: Goods | null = null;
 
 searchBox.addEventListener("input", SearchChanged);
 neiScrollBox.addEventListener("scroll", UpdateVisibleItems);
@@ -213,17 +217,34 @@ export enum ShowNeiMode
 export function ShowNei(goods:Goods | null, mode:ShowNeiMode)
 {
     nei.style.display = "block";
+    currentGoods = goods;
+    
     var pointerList = goods == null ? [] : mode == ShowNeiMode.Production ? goods.production : goods.consumption;
+    
+    // Clear all recipe lists first
+    for (const recipeType of allRecipeTypes) {
+        mapRecipeTypeToRecipeList[recipeType.name].length = 0;
+    }
+    
+    // Fill recipe lists
     for (var i=0; i<pointerList.length; i++) {
         var recipe = repository.GetObject(pointerList[i], Recipe);
         var recipeType = recipe.recipeType;
         var list = mapRecipeTypeToRecipeList[recipeType.name];
         list.push(recipe);
     }
+    
     search = null;
     searchBox.value = "";
 
+    // Update tab visibility
+    updateTabVisibility();
+
+    // Update filler and switch to appropriate tab
     filler = goods === null ? FillNeiAllItems : FillNeiAllRecipes;
+    const newTabIndex = goods === null ? 0 : 1;
+    switchTab(newTabIndex);
+    
     Resize();
 }
 
@@ -386,3 +407,79 @@ function FillDomWithGridRow(row: NeiGridRow)
     var dom = allocator.BuildRowDom(row.elements, row.elementWidth, row.height, row.y);
     neiContent.insertAdjacentHTML("beforeend", dom);
 }
+
+// Tab management
+interface NeiTab {
+    name: string;
+    filler: NeiFiller;
+    iconId: number;
+    isVisible(): boolean;
+}
+
+const tabs: NeiTab[] = [
+    { 
+        name: "All Items", 
+        filler: FillNeiAllItems, 
+        iconId: 0,
+        isVisible: () => true // Always visible
+    },
+    { 
+        name: "All Recipes", 
+        filler: FillNeiAllRecipes, 
+        iconId: 1,
+        isVisible: () => currentGoods !== null // Visible only when viewing recipes
+    }
+];
+
+// Add tabs for each recipe type
+allRecipeTypes.forEach(recipeType => {
+    tabs.push({
+        name: recipeType.name,
+        filler: FillNeiSpecificRecipes(recipeType),
+        iconId: 2,
+        isVisible: () => mapRecipeTypeToRecipeList[recipeType.name].length > 0
+    });
+});
+
+let activeTabIndex = 0;
+
+function createTabs() {
+    neiTabs.innerHTML = '';
+    tabs.forEach((tab, index) => {
+        const tabElement = document.createElement('div');
+        tabElement.className = 'panel-tab';
+        tabElement.innerHTML = `<icon class="icon" style="--icon-id:${tab.iconId}"></icon>`;
+        tabElement.addEventListener('click', () => switchTab(index));
+        tabElement.addEventListener('mouseenter', () => ShowTooltip(tabElement, tab.name));
+        tabElement.addEventListener('mouseleave', () => HideTooltip(tabElement));
+        neiTabs.appendChild(tabElement);
+    });
+    // Set initial active tab
+    neiTabs.children[0]?.classList.add('active');
+}
+
+function updateTabVisibility() {
+    tabs.forEach((tab, index) => {
+        const tabElement = neiTabs.children[index] as HTMLElement;
+        if (tabElement) {
+            tabElement.style.display = tab.isVisible() ? '' : 'none';
+        }
+    });
+}
+
+function switchTab(index: number) {
+    if (index === activeTabIndex) return;
+    
+    // Update active state
+    neiTabs.children[activeTabIndex]?.classList.remove('active');
+    neiTabs.children[index]?.classList.add('active');
+    activeTabIndex = index;
+    
+    // Update filler and refresh content
+    filler = tabs[index].filler;
+    RefreshNeiContents();
+}
+
+// Initialize tabs
+createTabs();
+
