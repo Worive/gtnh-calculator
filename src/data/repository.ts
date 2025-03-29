@@ -2,7 +2,7 @@ import { SearchQuery } from "./searchQuery.js";
 
 const charCodeItem = "i".charCodeAt(0);
 const charCodeFluid = "f".charCodeAt(0);
-
+const charCodeRecipe = "r".charCodeAt(0);
 export class Repository
 {
     static current:Repository;
@@ -14,6 +14,7 @@ export class Repository
     items:Int32Array;
     fluids:Int32Array;
     recipeTypes:Int32Array;
+    recipes:Int32Array;
     oreDicts:Int32Array;
     service:Int32Array;
 
@@ -28,10 +29,12 @@ export class Repository
         this.fluids = this.GetSlice(this.elements[1]);
         this.oreDicts = this.GetSlice(this.elements[2]);
         this.recipeTypes = this.GetSlice(this.elements[3]);
-        this.service = this.GetSlice(this.elements[4]);
+        this.recipes = this.GetSlice(this.elements[4]);
+        this.service = this.GetSlice(this.elements[5]);
         this.FillObjectPositionMap(this.items);
         this.FillObjectPositionMap(this.fluids);
         this.FillObjectPositionMap(this.oreDicts);
+        this.FillObjectPositionMap(this.recipes);
     }
 
     private FillObjectPositionMap(elements:Int32Array) {
@@ -41,11 +44,11 @@ export class Repository
         }
     }
 
-    public GetGoodsById(id:string):RecipeObject
+    public GetById<T extends SearchableObject>(id:string):T
     {
         var idCode = id.charCodeAt(0);
-        var type:IMemMappedObjectPrototype<RecipeObject> = idCode == charCodeItem ? Item : idCode == charCodeFluid ? Fluid : OreDict;
-        return this.GetObject(this.objectPositionMap[id], type);
+        var type:IMemMappedObjectPrototype<SearchableObject> = idCode == charCodeItem ? Item : idCode == charCodeFluid ? Fluid : idCode == charCodeRecipe ? Recipe : OreDict;
+        return this.GetObject(this.objectPositionMap[id], type) as T;
     }
 
     public ObjectMatchQueryBits(query:SearchQuery, pointer:number):boolean
@@ -154,14 +157,12 @@ class MemMappedObject
 
 abstract class SearchableObject extends MemMappedObject
 {
-    // First 4 elements are reserved for 128-bit index
+    // Elements 0-3 are reserved for 128-bit index
     abstract MatchSearchText(query:SearchQuery):boolean;
-}
-
-abstract class RecipeObject extends SearchableObject
-{
     get id():string {return this.GetString(4);}
 }
+
+export abstract class RecipeObject extends SearchableObject{}
 
 export abstract class Goods extends RecipeObject
 {
@@ -267,15 +268,15 @@ const RecipeIoTypePrototypes:IMemMappedObjectPrototype<RecipeObject>[] = [Item, 
 
 export class Recipe extends SearchableObject
 {
-    readonly recipeType:RecipeType = this.GetObject(5, RecipeType);
-    get gtRecipe():GtRecipe {return this.GetObject(6, GtRecipe)}
+    readonly recipeType:RecipeType = this.GetObject(6, RecipeType);
+    get gtRecipe():GtRecipe {return this.GetObject(7, GtRecipe)}
     private computedIo:RecipeInOut[] | undefined;
 
     get items():RecipeInOut[] { return this.computedIo ?? (this.computedIo = this.ComputeItems());}
 
     private ComputeItems():RecipeInOut[]
     {
-        var slice = this.GetSlice(4);
+        var slice = this.GetSlice(5);
         var elements = slice.length / 5;
         var result:RecipeInOut[] = new Array(elements);
         var index = 0;
