@@ -1,13 +1,13 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "../data/repository.js";
-import { project, UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel } from "../project.js";
+import { project, UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel } from "../project.js";
 
 interface Product {
     goods: Goods;
     amount: number;
 }
 
-type ActionHandler = (obj: any) => void;
+type ActionHandler = (obj: ModelObject, parent: ModelObject) => void;
 
 export class RecipeList {
     private productItemsContainer: HTMLElement;
@@ -30,20 +30,19 @@ export class RecipeList {
     }
 
     private setupActionHandlers() {
-        this.actionHandlers.set("delete_product", (obj) => {
-            const page = project.GetCurrentPage();
-            const index = page.products.findIndex((p: any) => p.iid === obj.iid);
-            if (index !== -1) {
-                page.products.splice(index, 1);
-                UpdateProject();
+        this.actionHandlers.set("delete_product", (obj, parent) => {
+            if (obj instanceof ProductModel && parent instanceof PageModel) {
+                const index = parent.products.findIndex((p: ProductModel) => p.iid === obj.iid);
+                if (index !== -1) {
+                    parent.products.splice(index, 1);
+                    UpdateProject();
+                }
             }
         });
 
         this.actionHandlers.set("update_amount", (obj) => {
-            const page = project.GetCurrentPage();
-            const product = page.products.find((p: any) => p.iid === obj.iid);
-            if (product) {
-                product.amount = obj.amount;
+            if (obj instanceof ProductModel) {
+                obj.amount = (obj as any).amount;
                 UpdateProject();
             }
         });
@@ -57,9 +56,8 @@ export class RecipeList {
         });
 
         this.actionHandlers.set("toggle_collapse", (obj) => {
-            const result = GetByIid(obj.iid);
-            if (result && result.current instanceof RecipeGroupModel) {
-                result.current.collapsed = !result.current.collapsed;
+            if (obj instanceof RecipeGroupModel) {
+                obj.collapsed = !obj.collapsed;
                 UpdateProject();
             }
         });
@@ -72,9 +70,12 @@ export class RecipeList {
             if (button) {
                 const iid = parseInt(button.getAttribute("data-iid")!);
                 const action = button.getAttribute("data-action")!;
-                const handler = this.actionHandlers.get(action);
-                if (handler) {
-                    handler({ iid });
+                const result = GetByIid(iid);
+                if (result) {
+                    const handler = this.actionHandlers.get(action);
+                    if (handler) {
+                        handler(result.current, result.parent);
+                    }
                 }
             }
         });
@@ -86,10 +87,13 @@ export class RecipeList {
                 const productItem = amountInput.closest(".product-item");
                 if (productItem) {
                     const iid = parseInt(productItem.getAttribute("data-iid")!);
-                    const amount = parseFloat((amountInput as HTMLInputElement).value);
-                    const handler = this.actionHandlers.get("update_amount");
-                    if (handler) {
-                        handler({ iid, amount });
+                    const result = GetByIid(iid);
+                    if (result) {
+                        const handler = this.actionHandlers.get("update_amount");
+                        if (handler) {
+                            (result.current as any).amount = parseFloat((amountInput as HTMLInputElement).value);
+                            handler(result.current, result.parent);
+                        }
                     }
                 }
             }
@@ -132,10 +136,10 @@ export class RecipeList {
 
     private addProduct(goods: Goods, amount: number) {
         const page = project.GetCurrentPage();
-        page.products.push({
+        page.products.push(new ProductModel({
             goodsId: goods.id,
             amount: goods instanceof Fluid ? 1000 : 1
-        });
+        }));
         UpdateProject();
     }
 
@@ -229,10 +233,11 @@ export class RecipeList {
         const page = project.GetCurrentPage();
         // Filter out zero amounts and sort by amount descending
         const products = page.products
-            .filter(product => product.amount !== 0)
-            .sort((a, b) => b.amount - a.amount);
+            .filter(product => product instanceof ProductModel && product.amount !== 0)
+            .sort((a, b) => (b as ProductModel).amount - (a as ProductModel).amount);
 
         this.productItemsContainer.innerHTML = products.map(product => {
+            if (!(product instanceof ProductModel)) return '';
             const obj = Repository.current.GetById(product.goodsId);
             if (!obj || !(obj instanceof Goods)) return '';
             const goods = obj as Goods;
