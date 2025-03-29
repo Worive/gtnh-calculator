@@ -14,27 +14,50 @@
     <script type="module" src="./dist/index.js"></script>
 
     <!-- Recipe List Panel -->
-    <div id="recipe-list" class="scroll-area">
-        <div class="recipe-list-header">
-            <div class="recipe-list-title">Recipe List</div>
-            <div class="recipe-list-controls">
-                <button class="recipe-list-add">Add Recipe</button>
+    <div id="recipe-list">
+        <div class="product-list">
+            <div class="product-list-header">
+                <h2>Products</h2>
+                <button class="add-product-btn">Add Product</button>
+            </div>
+            <div class="product-items">
+                <div class="product-item">
+                    <div class="icon"></div>
+                    <input type="number" class="amount" value="1" min="0" step="0.1">
+                    <div class="name">Iron Ingot</div>
+                    <button class="delete-btn">×</button>
+                </div>
+                <div class="product-item">
+                    <div class="icon"></div>
+                    <input type="number" class="amount" value="1" min="0" step="0.1">
+                    <div class="name">Steel Ingot</div>
+                    <button class="delete-btn">×</button>
+                </div>
+                <div class="product-item">
+                    <div class="icon"></div>
+                    <input type="number" class="amount" value="1" min="0" step="0.1">
+                    <div class="name">Aluminum Ingot</div>
+                    <button class="delete-btn">×</button>
+                </div>
+                <div class="product-item">
+                    <div class="icon"></div>
+                    <input type="number" class="amount" value="1" min="0" step="0.1">
+                    <div class="name">Titanium Ingot</div>
+                    <button class="delete-btn">×</button>
+                </div>
             </div>
         </div>
-        
-        <div class="recipe-list-content">
-            <div class="products-section">
-                <div class="section-title">Products</div>
-                <div class="products-grid">
-                    
-                </div>
-            </div>
 
-            <div class="recipes-section">
-                <div class="section-title">Recipes</div>
-                <div class="recipes-list">
-                    
-                </div>
+        <div class="recipe-list">
+            <div class="recipe-list-header">
+                <h2>Recipes</h2>
+                <button class="add-recipe-btn">Add Recipe</button>
+            </div>
+            <div class="recipe-items">
+                <div class="recipe-item">Iron Ingot → Steel Ingot</div>
+                <div class="recipe-item">Bauxite → Aluminum Ingot</div>
+                <div class="recipe-item">Rutile → Titanium Ingot</div>
+                <div class="recipe-item">Iron Ingot + Coal → Steel Ingot</div>
             </div>
         </div>
     </div>
