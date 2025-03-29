@@ -1,4 +1,4 @@
-import { Repository, Goods, Item, Fluid, OreDict } from "../data/repository.js";
+import { Repository, Goods, Item, Fluid, OreDict, RecipeObject } from "../data/repository.js";
 import { ShowNei, ShowNeiContext, ShowNeiMode } from "./nei.js";
 import { ShowTooltip, HideTooltip, IsHovered } from "./tooltip.js";
 
@@ -66,7 +66,7 @@ export class IconBox extends HTMLElement
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (name === 'data-id') {
             this.StopOredictCycle();
-            const obj = Repository.current.GetGoodsById(newValue);
+            const obj = Repository.current.GetById<RecipeObject>(newValue);
             if (obj instanceof OreDict) {
                 this.StartOredictCycle(obj);
             } else {
@@ -80,7 +80,7 @@ export class IconBox extends HTMLElement
         const dataId = this.getAttribute("data-id");
         if (!dataId) return null;
 
-        const obj = Repository.current.GetGoodsById(dataId);
+        const obj = Repository.current.GetById<RecipeObject>(dataId);
         if (!obj) return null;
 
         if (obj instanceof OreDict) {

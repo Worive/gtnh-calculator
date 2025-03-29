@@ -157,9 +157,9 @@ class MemMappedObject
 
 abstract class SearchableObject extends MemMappedObject
 {
+    id:string = this.GetString(4);
     // Elements 0-3 are reserved for 128-bit index
     abstract MatchSearchText(query:SearchQuery):boolean;
-    get id():string {return this.GetString(4);}
 }
 
 export abstract class RecipeObject extends SearchableObject{}

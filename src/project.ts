@@ -70,6 +70,9 @@ class ModelObjectIidScanner extends ModelObjectVisitor
 
     Scan(obj:ModelObject, iid:number):iidScanResult
     {
+        if (obj.iid === iid) {
+            return {current:obj, parent:project};
+        }
         this.parent = obj;
         this.iid = iid;
         obj.Visit(this);
@@ -127,7 +130,7 @@ export class ProjectModel extends ModelObject
 export class PageModel extends ModelObject
 {
     name: string = "New Page";
-    products: any[] = [];
+    products: ProductModel[] = [];
     rootGroup: RecipeGroupModel = new RecipeGroupModel();
 
     Visit(visitor: ModelObjectVisitor): void {
@@ -143,7 +146,7 @@ export class PageModel extends ModelObject
             if (source.name instanceof String)
                 this.name = source.name;
             if (source.products instanceof Array)
-                this.products = source.products;
+                this.products = source.products.map((product: any) => new ProductModel(product));
             if (source.rootGroup instanceof Object)
                 this.rootGroup = new RecipeGroupModel(source.rootGroup);
         }
@@ -152,18 +155,28 @@ export class PageModel extends ModelObject
 
 export class ProductModel extends ModelObject
 {
-    goodsId: string = "";
+    goodsId: string;
     amount: number = 1;
 
     Visit(visitor: ModelObjectVisitor): void {
         visitor.VisitData("goodsId", this.goodsId);
         visitor.VisitData("amount", this.amount);
     }
+
+    constructor(source:any = undefined)
+    {
+        super();
+        this.goodsId = "";
+        if (source instanceof Object) {
+            if (source.goodsId instanceof String)
+                this.goodsId = source.goodsId;
+            if (source.amount instanceof Number)
+                this.amount = source.amount;
+        }
+    }
 }
 
-export abstract class RecipeGroupEntry extends ModelObject
-{
-}
+export abstract class RecipeGroupEntry extends ModelObject{}
 
 export class RecipeGroupModel extends RecipeGroupEntry
 {
@@ -256,6 +269,7 @@ function loadProject() {
             console.error("Failed to load project:", e);
         }
     }
+    console.log("Loaded project:", project);
 }
 
 // Save project to storage

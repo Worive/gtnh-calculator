@@ -275,6 +275,7 @@ export function ShowNei(goods:Goods | null, mode:ShowNeiMode, callback:ShowNeiCa
 {
     console.log("ShowNei", goods, mode, callback);
     if (showNeiCallback != null && goods != null && showNeiCallback.canSelectGoods()) {
+        console.log("ShowNei result (Goods): ", goods.id, goods);
         showNeiCallback.onSelectGoods(goods, mode);
         HideNei();
         return;
@@ -556,6 +557,7 @@ neiContent.addEventListener("click", (event) => {
     if (recipeBox && showNeiCallback?.canSelectRecipe()) {
         const recipeOffset = parseInt(recipeBox.getAttribute("data-recipe") || "0");
         const recipe = repository.GetObject(recipeOffset, Recipe);
+        console.log("ShowNei result (Recipe): ", recipe.id, recipe);
         showNeiCallback.onSelectRecipe(recipe);
         HideNei();
     }

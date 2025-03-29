@@ -32,7 +32,7 @@ export class RecipeList {
     private setupActionHandlers() {
         this.actionHandlers.set("delete_product", (obj, parent) => {
             if (obj instanceof ProductModel && parent instanceof PageModel) {
-                const index = parent.products.findIndex((p: ProductModel) => p.iid === obj.iid);
+                const index = parent.products.indexOf(obj);
                 if (index !== -1) {
                     parent.products.splice(index, 1);
                     UpdateProject();
@@ -48,17 +48,23 @@ export class RecipeList {
         });
 
         this.actionHandlers.set("add_recipe", (obj) => {
-            this.showNeiForRecipeSelection(obj);
+            this.showNeiForRecipeSelection(obj as RecipeGroupModel);
         });
 
         this.actionHandlers.set("add_group", (obj) => {
-            this.addGroup(obj);
+            this.addGroup(obj as RecipeGroupModel);
         });
 
         this.actionHandlers.set("toggle_collapse", (obj) => {
             if (obj instanceof RecipeGroupModel) {
                 obj.collapsed = !obj.collapsed;
                 UpdateProject();
+            }
+        });
+
+        this.actionHandlers.set("add_product", (obj) => {
+            if (obj instanceof PageModel) {
+                this.showNeiForProductSelection();
             }
         });
     }
@@ -98,14 +104,6 @@ export class RecipeList {
                 }
             }
         });
-
-        // Global event listener for add product button
-        document.addEventListener("click", (e) => {
-            const addProductBtn = (e.target as HTMLElement).closest(".add-product-btn");
-            if (addProductBtn) {
-                this.showNeiForProductSelection();
-            }
-        });
     }
 
     private showNeiForProductSelection() {
@@ -121,13 +119,13 @@ export class RecipeList {
         ShowNei(null, ShowNeiMode.Production, callback);
     }
 
-    private showNeiForRecipeSelection(targetGroup: any) {
+    private showNeiForRecipeSelection(targetGroup: RecipeGroupModel) {
         const callback: ShowNeiCallback = {
             canSelectGoods: () => false,
             canSelectRecipe: () => true,
             onSelectGoods: () => {}, // Not used
             onSelectRecipe: (recipe: Recipe) => {
-                this.addRecipe(recipe.objectOffset.toString(), targetGroup);
+                this.addRecipe(recipe, targetGroup);
             }
         };
 
@@ -135,6 +133,7 @@ export class RecipeList {
     }
 
     private addProduct(goods: Goods, amount: number) {
+        console.log("addProduct", goods, amount);
         const page = project.GetCurrentPage();
         page.products.push(new ProductModel({
             goodsId: goods.id,
@@ -143,24 +142,14 @@ export class RecipeList {
         UpdateProject();
     }
 
-    private addRecipe(recipeId: string, targetGroup: any) {
-        const result = targetGroup ? GetByIid(targetGroup.iid) : null;
-        const group = result ? result.current : project.GetCurrentPage().rootGroup;
-        
-        if (group instanceof RecipeGroupModel) {
-            group.elements.push(new RecipeModel({ recipeId }));
-            UpdateProject();
-        }
+    private addRecipe(recipe: Recipe, targetGroup: RecipeGroupModel) {
+        targetGroup.elements.push(new RecipeModel({ recipeId: recipe.id }));
+        UpdateProject();
     }
 
-    private addGroup(targetGroup: any) {
-        const result = targetGroup ? GetByIid(targetGroup.iid) : null;
-        const group = result ? result.current : project.GetCurrentPage().rootGroup;
-        
-        if (group instanceof RecipeGroupModel) {
-            group.elements.push(new RecipeGroupModel());
-            UpdateProject();
-        }
+    private addGroup(targetGroup: RecipeGroupModel) {
+        targetGroup.elements.push(new RecipeGroupModel());
+        UpdateProject();
     }
 
     private renderRecipe(recipe: RecipeModel): string {
@@ -175,7 +164,7 @@ export class RecipeList {
         return `
             <div class="recipe-group collapsed" data-iid="${group.iid}">
                 <div class="group-header">
-                    <button class="collapse-btn" data-action="toggle_collapse">▼</button>
+                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">▼</button>
                     <span class="group-name">Group</span>
                 </div>
             </div>
@@ -186,9 +175,9 @@ export class RecipeList {
         return `
             <div class="recipe-group" data-iid="${group.iid}" style="margin-left: ${level * 20}px">
                 <div class="group-header">
-                    <button class="collapse-btn" data-action="toggle_collapse">▼</button>
-                    <button class="add-recipe-btn" data-action="add_recipe">+ Add Recipe</button>
-                    <button class="add-group-btn" data-action="add_group">+ Add Group</button>
+                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">▼</button>
+                    <button class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">+ Add Recipe</button>
+                    <button class="add-group-btn" data-iid="${group.iid}" data-action="add_group">+ Add Group</button>
                 </div>
                 <div class="group-content">
                     ${group.elements.map(entry => {
@@ -210,8 +199,8 @@ export class RecipeList {
         return `
             <div class="recipe-group root-group" data-iid="${group.iid}">
                 <div class="group-header">
-                    <button class="add-recipe-btn" data-action="add_recipe">+ Add Recipe</button>
-                    <button class="add-group-btn" data-action="add_group">+ Add Group</button>
+                    <button class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">+ Add Recipe</button>
+                    <button class="add-group-btn" data-iid="${group.iid}" data-action="add_group">+ Add Group</button>
                 </div>
                 <div class="group-content">
                     ${group.elements.map(entry => {
@@ -236,23 +225,26 @@ export class RecipeList {
             .filter(product => product instanceof ProductModel && product.amount !== 0)
             .sort((a, b) => (b as ProductModel).amount - (a as ProductModel).amount);
 
-        this.productItemsContainer.innerHTML = products.map(product => {
-            if (!(product instanceof ProductModel)) return '';
-            const obj = Repository.current.GetById(product.goodsId);
-            if (!obj || !(obj instanceof Goods)) return '';
-            const goods = obj as Goods;
-            return `
-                <div class="product-item" data-iid="${product.iid}">
-                    <item-icon data-id="${goods.id}"></item-icon>
-                    <div class="amount-container">
-                        <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1">
-                        <span class="amount-unit">/min</span>
+        this.productItemsContainer.innerHTML = `
+            <button class="add-product-btn" data-iid="${page.iid}" data-action="add_product">+ Add Product</button>
+            ${products.map(product => {
+                if (!(product instanceof ProductModel)) return '';
+                const obj = Repository.current.GetById(product.goodsId);
+                if (!obj || !(obj instanceof Goods)) return '';
+                const goods = obj as Goods;
+                return `
+                    <div class="product-item" data-iid="${product.iid}">
+                        <item-icon data-id="${goods.id}"></item-icon>
+                        <div class="amount-container">
+                            <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1">
+                            <span class="amount-unit">/min</span>
+                        </div>
+                        <div class="name">${goods.name}</div>
+                        <button class="delete-btn" data-iid="${product.iid}" data-action="delete_product">×</button>
                     </div>
-                    <div class="name">${goods.name}</div>
-                    <button class="delete-btn" data-action="delete_product">×</button>
-                </div>
-            `;
-        }).join("");
+                `;
+            }).join("")}
+        `;
     }
 
     private updateRecipeList() {
