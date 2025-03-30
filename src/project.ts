@@ -148,6 +148,7 @@ export class RecipeModel extends RecipeGroupEntry
 {
     type: string = "recipe";
     recipeId: string = "";
+    voltageTier: number = 0;
 
     recipesPerMinute:number = 0;
     selectedOreDicts:{[key:string]:Item} = {};
@@ -155,6 +156,7 @@ export class RecipeModel extends RecipeGroupEntry
     Visit(visitor: ModelObjectVisitor): void {
         visitor.VisitData(this, "type", this.type);
         visitor.VisitData(this, "recipeId", this.recipeId);
+        visitor.VisitData(this, "voltageTier", this.voltageTier);
     }
 
     constructor(source:any = undefined)
@@ -163,6 +165,8 @@ export class RecipeModel extends RecipeGroupEntry
         if (source instanceof Object) {
             if (typeof source.recipeId === "string")
                 this.recipeId = source.recipeId;
+            if (typeof source.voltageTier === "number")
+                this.voltageTier = source.voltageTier;
         }
     }
 }

@@ -1,6 +1,7 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "../data/repository.js";
 import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page } from "../project.js";
+import { voltageTier, GtVoltageTier } from "../utils.js";
 
 interface Product {
     goods: Goods;
@@ -96,6 +97,13 @@ export class RecipeList {
         this.actionHandlers.set("update_group_name", (obj, parent, event) => {
             if (obj instanceof RecipeGroupModel && event.type === "change") {
                 obj.name = (event.target as HTMLInputElement).value;
+            }
+        });
+
+        this.actionHandlers.set("update_voltage_tier", (obj, parent, event) => {
+            if (obj instanceof RecipeModel && event.type === "change") {
+                obj.voltageTier = parseInt((event.target as HTMLSelectElement).value);
+                UpdateProject();
             }
         });
     }
@@ -210,7 +218,7 @@ export class RecipeList {
     }
 
     private addRecipe(recipe: Recipe, targetGroup: RecipeGroupModel) {
-        targetGroup.elements.push(new RecipeModel({ recipeId: recipe.id }));
+        targetGroup.elements.push(new RecipeModel({ recipeId: recipe.id, voltageTier: recipe.gtRecipe?.voltageTier ?? 0 }));
         UpdateProject();
     }
 
@@ -259,14 +267,42 @@ export class RecipeList {
         `;
     }
 
-    private renderRecipe(recipe: RecipeModel, level: number = 0): string {
+    private renderRecipeShortInfo(recipe: Recipe | null, recipeModel: RecipeModel): string {
+        if (recipe === null) {
+            return `<div class="short-info">Unknown recipe</div>`;
+        }
+        let crafter = Repository.current.GetObject(recipe.recipeType.craftItems[0], Item);
+        let result = `<item-icon data-id="${crafter.id}"></item-icon>`;
+        
+        let shortInfoContent = recipe.recipeType.name;
+        if (recipe.gtRecipe) {
+            const minTier = recipe.gtRecipe.voltageTier;
+            const maxTier = voltageTier.length - 1;
+            const options = voltageTier
+                .slice(minTier, maxTier + 1)
+                .map((tier: GtVoltageTier, index: number) => `<option value="${minTier + index}" ${minTier + index === recipeModel.voltageTier ? 'selected' : ''}>${tier.name}</option>`)
+                .join('');
+            
+            shortInfoContent = `
+                <select class="voltage-tier-select" data-iid="${recipeModel.iid}" data-action="update_voltage_tier">
+                    ${options}
+                </select>
+                ${shortInfoContent}
+            `;
+        }
+        
+        result += `<div class="short-info">${shortInfoContent}</div>`;
+        return result;
+    }
+
+    private renderRecipe(recipeModel: RecipeModel, level: number = 0): string {
+        let recipe = Repository.current.GetById<Recipe>(recipeModel.recipeId);
         return `
-            <div class="recipe-item" data-iid="${recipe.iid}" draggable="true">
+            <div class="recipe-item" data-iid="${recipeModel.iid}" draggable="true">
                 <div class="grid-row" style="--nest-level: ${level}">
-                    <div class="short-info"></div>
-                    <div class="short-info">${recipe.recipeId}</div>
-                    ${this.renderIoInfo(recipe.flow)}
-                    <button class="button delete-btn" data-iid="${recipe.iid}" data-action="delete_recipe">×</button>
+                    ${this.renderRecipeShortInfo(recipe, recipeModel)}
+                    ${this.renderIoInfo(recipeModel.flow)}
+                    <button class="button delete-btn" data-iid="${recipeModel.iid}" data-action="delete_recipe">×</button>
                 </div>
             </div>
         `;
