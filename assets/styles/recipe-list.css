@@ -170,6 +170,44 @@
     gap: 10px;
 }
 
+.recipe-item, .recipe-group, .group-content {
+    position: relative;
+}
+
+.recipe-item.drag-over, .recipe-group.drag-over {
+    border: 2px dashed #4CAF50;
+}
+
+.recipe-item.drag-over::before, .recipe-group.drag-over::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #4CAF50;
+}
+
+.recipe-item.drag-over::before {
+    top: -2px;
+}
+
+.recipe-group.drag-over::before {
+    top: -2px;
+}
+
+.group-content.drag-over {
+    background-color: #404040;
+    border: 2px dashed #4CAF50;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 20px;
+}
+
+.recipe-item.dragging, .recipe-group.collapsed.dragging {
+    opacity: 0.5;
+    background-color: #404040;
+}
+
 .recipe-item {
     background-color: #2a2a2a;
     border: 1px solid #404040;
@@ -178,6 +216,11 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    cursor: grab;
+}
+
+.recipe-item:active {
+    cursor: grabbing;
 }
 
 .recipe-item:hover {
@@ -196,6 +239,11 @@
     border: 1px solid #404040;
     border-radius: 4px;
     padding: 8px;
+    cursor: grab;
+}
+
+.recipe-group.collapsed:active {
+    cursor: grabbing;
 }
 
 .group-header {

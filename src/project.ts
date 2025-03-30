@@ -54,29 +54,40 @@ class ModelObjectIidScanner extends ModelObjectVisitor
     iid:number = 0;
     parent:ModelObject | null = null;
     result:ModelObject | null = null;
+    resultParent:ModelObject | null = null;
 
     VisitData(key: string, data: any): void {}
     VisitObject(key: string, obj: ModelObject): void {
+        if (this.result !== null)
+            return;
         if (obj.iid === this.iid) {
             this.result = obj;
+            this.resultParent = this.parent;
+            return;
         }
+        let prev = this.parent;
+        this.parent = obj;
         obj.Visit(this);
+        this.parent = prev;
     }
     VisitArray(key: string, array: ModelObject[]): void {
         for (const obj of array) {
             this.VisitObject(key, obj);
+            if (this.result !== null)
+                return;
         }
     }
 
-    Scan(obj:ModelObject, iid:number):iidScanResult
+    Scan(obj:ModelObject, parent:ModelObject, iid:number):iidScanResult
     {
         if (obj.iid === iid) {
-            return {current:obj, parent:project};
+            return {current:obj, parent:parent};
         }
         this.parent = obj;
+        this.result = null;
         this.iid = iid;
         obj.Visit(this);
-        return this.result === null ? null : {current:this.result, parent:this.parent};
+        return this.result === null ? null : {current:this.result, parent:this.resultParent};
     }
 }
 
@@ -85,7 +96,7 @@ let iidScanner = new ModelObjectIidScanner();
 
 export function GetByIid(iid:number):iidScanResult
 {
-    return iidScanner.Scan(project.GetCurrentPage(), iid);
+    return iidScanner.Scan(project.GetCurrentPage(), project, iid);
 }
 
 export abstract class ModelObject
@@ -227,6 +238,35 @@ export class RecipeModel extends RecipeGroupEntry
             if (typeof source.recipeId === "string")
                 this.recipeId = source.recipeId;
         }
+    }
+}
+
+export function DragAndDrop(sourceIid:number, targetIid:number)
+{
+    var draggingObject = GetByIid(sourceIid);
+    if (draggingObject === null || !(draggingObject.parent instanceof RecipeGroupModel))
+        return;
+    var targetObject = GetByIid(targetIid);
+    if (targetObject === null)
+        return;
+    if (draggingObject.current instanceof RecipeGroupModel && !draggingObject.current.collapsed)
+        return;
+    console.log("DragAndDrop", draggingObject, targetObject);
+    let success = false;
+
+    if (targetObject.current instanceof RecipeGroupModel && !targetObject.current.collapsed) {
+        targetObject.current.elements.push(draggingObject.current);
+        success = true;
+    } else if (targetObject.parent instanceof RecipeGroupModel) {
+        var index = targetObject.parent.elements.indexOf(targetObject.current);
+        if (index === -1)
+            return;
+        targetObject.parent.elements.splice(index, 0, draggingObject.current);
+        success = true;
+    }
+    if (success) {
+        draggingObject.parent.elements.splice(draggingObject.parent.elements.indexOf(draggingObject.current), 1);
+        UpdateProject();
     }
 }
 

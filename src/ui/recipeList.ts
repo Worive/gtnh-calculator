@@ -1,6 +1,6 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "../data/repository.js";
-import { project, UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel } from "../project.js";
+import { project, UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop } from "../project.js";
 
 interface Product {
     goods: Goods;
@@ -19,6 +19,7 @@ export class RecipeList {
         this.recipeItemsContainer = document.querySelector(".recipe-items")!;
         this.setupActionHandlers();
         this.setupGlobalEventListeners();
+        this.setupDragAndDrop();
         this.updateProductList();
         this.updateRecipeList();
         
@@ -32,7 +33,7 @@ export class RecipeList {
     private setupActionHandlers() {
         this.actionHandlers.set("delete_product", (obj, parent) => {
             if (obj instanceof ProductModel && parent instanceof PageModel) {
-                const index = parent.products.indexOf(obj);
+                const index = parent.products.findIndex((p: ProductModel) => p.iid === obj.iid);
                 if (index !== -1) {
                     parent.products.splice(index, 1);
                     UpdateProject();
@@ -48,11 +49,15 @@ export class RecipeList {
         });
 
         this.actionHandlers.set("add_recipe", (obj) => {
-            this.showNeiForRecipeSelection(obj as RecipeGroupModel);
+            if (obj instanceof RecipeGroupModel) {
+                this.showNeiForRecipeSelection(obj);
+            }
         });
 
         this.actionHandlers.set("add_group", (obj) => {
-            this.addGroup(obj as RecipeGroupModel);
+            if (obj instanceof RecipeGroupModel) {
+                this.addGroup(obj);
+            }
         });
 
         this.actionHandlers.set("toggle_collapse", (obj) => {
@@ -65,6 +70,26 @@ export class RecipeList {
         this.actionHandlers.set("add_product", (obj) => {
             if (obj instanceof PageModel) {
                 this.showNeiForProductSelection();
+            }
+        });
+
+        this.actionHandlers.set("delete_recipe", (obj, parent) => {
+            if (obj instanceof RecipeModel && parent instanceof RecipeGroupModel) {
+                const index = parent.elements.findIndex(el => el.iid === obj.iid);
+                if (index !== -1) {
+                    parent.elements.splice(index, 1);
+                    UpdateProject();
+                }
+            }
+        });
+
+        this.actionHandlers.set("delete_group", (obj, parent) => {
+            if (obj instanceof RecipeGroupModel && parent instanceof RecipeGroupModel) {
+                const index = parent.elements.findIndex(el => el.iid === obj.iid);
+                if (index !== -1) {
+                    parent.elements.splice(index, 1);
+                    UpdateProject();
+                }
             }
         });
     }
@@ -103,6 +128,60 @@ export class RecipeList {
                     }
                 }
             }
+        });
+    }
+
+    private setupDragAndDrop() {
+        document.addEventListener("dragstart", (e) => {
+            const draggable = (e.target as HTMLElement).closest("[draggable]");
+            if (draggable) {
+                draggable.classList.add("dragging");
+                e.dataTransfer?.setData("text/plain", draggable.getAttribute("data-iid") || "");
+            }
+        });
+
+        document.addEventListener("dragend", (e) => {
+            const draggable = (e.target as HTMLElement).closest("[draggable]");
+            if (draggable) {
+                draggable.classList.remove("dragging");
+            }
+        });
+
+        document.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const dropZone = (e.target as HTMLElement).closest(".recipe-item, .recipe-group, .group-content");
+            if (dropZone) {
+                dropZone.classList.add("drag-over");
+            }
+        });
+
+        document.addEventListener("dragleave", (e) => {
+            const dropZone = (e.target as HTMLElement).closest(".recipe-item, .recipe-group, .group-content");
+            if (dropZone) {
+                dropZone.classList.remove("drag-over");
+            }
+        });
+
+        document.addEventListener("drop", (e) => {
+            e.preventDefault();
+            const dropZone = (e.target as HTMLElement).closest(".recipe-item, .recipe-group, .group-content");
+            if (!dropZone) return;
+
+            dropZone.classList.remove("drag-over");
+            const draggedIid = parseInt(e.dataTransfer?.getData("text/plain") || "0");
+            
+            // Get the target iid
+            let targetIid: number;
+            if (dropZone.classList.contains("group-content")) {
+                // Dropping into a group
+                targetIid = parseInt(dropZone.getAttribute("data-group-iid") || "0");
+            } else {
+                // Dropping on a recipe or group
+                targetIid = parseInt(dropZone.getAttribute("data-iid") || "0");
+            }
+
+            // Call DragAndDrop with the two iids
+            DragAndDrop(draggedIid, targetIid);
         });
     }
 
@@ -153,15 +232,16 @@ export class RecipeList {
 
     private renderRecipe(recipe: RecipeModel): string {
         return `
-            <div class="recipe-item" data-iid="${recipe.iid}">
+            <div class="recipe-item" data-iid="${recipe.iid}" draggable="true">
                 ${recipe.recipeId}
+                <button class="button delete-btn" data-iid="${recipe.iid}" data-action="delete_recipe">×</button>
             </div>
         `;
     }
 
     private renderCollapsedGroup(group: RecipeGroupModel): string {
         return `
-            <div class="recipe-group collapsed" data-iid="${group.iid}">
+            <div class="recipe-group collapsed" data-iid="${group.iid}" draggable="true">
                 <div class="group-header">
                     <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
                         <img src="assets/images/Arrow_Small_Right.png" alt="Expand">
@@ -182,8 +262,9 @@ export class RecipeList {
                     <span class="group-name">Group</span>
                     <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
                     <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
+                    <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
                 </div>
-                <div class="group-content">
+                <div class="group-content" data-group-iid="${group.iid}">
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
                             return this.renderRecipe(entry);
