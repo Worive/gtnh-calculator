@@ -159,6 +159,7 @@ export class RecipeModel extends RecipeGroupEntry
     voltageTier: number = 0;
 
     recipesPerMinute:number = 0;
+    overclockFactor:number = 1;
     selectedOreDicts:{[key:string]:Item} = {};
 
     Visit(visitor: ModelObjectVisitor): void {

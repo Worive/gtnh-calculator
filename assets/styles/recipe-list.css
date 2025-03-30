@@ -179,7 +179,7 @@
 
 .grid-row {
     display: grid;
-    grid-template-columns: 36px calc(300px - var(--nest-level, 0) * 4px) 1fr 1fr 36px;
+    grid-template-columns: 36px calc(300px - var(--nest-level, 0) * 4px) 60px 1fr 1fr 36px;
     gap: 10px;
     align-items: center;
 }
@@ -211,20 +211,6 @@
     font-size: 16px;
 }
 
-.io-info {
-    grid-column: 3 / span 2;
-    display: flex;
-    gap: 10px;
-    min-width: 0;
-}
-
-.io-column {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
 .io-label {
     color: #888888;
     font-size: 16px;
@@ -236,9 +222,16 @@
 .io-items {
     display: flex;
     flex-wrap: wrap;
+    flex-direction: row;
     gap: 4px;
     min-height: 32px;
     pointer-events: none;
+    flex: 1;
+    min-width: 0;
+}
+
+.white-text {
+    color: #ffffff;
 }
 
 .io-items item-icon {
@@ -281,7 +274,7 @@
 }
 
 .delete-btn {
-    grid-column: 5;
+    grid-column: 6;
     width: 36px;
     height: 36px;
     padding: 0;
@@ -306,14 +299,6 @@
 }
 
 
-.root-group .io-label:nth-of-type(1) {
-    grid-column: 3;
-}
-
-.root-group .io-label:nth-of-type(2) {
-    grid-column: 4;
-}
-
 .root-group .group-buttons {
     grid-column: 2;
     display: flex;
@@ -323,14 +308,10 @@
 
 /* Expanded group specific styles */
 .recipe-group:not(.collapsed):not(.root-group) .group-buttons {
-    grid-column: 4;
+    grid-column: 5;
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-}
-
-.recipe-group.collapsed .io-info {
-    grid-column: 3 / 4;
 }
 
 /* Input styles */

@@ -70,6 +70,7 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
     let recipe = Repository.current.GetById(recipeModel.recipeId) as Recipe;
     let solutionValue = (solution[name] || 0) as number;
     recipeModel.recipesPerMinute = solutionValue;
+    recipeModel.overclockFactor = 1;
     for (const item of recipe.items) {
         var goods:Goods | null = null;
         if (item.type == RecipeIoType.OreDictInput)
@@ -81,8 +82,12 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
         element[goods.id] = (element[goods.id] || 0) + item.amount * solutionValue;
     }
 
-    if (recipe.gtRecipe) {
-        flow.energy[recipe.gtRecipe.voltageTier] = recipe.gtRecipe.durationSeconds * recipe.gtRecipe.voltage * solutionValue * 60;
+    let gtRecipe = recipe.gtRecipe;
+    if (gtRecipe && gtRecipe.durationTicks > 0) {
+        let overclockTiers = Math.max(0, recipeModel.voltageTier - gtRecipe.voltageTier);
+        let overclock = Math.pow(2, overclockTiers);
+        recipeModel.overclockFactor = overclock;
+        flow.energy[recipeModel.voltageTier] = gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * overclock;
     }
 }
 

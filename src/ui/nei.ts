@@ -156,7 +156,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
             this.BuildRecipeIoDom(dom, recipeItems, index, RecipeIoType.ItemOutput, RecipeIoType.FluidOutput, 4);
             dom.push(`</div>`);
             if (recipe.gtRecipe != null) {
-                dom.push(`<span>${voltageTier[recipe.gtRecipe.voltageTier].name} • ${recipe.gtRecipe.durationSeconds}s`);
+                dom.push(`<span>${voltageTier[recipe.gtRecipe.voltageTier].name} • ${recipe.gtRecipe.durationMinutes}s`);
                 if (recipe.gtRecipe.cleanRoom)
                     dom.push(` • Cleanroom`);
                 if (recipe.gtRecipe.lowGravity)

@@ -170,14 +170,7 @@ export class RecipeList {
             
             // Get the target iid
             let targetIid: number;
-            if (dropZone.classList.contains("group-content")) {
-                // Dropping into a group
-                targetIid = parseInt(dropZone.getAttribute("data-group-iid") || "0");
-            } else {
-                // Dropping on a recipe or group
-                targetIid = parseInt(dropZone.getAttribute("data-iid") || "0");
-            }
-
+            targetIid = parseInt(dropZone.getAttribute("data-iid") || "0");
             // Call DragAndDrop with the two iids
             DragAndDrop(draggedIid, targetIid);
         });
@@ -243,16 +236,24 @@ export class RecipeList {
             }).join('');
         };
 
+        const renderEnergyItems = (energy: {[key:number]:number}) => {
+            let out = "";
+            for (const [tier, amount] of Object.entries(energy)) {
+                const tierInfo = voltageTier[parseInt(tier)];
+                out += `${tierInfo.name}: ${Math.ceil(100 * amount/tierInfo.voltage)/100}A<br>`;
+            }
+            return out;
+        }
+
         return `
-            <div class="io-column inputs">
-                <div class="io-items">
-                    ${renderFlowItems(flow.input)}
-                </div>
+            <div class="text-small white-text">
+                ${renderEnergyItems(flow.energy)}
             </div>
-            <div class="io-column outputs">
-                <div class="io-items">
-                    ${renderFlowItems(flow.output)}
-                </div>
+            <div class="io-items">
+                ${renderFlowItems(flow.input)}
+            </div>
+            <div class="io-items">
+                ${renderFlowItems(flow.output)}
             </div>
         `;
     }
@@ -265,15 +266,20 @@ export class RecipeList {
         let result = `<item-icon data-id="${crafter.id}"></item-icon>`;
         
         let shortInfoContent = recipe.recipeType.name;
-        if (recipe.gtRecipe) {
-            const minTier = recipe.gtRecipe.voltageTier;
+        let gtRecipe = recipe.gtRecipe;
+        if (gtRecipe && gtRecipe.durationTicks > 0) {
+            const minTier = gtRecipe.voltageTier;
             const maxTier = voltageTier.length - 1;
             const options = voltageTier
                 .slice(minTier, maxTier + 1)
                 .map((tier: GtVoltageTier, index: number) => `<option value="${minTier + index}" ${minTier + index === recipeModel.voltageTier ? 'selected' : ''}>${tier.name}</option>`)
                 .join('');
-            
+            let machineCounts = recipeModel.recipesPerMinute * gtRecipe.durationMinutes / recipeModel.overclockFactor;
+            console.log(recipeModel.recipesPerMinute, gtRecipe.durationMinutes, recipeModel.overclockFactor, machineCounts);
+            let machineCountsText = Math.ceil(machineCounts * 100) / 100;
+
             shortInfoContent = `
+                ${machineCountsText}x
                 <select class="voltage-tier-select" data-iid="${recipeModel.iid}" data-action="update_voltage_tier">
                     ${options}
                 </select>
@@ -354,8 +360,9 @@ export class RecipeList {
                     <div class="short-info">
                         <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
                     </div>
-                    <div class="io-label">INPUTS</div>
-                    <div class="io-label">OUTPUTS</div>
+                    <div class="io-label">ENRG</div>
+                    <div class="io-label">INPUTS/min</div>
+                    <div class="io-label">OUTPUTS/min</div>
                 </div>
                 <div class="grid-row" style="--nest-level: 0">
                     <div></div>
