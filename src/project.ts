@@ -338,7 +338,6 @@ export function UpdateProject(visualOnly:boolean = false) {
         savePage();
         SolvePage(page);
     }
-    debugger;
     notifyListeners();
 }
 

@@ -11,12 +11,12 @@ type ActionHandler = (obj: ModelObject, parent: ModelObject, event: Event, targe
 
 export class RecipeList {
     private productItemsContainer: HTMLElement;
-    private recipeItemsContainer: HTMLElement;
+    private recipeListContainer: HTMLElement;
     private actionHandlers: Map<string, ActionHandler> = new Map();
 
     constructor() {
         this.productItemsContainer = document.querySelector(".product-items")!;
-        this.recipeItemsContainer = document.querySelector(".recipe-items")!;
+        this.recipeListContainer = document.querySelector(".recipe-list")!;
         this.setupActionHandlers();
         this.setupGlobalEventListeners();
         this.setupDragAndDrop();
@@ -313,42 +313,41 @@ export class RecipeList {
 
     private renderRecipe(recipe: RecipeModel): string {
         return `
-            <div class="recipe-item" data-iid="${recipe.iid}" draggable="true">
-                <div class="short-info">
-                    ${recipe.recipeId}
+            <div class="grid-row">
+                <div class="grid-cell"></div>
+                <div class="grid-cell short-info">${recipe.recipeId}</div>
+                <div class="grid-cell inputs">
+                    ${this.renderFlowItems(recipe.flow, true)}
                 </div>
-                ${this.renderIoInfo(recipe.flow)}
-                <button class="button delete-btn" data-iid="${recipe.iid}" data-action="delete_recipe">×</button>
+                <div class="grid-cell outputs">
+                    ${this.renderFlowItems(recipe.flow, false)}
+                </div>
+                <div class="grid-cell">
+                    <button class="button delete-btn" data-iid="${recipe.iid}" data-action="delete_recipe">×</button>
+                </div>
             </div>
         `;
     }
 
     private renderCollapsedGroup(group: RecipeGroupModel): string {
         return `
-            <div class="recipe-group collapsed" data-iid="${group.iid}" draggable="true">
-                <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
-                    <img src="assets/images/Arrow_Small_Right.png" alt="Expand">
-                </button>
-                <div class="short-info">
+            <div class="grid-row">
+                <div class="grid-cell">
+                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
+                        <img src="assets/images/Arrow_Small_Right.png" alt="Expand">
+                    </button>
+                </div>
+                <div class="grid-cell">
                     <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
                 </div>
-                ${this.renderIoInfo(group.flow)}
-                <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
-            </div>
-        `;
-    }
-
-    private renderLinks(links: string[]): string {
-        if (links.length === 0) return '';
-        
-        return `
-            <div class="group-links">
-                <span class="links-label">Links:</span>
-                <div class="links-grid">
-                    ${links.map(linkId => {
-                        const goods = Repository.current.GetById<Goods>(linkId);
-                        return goods ? `<item-icon data-id="${linkId}"></item-icon>` : '';
-                    }).join('')}
+                <div class="grid-cell inputs">
+                    ${this.renderFlowItems(group.flow, true)}
+                </div>
+                <div class="grid-cell outputs">
+                    ${this.renderFlowItems(group.flow, false)}
+                </div>
+                <div class="grid-cell">
+                    <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
                 </div>
             </div>
         `;
@@ -356,56 +355,97 @@ export class RecipeList {
 
     private renderExpandedGroup(group: RecipeGroupModel, level: number = 0): string {
         return `
-            <div class="recipe-group" data-iid="${group.iid}">
-                <div class="group-header">
+            <div class="grid-row">
+                <div class="grid-cell">
                     <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
                         <img src="assets/images/Arrow_Small_Down.png" alt="Collapse">
                     </button>
+                </div>
+                <div class="grid-cell">
                     <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
+                </div>
+                <div class="grid-cell action-buttons">
                     <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
                     <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
+                </div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell">
                     <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
                 </div>
-                <div class="group-content" data-group-iid="${group.iid}">
-                    ${this.renderLinks(group.links)}
-                    ${group.elements.map(entry => {
-                        if (entry instanceof RecipeModel) {
-                            return this.renderRecipe(entry);
-                        } else if (entry instanceof RecipeGroupModel) {
-                            return entry.collapsed ? 
-                                this.renderCollapsedGroup(entry) : 
-                                this.renderExpandedGroup(entry, level + 1);
-                        }
-                        return '';
-                    }).join("")}
-                </div>
             </div>
+            ${group.elements.map(entry => {
+                if (entry instanceof RecipeModel) {
+                    return this.renderRecipe(entry);
+                } else if (entry instanceof RecipeGroupModel) {
+                    return entry.collapsed ? 
+                        this.renderCollapsedGroup(entry) : 
+                        this.renderExpandedGroup(entry, level + 1);
+                }
+                return '';
+            }).join("")}
         `;
     }
 
     private renderRootGroup(group: RecipeGroupModel): string {
         return `
-            <div class="recipe-group root-group" data-iid="${group.iid}">
-                <div class="group-header">
-                    <span class="group-name">Root Group</span>
+            <div class="grid-row">
+                <div class="grid-cell"></div>
+                <div class="grid-cell">
+                    <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
+                </div>
+                <div class="grid-cell io-label">INPUTS</div>
+                <div class="grid-cell io-label">OUTPUTS</div>
+                <div class="grid-cell"></div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell"></div>
+                <div class="grid-cell action-buttons">
                     <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
                     <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
                 </div>
-                <div class="group-content">
-                    ${this.renderLinks(group.links)}
-                    ${group.elements.map(entry => {
-                        if (entry instanceof RecipeModel) {
-                            return this.renderRecipe(entry);
-                        } else if (entry instanceof RecipeGroupModel) {
-                            return entry.collapsed ? 
-                                this.renderCollapsedGroup(entry) : 
-                                this.renderExpandedGroup(entry, 1);
-                        }
-                        return '';
-                    }).join("")}
+                <div class="grid-cell inputs">
+                    ${this.renderFlowItems(group.flow, true)}
                 </div>
+                <div class="grid-cell outputs">
+                    ${this.renderFlowItems(group.flow, false)}
+                </div>
+                <div class="grid-cell"></div>
             </div>
+            ${group.elements.map(entry => {
+                if (entry instanceof RecipeModel) {
+                    return this.renderRecipe(entry);
+                } else if (entry instanceof RecipeGroupModel) {
+                    return entry.collapsed ? 
+                        this.renderCollapsedGroup(entry) : 
+                        this.renderExpandedGroup(entry, 1);
+                }
+                return '';
+            }).join("")}
         `;
+    }
+
+    private renderFlowItems(flow: {[goodsId:string]:number}, isInput: boolean): string {
+        // Sort flow entries by amount (highest to lowest)
+        const sortedFlow = Object.entries(flow)
+            .sort(([,a], [,b]) => Math.abs(b) - Math.abs(a));
+
+        // Filter inputs/outputs
+        const items = sortedFlow.filter(([,amount]) => isInput ? amount > 0 : amount < 0);
+
+        const formatAmount = (amount: number) => {
+            const absAmount = Math.abs(amount);
+            return absAmount <= 100000 ? absAmount :
+                   absAmount <= 10000000 ? Math.round(absAmount/1000) + "K" :
+                   Math.round(absAmount/1000000) + "M";
+        };
+
+        return items.map(([goodsId, amount]) => {
+            const goods = Repository.current.GetById(goodsId);
+            const amountText = formatAmount(amount);
+            return `
+                <item-icon data-id="${goodsId}" class="flow-item"><span class="item-amount-small">${amountText}</span></item-icon>
+            `;
+        }).join('');
     }
 
     private updateProductList() {
@@ -437,7 +477,7 @@ export class RecipeList {
     }
 
     private updateRecipeList() {
-        this.recipeItemsContainer.innerHTML = this.renderRootGroup(page.rootGroup);
+        this.recipeListContainer.innerHTML = this.renderRootGroup(page.rootGroup);
     }
 
     // Clean up when the component is destroyed
