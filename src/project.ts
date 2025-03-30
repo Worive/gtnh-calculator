@@ -1,4 +1,5 @@
 import { Goods, Item } from "./data/repository";
+import { SolvePage } from "./solver.js";
 
 let nextIid = 0;
 
@@ -229,6 +230,7 @@ export class PageModel extends ModelObject
                 this.name = previousPage.name;
                 this.products = previousPage.products;
                 this.rootGroup = previousPage.rootGroup;
+                SolvePage(this);
                 return true;
             } catch (e) {
                 console.error("Failed to undo:", e);
@@ -237,8 +239,6 @@ export class PageModel extends ModelObject
         return false;
     }
 }
-
-export var currentPage:PageModel = new PageModel({});
 
 export function DragAndDrop(sourceIid:number, targetIid:number)
 {
@@ -303,9 +303,11 @@ function loadPage(key:string):PageModel
     const stored = localStorage.getItem(key);
     if (stored) {
         try {
-            let projectData = JSON.parse(stored);
+            let page = JSON.parse(stored);
+            let pageModel = new PageModel(page);
+            SolvePage(pageModel);
             console.log("Loaded page", stored);
-            return new PageModel(projectData);
+            return pageModel;
         } catch (e) {
             console.error("Failed to load project:", e);
         }
@@ -319,15 +321,16 @@ function savePage() {
         localStorage.setItem(currentPageName, json);
         console.log("Saved page", json);
         page.addToHistory(json);
-        updateUrlFragment(json); // Update URL fragment when saving
     } catch (e) {
         console.error("Failed to save project:", e);
     }
 }
 
 export function UpdateProject(visualOnly:boolean = false) {
-    if (!visualOnly)
+    if (!visualOnly) {
         savePage();
+        SolvePage(page);
+    }
     notifyListeners();
 }
 
@@ -379,6 +382,7 @@ async function loadFromUrlFragment(): Promise<PageModel | null> {
         writer.close();
         const decompressed = await new Response(decompressedStream.readable).arrayBuffer();
         const json = new TextDecoder().decode(decompressed);
+        console.log("Loaded page", json);
         return new PageModel(JSON.parse(json));
     } catch (e) {
         console.error("Failed to load from URL fragment:", e);
