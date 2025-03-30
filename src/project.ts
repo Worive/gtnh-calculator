@@ -143,7 +143,7 @@ export class PageModel extends ModelObject
     {
         super();
         if (source instanceof Object) {
-            if (source.name instanceof String)
+            if (typeof source.name === "string")
                 this.name = source.name;
             if (source.products instanceof Array)
                 this.products = source.products.map((product: any) => new ProductModel(product));
@@ -168,9 +168,9 @@ export class ProductModel extends ModelObject
         super();
         this.goodsId = "";
         if (source instanceof Object) {
-            if (source.goodsId instanceof String)
+            if (typeof source.goodsId === "string")
                 this.goodsId = source.goodsId;
-            if (source.amount instanceof Number)
+            if (typeof source.amount === "number")
                 this.amount = source.amount;
         }
     }
@@ -224,7 +224,7 @@ export class RecipeModel extends RecipeGroupEntry
     {
         super();
         if (source instanceof Object) {
-            if (source.recipeId instanceof String)
+            if (typeof source.recipeId === "string")
                 this.recipeId = source.recipeId;
         }
     }

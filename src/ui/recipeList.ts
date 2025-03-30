@@ -133,7 +133,6 @@ export class RecipeList {
     }
 
     private addProduct(goods: Goods, amount: number) {
-        console.log("addProduct", goods, amount);
         const page = project.GetCurrentPage();
         page.products.push(new ProductModel({
             goodsId: goods.id,
@@ -164,7 +163,9 @@ export class RecipeList {
         return `
             <div class="recipe-group collapsed" data-iid="${group.iid}">
                 <div class="group-header">
-                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">▼</button>
+                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
+                        <img src="assets/images/Arrow_Small_Right.png" alt="Expand">
+                    </button>
                     <span class="group-name">Group</span>
                 </div>
             </div>
@@ -173,11 +174,14 @@ export class RecipeList {
 
     private renderExpandedGroup(group: RecipeGroupModel, level: number = 0): string {
         return `
-            <div class="recipe-group" data-iid="${group.iid}" style="margin-left: ${level * 20}px">
+            <div class="recipe-group" data-iid="${group.iid}">
                 <div class="group-header">
-                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">▼</button>
-                    <button class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">+ Add Recipe</button>
-                    <button class="add-group-btn" data-iid="${group.iid}" data-action="add_group">+ Add Group</button>
+                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
+                        <img src="assets/images/Arrow_Small_Down.png" alt="Collapse">
+                    </button>
+                    <span class="group-name">Group</span>
+                    <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
+                    <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
                 </div>
                 <div class="group-content">
                     ${group.elements.map(entry => {
@@ -199,8 +203,9 @@ export class RecipeList {
         return `
             <div class="recipe-group root-group" data-iid="${group.iid}">
                 <div class="group-header">
-                    <button class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">+ Add Recipe</button>
-                    <button class="add-group-btn" data-iid="${group.iid}" data-action="add_group">+ Add Group</button>
+                    <span class="group-name">Root Group</span>
+                    <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
+                    <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
                 </div>
                 <div class="group-content">
                     ${group.elements.map(entry => {
@@ -226,7 +231,7 @@ export class RecipeList {
             .sort((a, b) => (b as ProductModel).amount - (a as ProductModel).amount);
 
         this.productItemsContainer.innerHTML = `
-            <button class="add-product-btn" data-iid="${page.iid}" data-action="add_product">+ Add Product</button>
+            <button class="button add-product-btn" data-iid="${page.iid}" data-action="add_product">Add Product</button>
             ${products.map(product => {
                 if (!(product instanceof ProductModel)) return '';
                 const obj = Repository.current.GetById(product.goodsId);
@@ -240,7 +245,7 @@ export class RecipeList {
                             <span class="amount-unit">/min</span>
                         </div>
                         <div class="name">${goods.name}</div>
-                        <button class="delete-btn" data-iid="${product.iid}" data-action="delete_product">×</button>
+                        <button class="button delete-btn" data-iid="${product.iid}" data-action="delete_product">×</button>
                     </div>
                 `;
             }).join("")}
