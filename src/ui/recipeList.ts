@@ -309,10 +309,10 @@ export class RecipeList {
         `;
     }
 
-    private renderRecipe(recipe: RecipeModel): string {
+    private renderRecipe(recipe: RecipeModel, level: number = 0): string {
         return `
             <div class="recipe-item" data-iid="${recipe.iid}" draggable="true">
-                <div class="grid-row">
+                <div class="grid-row" style="--nest-level: ${level}">
                     <div class="short-info"></div>
                     <div class="short-info">${recipe.recipeId}</div>
                     ${this.renderIoInfo(recipe.flow)}
@@ -322,19 +322,84 @@ export class RecipeList {
         `;
     }
 
-    private renderCollapsedGroup(group: RecipeGroupModel): string {
+    private renderCollapsedGroup(group: RecipeGroupModel, level: number = 0): string {
         return `
             <div class="recipe-group collapsed" data-iid="${group.iid}" draggable="true">
-                <div class="grid-row">
+                <div class="grid-row" style="--nest-level: ${level}">
                     <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
                         <img src="assets/images/Arrow_Small_Right.png" alt="Expand">
                     </button>
                     <div class="short-info">
-                        <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
+                        <div class="group-name">${group.name}</div>
                     </div>
                     ${this.renderIoInfo(group.flow)}
                     <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
                 </div>
+            </div>
+        `;
+    }
+
+    private renderExpandedGroup(group: RecipeGroupModel, level: number = 0): string {
+        return `
+            <div class="recipe-group" data-iid="${group.iid}">
+                <div class="grid-row" style="--nest-level: ${level}">
+                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
+                        <img src="assets/images/Arrow_Small_Down.png" alt="Collapse">
+                    </button>
+                    <div class="short-info">
+                        <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
+                    </div>
+                    <div class="group-buttons">
+                        <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
+                        <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
+                    </div>
+                    <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
+                </div>
+                ${this.renderLinks(group.links)}
+                    ${group.elements.map(entry => {
+                        if (entry instanceof RecipeModel) {
+                            return this.renderRecipe(entry, level + 1);
+                        } else if (entry instanceof RecipeGroupModel) {
+                            return entry.collapsed ? 
+                                this.renderCollapsedGroup(entry, level + 1) : 
+                                this.renderExpandedGroup(entry, level + 1);
+                        }
+                        return '';
+                    }).join("")}
+            </div>
+        `;
+    }
+
+    private renderRootGroup(group: RecipeGroupModel): string {
+        return `
+            <div class="recipe-group root-group" data-iid="${group.iid}">
+                <div class="grid-row" style="--nest-level: 0">
+                    <div></div>
+                    <div class="short-info">
+                        <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
+                    </div>
+                    <div class="io-label">INPUTS</div>
+                    <div class="io-label">OUTPUTS</div>
+                </div>
+                <div class="grid-row" style="--nest-level: 0">
+                    <div></div>
+                    <div class="group-buttons">
+                        <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
+                        <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
+                    </div>
+                    ${this.renderIoInfo(group.flow)}
+                </div>
+                ${this.renderLinks(group.links)}
+                    ${group.elements.map(entry => {
+                        if (entry instanceof RecipeModel) {
+                            return this.renderRecipe(entry, 1);
+                        } else if (entry instanceof RecipeGroupModel) {
+                            return entry.collapsed ? 
+                                this.renderCollapsedGroup(entry, 1) : 
+                                this.renderExpandedGroup(entry, 1);
+                        }
+                        return '';
+                    }).join("")}
             </div>
         `;
     }
@@ -351,71 +416,6 @@ export class RecipeList {
                         return goods ? `<item-icon data-id="${linkId}"></item-icon>` : '';
                     }).join('')}
                 </div>
-            </div>
-        `;
-    }
-
-    private renderExpandedGroup(group: RecipeGroupModel, level: number = 0): string {
-        return `
-            <div class="recipe-group" data-iid="${group.iid}">
-                <div class="grid-row">
-                    <button class="collapse-btn" data-iid="${group.iid}" data-action="toggle_collapse">
-                        <img src="assets/images/Arrow_Small_Down.png" alt="Collapse">
-                    </button>
-                    <div class="short-info">
-                        <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
-                    </div>
-                    <div class="group-buttons">
-                        <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
-                        <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
-                    </div>
-                    <button class="button delete-btn" data-iid="${group.iid}" data-action="delete_group">×</button>
-                </div>
-                ${this.renderLinks(group.links)}
-                    ${group.elements.map(entry => {
-                        if (entry instanceof RecipeModel) {
-                            return this.renderRecipe(entry);
-                        } else if (entry instanceof RecipeGroupModel) {
-                            return entry.collapsed ? 
-                                this.renderCollapsedGroup(entry) : 
-                                this.renderExpandedGroup(entry, level + 1);
-                        }
-                        return '';
-                    }).join("")}
-            </div>
-        `;
-    }
-
-    private renderRootGroup(group: RecipeGroupModel): string {
-        return `
-            <div class="recipe-group root-group" data-iid="${group.iid}">
-                <div class="grid-row">
-                    <div></div>
-                    <div class="short-info">
-                        <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
-                    </div>
-                    <div class="io-label">INPUTS</div>
-                    <div class="io-label">OUTPUTS</div>
-                </div>
-                <div class="grid-row">
-                    <div class="short-info"></div>
-                    <div class="group-buttons">
-                        <button class="button add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
-                        <button class="button add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
-                    </div>
-                    ${this.renderIoInfo(group.flow)}
-                </div>
-                ${this.renderLinks(group.links)}
-                    ${group.elements.map(entry => {
-                        if (entry instanceof RecipeModel) {
-                            return this.renderRecipe(entry);
-                        } else if (entry instanceof RecipeGroupModel) {
-                            return entry.collapsed ? 
-                                this.renderCollapsedGroup(entry) : 
-                                this.renderExpandedGroup(entry, 1);
-                        }
-                        return '';
-                    }).join("")}
             </div>
         `;
     }

@@ -185,16 +185,15 @@
 
 .grid-row {
     display: grid;
-    grid-template-columns: 36px 300px 1fr 1fr 36px;
+    grid-template-columns: 36px calc(300px - var(--nest-level, 0) * 4px) 1fr 1fr 36px;
     gap: 10px;
     align-items: center;
+    margin-bottom: 10px;
 }
 
 /* Common grid column assignments */
 .collapse-btn {
     grid-column: 1;
-    width: 36px;
-    height: 36px;
     padding: 0;
     background: none;
     border: none;
@@ -203,6 +202,14 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+.collapse-btn img {
+    width: 22px;
+    height: 22px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .short-info {
@@ -227,7 +234,7 @@
 
 .io-label {
     color: #888888;
-    font-size: 8px;
+    font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 4px;
@@ -330,7 +337,7 @@
 
 /* Expanded group specific styles */
 .recipe-group:not(.collapsed):not(.root-group) .group-buttons {
-    grid-column: 3 / 4;
+    grid-column: 4;
     display: flex;
     gap: 8px;
     justify-content: flex-end;
@@ -360,13 +367,30 @@
     border: none;
     color: #ffffff;
     font-size: 16px;
-    width: 100%;
     padding: 0;
+    pointer-events: none;
+}
+
+.recipe-group:not(.collapsed) .group-name-input {
+    pointer-events: auto;
+    border: 1px solid #404040;
+    border-radius: 2px;
+    padding: 2px 4px;
+    background-color: #363636;
 }
 
 .group-name-input:focus {
     outline: none;
-    border-bottom: 1px solid #4CAF50;
+    border-color: #4CAF50;
+    background-color: #404040;
+}
+
+.group-name {
+    color: #ffffff;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Group content styles */
