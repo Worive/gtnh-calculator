@@ -103,57 +103,6 @@ export abstract class ModelObject
     }
 }
 
-export class PageModel extends ModelObject
-{
-    name: string = "New Page";
-    products: ProductModel[] = [];
-    rootGroup: RecipeGroupModel = new RecipeGroupModel();
-
-    Visit(visitor: ModelObjectVisitor): void {
-        visitor.VisitData(this, "name", this.name);
-        visitor.VisitArray(this, "products", this.products);
-        visitor.VisitObject(this, "rootGroup", this.rootGroup);
-    }
-
-    constructor(source:any = undefined)
-    {
-        super();
-        if (source instanceof Object) {
-            if (typeof source.name === "string")
-                this.name = source.name;
-            if (source.products instanceof Array)
-                this.products = source.products.map((product: any) => new ProductModel(product));
-            if (source.rootGroup instanceof Object)
-                this.rootGroup = new RecipeGroupModel(source.rootGroup);
-        }
-    }
-}
-
-export var currentPage:PageModel = new PageModel({});
-
-export class ProductModel extends ModelObject
-{
-    goodsId: string;
-    amount: number = 1;
-
-    Visit(visitor: ModelObjectVisitor): void {
-        visitor.VisitData(this, "goodsId", this.goodsId);
-        visitor.VisitData(this, "amount", this.amount);
-    }
-
-    constructor(source:any = undefined)
-    {
-        super();
-        this.goodsId = "";
-        if (source instanceof Object) {
-            if (typeof source.goodsId === "string")
-                this.goodsId = source.goodsId;
-            if (typeof source.amount === "number")
-                this.amount = source.amount;
-        }
-    }
-}
-
 export abstract class RecipeGroupEntry extends ModelObject{}
 
 export class RecipeGroupModel extends RecipeGroupEntry
@@ -207,6 +156,84 @@ export class RecipeModel extends RecipeGroupEntry
         }
     }
 }
+
+export class ProductModel extends ModelObject
+{
+    goodsId: string;
+    amount: number = 1;
+
+    Visit(visitor: ModelObjectVisitor): void {
+        visitor.VisitData(this, "goodsId", this.goodsId);
+        visitor.VisitData(this, "amount", this.amount);
+    }
+
+    constructor(source:any = undefined)
+    {
+        super();
+        this.goodsId = "";
+        if (source instanceof Object) {
+            if (typeof source.goodsId === "string")
+                this.goodsId = source.goodsId;
+            if (typeof source.amount === "number")
+                this.amount = source.amount;
+        }
+    }
+}
+
+export class PageModel extends ModelObject
+{
+    name: string = "New Page";
+    products: ProductModel[] = [];
+    rootGroup: RecipeGroupModel = new RecipeGroupModel();
+    private history: string[] = [];
+    private readonly MAX_HISTORY = 50;
+
+    Visit(visitor: ModelObjectVisitor): void {
+        visitor.VisitData(this, "name", this.name);
+        visitor.VisitArray(this, "products", this.products);
+        visitor.VisitObject(this, "rootGroup", this.rootGroup);
+    }
+
+    constructor(source:any = undefined)
+    {
+        super();
+        if (source instanceof Object) {
+            if (typeof source.name === "string")
+                this.name = source.name;
+            if (source.products instanceof Array)
+                this.products = source.products.map((product: any) => new ProductModel(product));
+            if (source.rootGroup instanceof Object)
+                this.rootGroup = new RecipeGroupModel(source.rootGroup);
+        }
+    }
+
+    // Undo history methods
+    addToHistory(json:string) {
+        this.history.push(json);
+        if (this.history.length > this.MAX_HISTORY) {
+            this.history.shift();
+        }
+    }
+
+    undo(): boolean {
+        if (this.history.length > 1) {
+            this.history.pop(); // Remove current state
+            const previousState = this.history[this.history.length - 1];
+            try {
+                const previousPage = new PageModel(JSON.parse(previousState));
+                this.name = previousPage.name;
+                this.products = previousPage.products;
+                this.rootGroup = previousPage.rootGroup;
+                return true;
+            } catch (e) {
+                console.error("Failed to undo:", e);
+            }
+        }
+        return false;
+    }
+}
+
+export var currentPage:PageModel = new PageModel({});
 
 export function DragAndDrop(sourceIid:number, targetIid:number)
 {
@@ -272,6 +299,7 @@ function loadPage(key:string):PageModel
     if (stored) {
         try {
             let projectData = JSON.parse(stored);
+            console.log("Loaded page", stored);
             return new PageModel(projectData);
         } catch (e) {
             console.error("Failed to load project:", e);
@@ -280,38 +308,27 @@ function loadPage(key:string):PageModel
     return new PageModel();
 }
 
-// Save project to storage
 function savePage() {
     try {
         const json = JSON.stringify(serializer.Serialize(page));
         localStorage.setItem(currentPageName, json);
-        
-        // Add to history
-        history.push(json);
-        if (history.length > MAX_HISTORY) {
-            history.shift();
-        }
-        console.log(json);
+        console.log("Saved page", json);
+        page.addToHistory(json);
+        updateUrlFragment(json); // Update URL fragment when saving
     } catch (e) {
         console.error("Failed to save project:", e);
     }
 }
 
-export function UpdateProject() {
-    savePage();
+export function UpdateProject(visualOnly:boolean = false) {
+    if (!visualOnly)
+        savePage();
     notifyListeners();
 }
 
 export function Undo() {
-    if (history.length > 1) {
-        history.pop(); // Remove current state
-        const previousState = history[history.length - 1];
-        try {
-            page = new PageModel(JSON.parse(previousState));
-            notifyListeners();
-        } catch (e) {
-            console.error("Failed to undo:", e);
-        }
+    if (page.undo()) {
+        notifyListeners();
     }
 }
 
@@ -322,3 +339,62 @@ document.addEventListener("keydown", (e) => {
         Undo();
     }
 });
+
+async function updateUrlFragment(json:string) {
+    try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(json);
+        const compressedStream = new CompressionStream('deflate');
+        const writer = compressedStream.writable.getWriter();
+        writer.write(data);
+        writer.close();
+        const compressedBytes = await new Response(compressedStream.readable).arrayBuffer();
+        const compressed = String.fromCharCode(...new Uint8Array(compressedBytes));
+        const base64 = btoa(compressed).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        window.location.hash = base64;
+    } catch (e) {
+        console.error("Failed to update URL fragment:", e);
+    }
+}
+
+async function loadFromUrlFragment(): Promise<PageModel | null> {
+    try {
+        const hash = window.location.hash.slice(1); // Remove the # symbol
+        if (!hash) return null;
+
+        // Convert from URL-safe base64 back to normal base64
+        const base64 = hash.replace(/-/g, '+').replace(/_/g, '/');
+        // Decode base64
+        const compressed = atob(base64);
+        // Decompress
+        const data = new Uint8Array(compressed.split('').map(c => c.charCodeAt(0)));
+        const decompressedStream = new DecompressionStream('deflate');
+        const writer = decompressedStream.writable.getWriter();
+        writer.write(data);
+        writer.close();
+        const decompressed = await new Response(decompressedStream.readable).arrayBuffer();
+        const json = new TextDecoder().decode(decompressed);
+        return new PageModel(JSON.parse(json));
+    } catch (e) {
+        console.error("Failed to load from URL fragment:", e);
+        return null;
+    }
+}
+
+// Update the URL fragment handling to be async
+window.addEventListener('hashchange', async () => {
+    const newPage = await loadFromUrlFragment();
+    if (newPage) {
+        page = newPage;
+        notifyListeners();
+    }
+});
+
+// Initialize page from URL fragment if available
+(async () => {
+    const pageFromUrl = await loadFromUrlFragment();
+    if (pageFromUrl) {
+        page = pageFromUrl;
+        page.addToHistory(JSON.stringify(serializer.Serialize(page))); // Initialize history with the loaded state
+    }
+})();

@@ -9,7 +9,7 @@ const tooltipMod = tooltip.querySelector("#tooltip-mod") as HTMLElement;
 
 export function ShowTooltip(target:HTMLElement, data:Goods | string | null):void
 {
-    console.log(data);
+    //console.log(data);
     if (data == null)
         return;
     if (data instanceof Goods)

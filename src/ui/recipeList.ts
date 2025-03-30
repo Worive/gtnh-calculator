@@ -63,7 +63,7 @@ export class RecipeList {
         this.actionHandlers.set("toggle_collapse", (obj) => {
             if (obj instanceof RecipeGroupModel) {
                 obj.collapsed = !obj.collapsed;
-                UpdateProject();
+                UpdateProject(true);
             }
         });
 
