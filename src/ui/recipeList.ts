@@ -7,7 +7,7 @@ interface Product {
     amount: number;
 }
 
-type ActionHandler = (obj: ModelObject, parent: ModelObject, event: Event, target: HTMLElement) => void;
+type ActionHandler = (obj: ModelObject, parent: ModelObject, event: Event) => void;
 
 export class RecipeList {
     private productItemsContainer: HTMLElement;
@@ -16,7 +16,7 @@ export class RecipeList {
 
     constructor() {
         this.productItemsContainer = document.querySelector(".product-items")!;
-        this.recipeItemsContainer = document.querySelector(".recipe-items")!;
+        this.recipeItemsContainer = document.querySelector(".recipe-list")!;
         this.setupActionHandlers();
         this.setupGlobalEventListeners();
         this.setupDragAndDrop();
@@ -41,9 +41,9 @@ export class RecipeList {
             }
         });
 
-        this.actionHandlers.set("update_amount", (obj) => {
-            if (obj instanceof ProductModel) {
-                obj.amount = (obj as any).amount;
+        this.actionHandlers.set("update_amount", (obj, parent, event) => {
+            if (obj instanceof ProductModel && event.type === "change") {
+                obj.amount = parseFloat((event.target as HTMLInputElement).value);
                 UpdateProject();
             }
         });
@@ -93,82 +93,32 @@ export class RecipeList {
             }
         });
 
-        this.actionHandlers.set("update_group_name", (obj, parent, event, target) => {
-            if (obj instanceof RecipeGroupModel) {
-                obj.name = (target as HTMLInputElement).value;
+        this.actionHandlers.set("update_group_name", (obj, parent, event) => {
+            if (obj instanceof RecipeGroupModel && event.type === "change") {
+                obj.name = (event.target as HTMLInputElement).value;
             }
         });
     }
 
     private setupGlobalEventListeners() {
-        // Global event listener for all buttons with iid and action
-        document.addEventListener("click", (e) => {
-            const button = (e.target as HTMLElement).closest("[data-iid][data-action]") as HTMLElement;
-            if (button) {
-                const iid = parseInt(button.getAttribute("data-iid")!);
-                const action = button.getAttribute("data-action")!;
+        let commonHandler = (e: Event) => {
+        const element = (e.target as HTMLElement).closest("[data-iid][data-action]") as HTMLElement;
+            if (element) {
+                const iid = parseInt(element.getAttribute("data-iid")!) || page.iid;
+                const action = element.getAttribute("data-action")!;
                 const result = GetByIid(iid);
                 if (result) {
                     const handler = this.actionHandlers.get(action);
                     if (handler) {
-                        handler(result.current, result.parent, e, button);
+                        handler(result.current, result.parent, e);
                     }
                 }
             }
-        });
+        }
 
-        // Global event listener for amount inputs
-        document.addEventListener("change", (e) => {
-            const amountInput = (e.target as HTMLElement).closest(".amount") as HTMLElement;
-            if (amountInput) {
-                const productItem = amountInput.closest(".product-item") as HTMLElement;
-                if (productItem) {
-                    const iid = parseInt(productItem.getAttribute("data-iid")!);
-                    const result = GetByIid(iid);
-                    if (result) {
-                        const handler = this.actionHandlers.get("update_amount");
-                        if (handler) {
-                            (result.current as any).amount = parseFloat((amountInput as HTMLInputElement).value);
-                            handler(result.current, result.parent, e, amountInput);
-                        }
-                    }
-                }
-            }
-        });
-
-        // Global event listener for group name inputs - blur event to save changes
-        document.addEventListener("blur", (e) => {
-            const nameInput = (e.target as HTMLElement).closest("[data-action='update_group_name']") as HTMLElement;
-            if (nameInput) {
-                const iid = parseInt(nameInput.getAttribute("data-iid")!);
-                const result = GetByIid(iid);
-                if (result) {
-                    const handler = this.actionHandlers.get("update_group_name");
-                    if (handler) {
-                        handler(result.current, result.parent, e, nameInput);
-                    }
-                }
-            }
-        });
-
-        // Global event listener for group name inputs - Enter key to save changes
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                const nameInput = (e.target as HTMLElement).closest("[data-action='update_group_name']") as HTMLElement;
-                if (nameInput) {
-                    const iid = parseInt(nameInput.getAttribute("data-iid")!);
-                    const result = GetByIid(iid);
-                    if (result) {
-                        const handler = this.actionHandlers.get("update_group_name");
-                        if (handler) {
-                            handler(result.current, result.parent, e, nameInput);
-                        }
-                    }
-                    // Blur the input to remove focus
-                    nameInput.blur();
-                }
-            }
-        });
+        // Global event listener for all elements with iid and action
+        document.addEventListener("click", commonHandler);
+        document.addEventListener("change", commonHandler);
     }
 
     private setupDragAndDrop() {
@@ -427,7 +377,6 @@ export class RecipeList {
             .sort((a, b) => (b as ProductModel).amount - (a as ProductModel).amount);
 
         this.productItemsContainer.innerHTML = `
-            <button class="button add-product-btn" data-iid="${page.iid}" data-action="add_product">Add Product</button>
             ${products.map(product => {
                 if (!(product instanceof ProductModel)) return '';
                 const obj = Repository.current.GetById(product.goodsId);
@@ -437,7 +386,7 @@ export class RecipeList {
                     <div class="product-item" data-iid="${product.iid}">
                         <item-icon data-id="${goods.id}"></item-icon>
                         <div class="amount-container">
-                            <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1">
+                            <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1" data-iid="${product.iid}" data-action="update_amount">
                             <span class="amount-unit">/min</span>
                         </div>
                         <div class="name">${goods.name}</div>
