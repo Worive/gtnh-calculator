@@ -1,7 +1,14 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "../data/repository.js";
-import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation } from "../project.js";
+import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm } from "../project.js";
 import { voltageTier, GtVoltageTier } from "../utils.js";
+
+const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
+    [LinkAlgorithm.Match]: "Match",
+    [LinkAlgorithm.Ignore]: "Ignore",
+    [LinkAlgorithm.AtLeast]: ">=",
+    [LinkAlgorithm.AtMost]: "<="
+};
 
 interface Product {
     goods: Goods;
@@ -275,7 +282,7 @@ export class RecipeList {
                 .map((tier: GtVoltageTier, index: number) => `<option value="${minTier + index}" ${minTier + index === recipeModel.voltageTier ? 'selected' : ''}>${tier.name}</option>`)
                 .join('');
             let machineCounts = recipeModel.recipesPerMinute * gtRecipe.durationMinutes / recipeModel.overclockFactor;
-            console.log(recipeModel.recipesPerMinute, gtRecipe.durationMinutes, recipeModel.overclockFactor, machineCounts);
+            //console.log(recipeModel.recipesPerMinute, gtRecipe.durationMinutes, recipeModel.overclockFactor, machineCounts);
             let machineCountsText = Math.ceil(machineCounts * 100) / 100;
 
             shortInfoContent = `
@@ -333,7 +340,7 @@ export class RecipeList {
                     </div>
                     <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group"></button>
                 </div>
-                ${this.renderLinks(group.links)}
+                ${this.renderLinks(group.actualLinks)}
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
                             return this.renderRecipe(entry, level + 1);
@@ -368,7 +375,7 @@ export class RecipeList {
                     </div>
                     ${this.renderIoInfo(group.flow)}
                 </div>
-                ${this.renderLinks(group.links)}
+                ${this.renderLinks(group.actualLinks)}
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
                             return this.renderRecipe(entry, 1);
@@ -383,16 +390,18 @@ export class RecipeList {
         `;
     }
 
-    private renderLinks(links: string[]): string {
-        if (links.length === 0) return '';
+    private renderLinks(links: {[key:string]:LinkAlgorithm}): string {
+        let goodsIds = Object.keys(links);
+        if (goodsIds.length === 0) return '';
         
         return `
             <div class="group-links">
                 <span class="links-label">Links:</span>
                 <div class="links-grid">
-                    ${links.map(linkId => {
-                        const goods = Repository.current.GetById<Goods>(linkId);
-                        return goods ? `<item-icon data-id="${linkId}"></item-icon>` : '';
+                    ${goodsIds.map(goodsId => {
+                        const goods = Repository.current.GetById<Goods>(goodsId);
+                        const algorithm = links[goodsId];
+                        return goods ? `<item-icon data-id="${goodsId}" data-amount="${linkAlgorithmNames[algorithm]}"></item-icon>` : '';
                     }).join('')}
                 </div>
             </div>

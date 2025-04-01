@@ -53,8 +53,6 @@ button:hover {
     background-color: transparent;
 }
 
-
-
 input {
     font-family:'Minecraftia', sans-serif;
     font-size: 16px;
@@ -117,15 +115,20 @@ input::placeholder {
 }
 
 item-icon {
-    position: absolute;
     width: 32px;
     height: 32px;
+    position: relative;
     background-size: 8192px;
     background-repeat: no-repeat;
-
+    pointer-events: auto;
     background-image: url('/data/atlas.webp');
     background-position-x: calc(mod(var(--icon-id), 256) * (-32px));
     background-position-y: calc(round(var(--icon-id)/256 - 0.5) * (-32px));
+}
+
+/* Apply grid positioning when --grid-width is defined */
+item-icon:where(:has(+ [style*="--grid-width"]), [style*="--grid-width"] *) {
+    position: absolute;
     left: calc(mod(var(--grid-position), var(--grid-width)) * 36px + 2px);
     top: calc(round(var(--grid-position)/var(--grid-width) - 0.5) * 36px + 2px);
 }

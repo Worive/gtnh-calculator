@@ -194,14 +194,6 @@
     color: #ffffff;
 }
 
-.io-items item-icon {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-    position: relative;
-    pointer-events: auto;
-}
-
 .delete-btn {
     width: 28px;
     height: 28px;

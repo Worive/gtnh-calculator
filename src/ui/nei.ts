@@ -55,7 +55,7 @@ class ItemAllocator implements NeiRowAllocator<Goods>
         dom.push(`<div class="nei-items-row icon-grid" style="--grid-width:${elements.length}; top:${elementSize*rowY}px">`);
         for (var i=0; i<elements.length; i++) {
             var elem = elements[i];
-            dom.push(`<item-icon style="--grid-position:${i}" data-id="${elem.id}"></item-icon>`);
+            dom.push(`<item-icon class="item-icon-grid" style="--grid-position:${i}" data-id="${elem.id}"></item-icon>`);
         }
         dom.push(`<\div>`);
         return dom.join("");
@@ -109,7 +109,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
             if (item.slot >= count)
                 continue;
             var goods = item.goods;
-            var iconAttrs = `style="--grid-position:${item.slot}" data-id="${goods.id}"`;
+            var iconAttrs = `class="item-icon-grid" style="--grid-position:${item.slot}" data-id="${goods.id}"`;
             var amountText = item.amount == 0 ? "NC" : 
                            item.amount <= 100000 ? item.amount :
                            item.amount <= 10000000 ? Math.round(item.amount/1000) + "K" :
@@ -151,7 +151,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
             dom.push(`<div class="arrow-container">`);
             dom.push(`<div class="arrow"></div>`);
             if (canSelectRecipe) {
-                dom.push(`<div class="select-recipe-container"><button class="select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button></div>`);
+                dom.push(`<button class="select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>`);
             }
             dom.push(`</div>`);
             this.BuildRecipeIoDom(dom, recipeItems, index, RecipeIoType.ItemOutput, RecipeIoType.FluidOutput, 4);

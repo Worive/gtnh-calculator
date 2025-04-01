@@ -11,6 +11,7 @@ type LinkCollection = {
 function MatchVariablesToConstraints(model:Model, name:string, variableList: {[key:string]:number}):void
 {
     for (const key in variableList) {
+        if (key === "_amount") continue;
         model.variables[key][name] = variableList[key];
     }
 }
@@ -27,11 +28,11 @@ function CreateLinkByAlgorithm(model:Model, algorithm:LinkAlgorithm, group:Recip
 
     switch (algorithm) {
         case LinkAlgorithm.AtLeast:
-            model.variables[linkName] = {min:amount};
+            model.constraints[linkName] = {min:amount};
         case LinkAlgorithm.AtMost:
-            model.variables[linkName] = {max:amount};
+            model.constraints[linkName] = {max:amount};
         default:
-            model.variables[linkName] = {equal:amount};
+            model.constraints[linkName] = {equal:amount};
     }
 }
 
@@ -71,6 +72,8 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
         }
     }
 
+    console.log("Raw collection",collection);
+
     let matchedOutputs: {[key:string]:boolean} = {};
     group.actualLinks = {};
 
@@ -78,7 +81,7 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
         var oreDict = Repository.current.GetById<OreDict>(key);
         for (const itemId of oreDict.items) {
             var item = Repository.current.GetObject(itemId, Item);
-            let algorithm = group.links[item.id] || LinkAlgorithm.Ignore;
+            let algorithm = group.links[item.id] || LinkAlgorithm.Match;
             if (algorithm === LinkAlgorithm.Ignore || collection.output[item.id] === undefined)
                 continue;
 
@@ -88,7 +91,7 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
     }
 
     for (const key of Object.keys(collection.input)) {
-        var algorithm = group.links[key] || LinkAlgorithm.Ignore;
+        var algorithm = group.links[key] || LinkAlgorithm.Match;
         if (algorithm === LinkAlgorithm.Ignore || collection.output[key] === undefined)
             continue;
 
@@ -169,53 +172,32 @@ function ApplySolutionGroup(group:RecipeGroupModel, solution:Solution, model:Mod
     }
 }
 
-function CleanupModel(model:Model):void
-{
-    let positives: {[key:string]:number} = {};
-    let negatives: {[key:string]:number} = {};
-    for (const key in model.variables) {
-        for (const subKey in model.variables[key]) {
-            let value = model.variables[key][subKey];
-            if (value > 0)
-                positives[subKey] = value;
-            else if (value < 0)
-                negatives[subKey] = value;
-        }
-    }
-
-    for (const key in model.constraints) {
-        let equal = model.constraints[key].equal as number;
-        let hasPositive = positives[key] || equal < 0;
-        let hasNegative = negatives[key] || equal > 0;
-        if (!hasPositive || !hasNegative) {
-            delete model.constraints[key];
-        }
-    }
-}
-
 export function SolvePage(page:PageModel):void
 {
-    let model:Model = {
-        optimize: "obj",
-        opType: "min",
-        constraints: {},
-        variables: {},
-    }
-
-    console.log("Solve model",model);
-    let collection:LinkCollection = {output: {}, input: {}, inputOreDict: {}};
-    for (const product of page.products) {
-        if (product.amount > 0) {
-            collection.input[product.goodsId] = {"_amount": product.amount};
-        } else {
-            collection.output[product.goodsId] = {"_amount": -product.amount};
+    try {
+        let model:Model = {
+            optimize: "obj",
+            opType: "min",
+            constraints: {},
+            variables: {},
         }
-    }
-    CreateAndMatchLinks(page.rootGroup, model, collection);
-    CleanupModel(model);
 
-    let solution = window.solver.Solve(model);
-    console.log("Solve solution",solution);
-    if (solution.feasible)
-        ApplySolutionGroup(page.rootGroup, solution, model);
+        let collection:LinkCollection = {output: {}, input: {}, inputOreDict: {}};
+        for (const product of page.products) {
+            if (product.amount > 0) {
+                collection.input[product.goodsId] = {"_amount": -product.amount};
+            } else {
+                collection.output[product.goodsId] = {"_amount": product.amount};
+            }
+        }
+        CreateAndMatchLinks(page.rootGroup, model, collection);
+        console.log("Solve model",model);
+
+        let solution = window.solver.Solve(model);
+        console.log("Solve solution",solution);
+        if (solution.feasible)
+            ApplySolutionGroup(page.rootGroup, solution, model);
+    } catch (error) {
+        console.error("Error solving page",error);
+    }
 }
