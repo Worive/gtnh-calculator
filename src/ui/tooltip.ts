@@ -7,7 +7,7 @@ const tooltipDebugInfo = tooltip.querySelector("#tooltip-debug") as HTMLElement;
 const tooltipText = tooltip.querySelector("#tooltip-text") as HTMLElement;
 const tooltipMod = tooltip.querySelector("#tooltip-mod") as HTMLElement;
 
-export function ShowTooltip(target:HTMLElement, data:Goods | string | null):void
+export function ShowTooltip(target:HTMLElement, data:Goods | string | null, text:string | null = null):void
 {
     //console.log(data);
     if (data == null)
@@ -15,7 +15,8 @@ export function ShowTooltip(target:HTMLElement, data:Goods | string | null):void
     if (data instanceof Goods)
         ShowTooltipRaw(target, data.name, data.tooltipDebugInfo, data.tooltip, data.mod);
     else
-        ShowTooltipRaw(target, data, null, null, null);
+        ShowTooltipRaw(target, data, null, text, null);
+    target.addEventListener("mouseleave", () => HideTooltip(target), { once: true });
 }
 
 function SetTextOptional(element:HTMLElement, data: string | null)

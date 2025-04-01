@@ -2,12 +2,17 @@ import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "../data/repository.js";
 import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm } from "../project.js";
 import { voltageTier, GtVoltageTier } from "../utils.js";
+import { ShowTooltip } from "./tooltip.js";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
-    [LinkAlgorithm.Match]: "Match",
+    [LinkAlgorithm.Match]: "",
     [LinkAlgorithm.Ignore]: "Ignore",
-    [LinkAlgorithm.AtLeast]: ">=",
-    [LinkAlgorithm.AtMost]: "<="
+};
+
+const tooltips: { [key: string]: {header: string, text: string} } = {
+    "link": {header: "Links", text: "When some item has both production and consumption (or it is a required product), a link is created.\n\n\
+    By default, the link will attempt to match production and consumption exactly.\n\n\
+    If this is not desired, you can choose to ignore the link by clicking on it."}
 };
 
 interface Product {
@@ -134,6 +139,21 @@ export class RecipeList {
         // Global event listener for all elements with iid and action
         document.addEventListener("click", commonHandler);
         document.addEventListener("change", commonHandler);
+        // Tooltip handling
+        document.addEventListener("mouseenter", (e) => {
+            const element = (e.target as HTMLElement).closest("[data-tooltip]");
+            if (element) {
+                const tooltip = element.getAttribute("data-tooltip");
+                if (tooltip) {
+                    let formattedTooltip = tooltips[tooltip];
+                    if (formattedTooltip) {
+                        ShowTooltip(element as HTMLElement, formattedTooltip.header, formattedTooltip.text);
+                    } else {
+                        ShowTooltip(element as HTMLElement, tooltip);
+                    }
+                }
+            }
+        }, true);
     }
 
     private setupDragAndDrop() {
@@ -396,12 +416,15 @@ export class RecipeList {
         
         return `
             <div class="group-links">
-                <span class="links-label">Links:</span>
+                <div class="hgroup">
+                    <span class="links-label" data-tooltip="link">Links: (?)</span>
+                </div>
                 <div class="links-grid">
                     ${goodsIds.map(goodsId => {
                         const goods = Repository.current.GetById<Goods>(goodsId);
                         const algorithm = links[goodsId];
-                        return goods ? `<item-icon data-id="${goodsId}" data-amount="${linkAlgorithmNames[algorithm]}"></item-icon>` : '';
+                        let overText = algorithm === LinkAlgorithm.Match ? "" : ` data-amount="${linkAlgorithmNames[algorithm]}"`;
+                        return goods ? `<item-icon data-id="${goodsId}"${overText}></item-icon>` : '';
                     }).join('')}
                 </div>
             </div>

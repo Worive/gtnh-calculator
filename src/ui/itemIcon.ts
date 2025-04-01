@@ -22,7 +22,6 @@ export class IconBox extends HTMLElement
     {
         super();
         this.addEventListener("mouseenter", () => ShowTooltip(this, this.GetDisplayObject()));
-        this.addEventListener("mouseleave", () => HideTooltip(this));
         this.addEventListener('contextmenu', this.RightClick);
         this.addEventListener('click', this.LeftClick);
         this.UpdateIconId();
@@ -93,8 +92,15 @@ export class IconBox extends HTMLElement
         HideTooltip(this);
     }
 
+    private HasCustomAction():boolean
+    {
+        return this.attributes.getNamedItem("data-action") !== null;
+    }
+
     RightClick(event:any)
     {
+        if (this.HasCustomAction())
+            return;
         if (event.ctrlKey || event.metaKey)
             return;
         event.preventDefault();
@@ -103,6 +109,8 @@ export class IconBox extends HTMLElement
 
     LeftClick()
     {
+        if (this.HasCustomAction())
+            return;
         ShowNei(this.obj, ShowNeiMode.Production, null);
     }
 }

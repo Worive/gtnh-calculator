@@ -132,7 +132,7 @@
 }
 
 /* Base grid layout for all items */
-.recipe-item, .recipe-group:not(.root-group), .recipe-group.collapsed:not(.root-group) {
+.recipe-item, .recipe-group, .recipe-group.collapsed {
     background-color: #2a2a2a;
     border: 1px solid #404040;
     border-radius: 4px;
@@ -209,6 +209,16 @@
     border: none;
 }
 
+.notification {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    cursor: pointer;
+    background-image: url('./../images/Notification.png');
+    background-size: 16px 16px;
+    border: none;
+}
+
 /* Root group specific styles */
 .root-group {
     background-color: #363636;
@@ -275,7 +285,6 @@
     display: block;
     color: #ffffff;
     font-size: 16px;
-    margin-bottom: 8px;
 }
 
 .links-grid {

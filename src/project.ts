@@ -113,8 +113,8 @@ export type FlowInformation = {
 export enum LinkAlgorithm {
     Match,
     Ignore,
-    AtLeast,
-    AtMost,
+    //AtLeast,
+    //AtMost,
 }
 
 let emptyFlow:FlowInformation = {input: {}, output: {}, energy: {}};

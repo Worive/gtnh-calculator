@@ -1,11 +1,12 @@
 import { Model, Solution } from "./types/javascript-lp-solver.js";
 import { PageModel, RecipeGroupModel, RecipeModel, ProductModel, FlowInformation, LinkAlgorithm } from './project.js';
-import { Goods, Item, OreDict, Recipe, RecipeIoType, Repository } from "./data/repository.js";
+import { Goods, Item, OreDict, Recipe, RecipeIoType, RecipeObject, Repository } from "./data/repository.js";
 
 type LinkCollection = {
     output: {[key:string]:{[key:string]:number}},
     input: {[key:string]:{[key:string]:number}},
     inputOreDict: {[key:string]:{[key:string]:number}},
+    inputOreDictRecipe: {[key:string]:RecipeModel[]},
 }
 
 function MatchVariablesToConstraints(model:Model, name:string, variableList: {[key:string]:number}):void
@@ -25,15 +26,7 @@ function CreateLinkByAlgorithm(model:Model, algorithm:LinkAlgorithm, group:Recip
     matchedOutputs[goodsId] = true;
     delete collection[collectionKey];
     group.actualLinks[goodsId] = algorithm;
-
-    switch (algorithm) {
-        case LinkAlgorithm.AtLeast:
-            model.constraints[linkName] = {min:amount};
-        case LinkAlgorithm.AtMost:
-            model.constraints[linkName] = {max:amount};
-        default:
-            model.constraints[linkName] = {equal:amount};
-    }
+    model.constraints[linkName] = {equal:amount};
 }
 
 function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:LinkCollection)
@@ -55,10 +48,12 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
                     if (item.amount === 0) continue;
                     collection.inputOreDict[item.goods.id] = collection.inputOreDict[item.goods.id] || {};
                     collection.inputOreDict[item.goods.id][varName] = (collection.inputOreDict[item.goods.id][varName] || 0) + item.amount;
+                    collection.inputOreDictRecipe[item.goods.id] = collection.inputOreDictRecipe[item.goods.id] || [];
+                    collection.inputOreDictRecipe[item.goods.id].push(child);
                 }
             }
         } else if (child instanceof RecipeGroupModel) {
-            let childCollection:LinkCollection = {output: {}, input: {}, inputOreDict: {}};
+            let childCollection:LinkCollection = {output: {}, input: {}, inputOreDict: {}, inputOreDictRecipe: {}};
             CreateAndMatchLinks(child, model, childCollection);
             for (const key in childCollection.output) {
                 collection.output[key] = {...collection.output[key], ...childCollection.output[key]};
@@ -68,6 +63,9 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
             }
             for (const key in childCollection.inputOreDict) {
                 collection.inputOreDict[key] = {...collection.inputOreDict[key], ...childCollection.inputOreDict[key]};
+            }
+            for (const key in childCollection.inputOreDictRecipe) {
+                collection.inputOreDictRecipe[key] = [...collection.inputOreDictRecipe[key], ...childCollection.inputOreDictRecipe[key]];
             }
         }
     }
@@ -85,6 +83,8 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
             if (algorithm === LinkAlgorithm.Ignore || collection.output[item.id] === undefined)
                 continue;
 
+            for (const recipe of collection.inputOreDictRecipe[key])
+                recipe.selectedOreDicts[key] = item;
             CreateLinkByAlgorithm(model, algorithm, group, item.id, key, collection.inputOreDict, matchedOutputs);
             break
         }
@@ -117,10 +117,9 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
     recipeModel.recipesPerMinute = solutionValue;
     recipeModel.overclockFactor = 1;
     for (const item of recipe.items) {
-        var goods:Goods | null = null;
-        if (item.type == RecipeIoType.OreDictInput)
+        var goods:RecipeObject = item.goods;
+        if (item.type == RecipeIoType.OreDictInput && recipeModel.selectedOreDicts[item.goods.id])
             goods = recipeModel.selectedOreDicts[item.goods.id];
-        else goods = item.goods as Goods;
 
         var isProduction = item.type == RecipeIoType.FluidOutput || item.type == RecipeIoType.ItemOutput;
         var element = isProduction ? flow.output : flow.input;
@@ -163,9 +162,17 @@ function ApplySolutionGroup(group:RecipeGroupModel, solution:Solution, model:Mod
     for (const child of group.elements) {
         AppendFlow(group.flow, child.flow);
     }
-    for (const link in group.links) {
-        let name = `link_${group.iid}_${link}`;
-        if (model.constraints[name]) {
+    for (const link in group.actualLinks) {
+        if (group.actualLinks[link] === LinkAlgorithm.Ignore)
+            continue;
+        let delta = (flow.input[link] || 0) - (flow.output[link] || 0);
+        if (delta > 0) {
+            flow.input[link] = delta;
+            delete flow.output[link];
+        } else if (delta < 0) {
+            flow.output[link] = -delta;
+            delete flow.input[link];
+        } else {
             delete flow.input[link];
             delete flow.output[link];
         }
@@ -182,7 +189,7 @@ export function SolvePage(page:PageModel):void
             variables: {},
         }
 
-        let collection:LinkCollection = {output: {}, input: {}, inputOreDict: {}};
+        let collection:LinkCollection = {output: {}, input: {}, inputOreDict: {}, inputOreDictRecipe: {}};
         for (const product of page.products) {
             if (product.amount > 0) {
                 collection.input[product.goodsId] = {"_amount": -product.amount};
