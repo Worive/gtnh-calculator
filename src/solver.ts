@@ -65,7 +65,7 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
                 collection.inputOreDict[key] = {...collection.inputOreDict[key], ...childCollection.inputOreDict[key]};
             }
             for (const key in childCollection.inputOreDictRecipe) {
-                collection.inputOreDictRecipe[key] = [...collection.inputOreDictRecipe[key], ...childCollection.inputOreDictRecipe[key]];
+                collection.inputOreDictRecipe[key] = [...collection.inputOreDictRecipe[key] || [], ...childCollection.inputOreDictRecipe[key]];
             }
         }
     }
