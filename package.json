@@ -1,15 +1,25 @@
 {
   "name": "gtnh-calc",
   "version": "1.0.0",
-  "description": "",
+  "description": "GregTech: New Horizons calculator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsc --watch",
+    "build": "tsc && npm run copy-files",
+    "copy-files": "copyfiles -u 0 index.html .nojekyll assets/**/* dist/",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist --dotfiles -m \"Deploy to GitHub Pages\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "gregtech",
+    "minecraft",
+    "calculator"
+  ],
+  "author": "ShadowTheAge",
+  "license": "MIT",
   "devDependencies": {
+    "copyfiles": "^2.4.1",
+    "gh-pages": "^6.1.1",
     "typescript": "^5.8.2"
   },
   "dependencies": {
