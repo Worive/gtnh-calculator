@@ -39,7 +39,18 @@ jobs:
         run: npm run build
         
       - name: List dist contents
-        run: ls -la dist/
+        run: |
+          echo "Root dist directory:"
+          ls -la dist/
+          echo "Data directory:"
+          ls -la dist/data/
+      
+      - name: Verify data.bin
+        run: |
+          if [ ! -f dist/data/data.bin ]; then
+            echo "Error: data.bin is missing!"
+            exit 1
+          fi
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
