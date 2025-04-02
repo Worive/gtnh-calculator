@@ -6,9 +6,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc && npm run copy-files",
-    "copy-files": "copyfiles -u 0 index.html .nojekyll assets/**/* dist/",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist --dotfiles -m \"Deploy to GitHub Pages\""
+    "copy-files": "copyfiles -u 0 index.html .nojekyll assets/**/* dist/"
   },
   "keywords": [
     "gregtech",
@@ -19,7 +17,6 @@
   "license": "MIT",
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "gh-pages": "^6.1.1",
     "typescript": "^5.8.2"
   },
   "dependencies": {
