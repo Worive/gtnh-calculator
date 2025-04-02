@@ -52,10 +52,12 @@ class ItemAllocator implements NeiRowAllocator<Goods>
     BuildRowDom(elements:Goods[], elementWidth:number, elementHeight:number, rowY:number):string
     {
         var dom:string[] = [];
+        const isSelectingGoods = showNeiCallback?.onSelectGoods != null;
+        const selectGoodsAction = isSelectingGoods ? ' data-action="select"' : "";
         dom.push(`<div class="nei-items-row icon-grid" style="--grid-width:${elements.length}; top:${elementSize*rowY}px">`);
         for (var i=0; i<elements.length; i++) {
             var elem = elements[i];
-            dom.push(`<item-icon class="item-icon-grid" style="--grid-position:${i}" data-id="${elem.id}"></item-icon>`);
+            dom.push(`<item-icon class="item-icon-grid" style="--grid-position:${i}" data-id="${elem.id}"${selectGoodsAction}></item-icon>`);
         }
         dom.push(`<\div>`);
         return dom.join("");
@@ -140,7 +142,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
     BuildRowDom(elements:Recipe[], elementWidth:number, elementHeight:number, rowY:number):string
     {
         let dom:string[] = [];
-        const canSelectRecipe = showNeiCallback?.canSelectRecipe() ?? false;
+        const canSelectRecipe = showNeiCallback?.onSelectRecipe != null;
         
         for (let i=0; i<elements.length; i++) {
             let recipe = elements[i];
@@ -257,10 +259,8 @@ export enum ShowNeiContext
 }
 
 export type ShowNeiCallback = {
-    canSelectGoods():boolean;
-    canSelectRecipe():boolean;
-    onSelectGoods(goods:Goods, mode:ShowNeiMode):void;
-    onSelectRecipe(recipe:Recipe):void;
+    onSelectGoods?(goods:Goods, mode:ShowNeiMode):void;
+    onSelectRecipe?(recipe:Recipe):void;
 }
 
 let showNeiCallback:ShowNeiCallback | null = null;
@@ -275,7 +275,7 @@ export function HideNei()
 export function ShowNei(goods:RecipeObject | null, mode:ShowNeiMode, callback:ShowNeiCallback | null = null)
 {
     console.log("ShowNei", goods, mode, callback);
-    if (showNeiCallback != null && goods instanceof Goods && showNeiCallback.canSelectGoods()) {
+    if (showNeiCallback != null && goods instanceof Goods && showNeiCallback.onSelectGoods) {
         console.log("ShowNei result (Goods): ", goods.id, goods);
         showNeiCallback.onSelectGoods(goods, mode);
         HideNei();
@@ -531,8 +531,7 @@ function createTabs() {
         tabElement.className = 'panel-tab';
         tabElement.innerHTML = `<icon class="icon" style="--icon-id:${tab.iconId}"></icon>`;
         tabElement.addEventListener('click', () => switchTab(index));
-        tabElement.addEventListener('mouseenter', () => ShowTooltip(tabElement, tab.name));
-        tabElement.addEventListener('mouseleave', () => HideTooltip(tabElement));
+        tabElement.addEventListener('mouseenter', () => ShowTooltip(tabElement, { header: tab.name }));
         neiTabs.appendChild(tabElement);
     });
     // Set initial active tab
@@ -568,7 +567,7 @@ createTabs();
 neiContent.addEventListener("click", (event) => {
     const target = event.target as HTMLElement;
     const selectButton = target.closest(".select-recipe-btn");
-    if (selectButton && showNeiCallback?.canSelectRecipe()) {
+    if (selectButton && showNeiCallback?.onSelectRecipe) {
         const recipeOffset = parseInt(selectButton.getAttribute("data-recipe") || "0");
         const recipe = repository.GetObject(recipeOffset, Recipe);
         console.log("ShowNei result (Recipe): ", recipe.id, recipe);

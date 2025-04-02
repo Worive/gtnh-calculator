@@ -5,17 +5,27 @@ const tooltip = document.getElementById("tooltip")!;
 const tooltipHeader = tooltip.querySelector("#tooltip-header") as HTMLElement;
 const tooltipDebugInfo = tooltip.querySelector("#tooltip-debug") as HTMLElement;
 const tooltipText = tooltip.querySelector("#tooltip-text") as HTMLElement;
+const tooltipAction = tooltip.querySelector("#tooltip-action") as HTMLElement;
 const tooltipMod = tooltip.querySelector("#tooltip-mod") as HTMLElement;
 
-export function ShowTooltip(target:HTMLElement, data:Goods | string | null, text:string | null = null):void
-{
-    //console.log(data);
+interface TooltipData {
+    header?: string;
+    text?: string | null;
+    action?: string | null;
+    goods?: Goods;
+}
+
+export function ShowTooltip(target: HTMLElement, data: TooltipData): void {
     if (data == null)
         return;
-    if (data instanceof Goods)
-        ShowTooltipRaw(target, data.name, data.tooltipDebugInfo, data.tooltip, data.mod);
-    else
-        ShowTooltipRaw(target, data, null, text, null);
+
+    const header = data.goods?.name ?? data.header ?? '';
+    const debug = data.goods?.tooltipDebugInfo ?? null;
+    const text = data.goods?.tooltip ?? data.text ?? null;
+    const mod = data.goods?.mod ?? null;
+    const action = data.action ?? null;
+
+    ShowTooltipRaw(target, header, debug, text, mod, action);
     target.addEventListener("mouseleave", () => HideTooltip(target), { once: true });
 }
 
@@ -29,13 +39,14 @@ function SetTextOptional(element:HTMLElement, data: string | null)
     }
 }
 
-function ShowTooltipRaw(target:HTMLElement, header:string, debug:string|null, description:string|null, mod:string|null)
+function ShowTooltipRaw(target:HTMLElement, header:string, debug:string|null, description:string|null, mod:string|null, action:string|null)
 {
     tooltip.style.display = "block";
     currentTooltipElement = target;
     tooltipHeader.textContent = header;
     SetTextOptional(tooltipDebugInfo, debug);
     SetTextOptional(tooltipText, description);
+    SetTextOptional(tooltipAction, action);
     SetTextOptional(tooltipMod, mod);
 
     const targetRect = target.getBoundingClientRect();

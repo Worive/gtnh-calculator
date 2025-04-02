@@ -6,6 +6,13 @@ import { ShowTooltip, HideTooltip, IsHovered } from "./tooltip.js";
 let globalIndex = 0;
 let oredictElements: IconBox[] = [];
 
+// Global actions map
+export const actions: { [key: string]: string } = {
+    "item_icon_click": "Left/Right click to add recipe",
+    "select": "Click to select",
+    "toggle_link_ignore": "Click to toggle link ignore"
+};
+
 // Start global cycle once
 window.setInterval(() => {
     globalIndex++;
@@ -16,12 +23,22 @@ window.setInterval(() => {
 
 export class IconBox extends HTMLElement
 {
-    private obj:RecipeObject | null = null;
+    public obj:RecipeObject | null = null;
 
     constructor()
     {
         super();
-        this.addEventListener("mouseenter", () => ShowTooltip(this, this.GetDisplayObject()));
+        this.addEventListener("mouseenter", () => {
+            const obj = this.GetDisplayObject();
+            if (obj) {
+                const actionType = this.getAttribute('data-action');
+                const actionText = actionType ? actions[actionType] : undefined;
+                ShowTooltip(this, {
+                    goods: obj,
+                    action: actionText ?? "Left/Right click to view Production/Consumption for this item"
+                });
+            }
+        });
         this.addEventListener('contextmenu', this.RightClick);
         this.addEventListener('click', this.LeftClick);
         this.UpdateIconId();
@@ -52,7 +69,7 @@ export class IconBox extends HTMLElement
             
             // Update tooltip if this element is currently being hovered
             if (IsHovered(this)) {
-                ShowTooltip(this, obj);
+                ShowTooltip(this, { goods: obj });
             }
         }
     }
@@ -94,7 +111,7 @@ export class IconBox extends HTMLElement
 
     private HasCustomAction():boolean
     {
-        return this.attributes.getNamedItem("data-action") !== null;
+        return this.getAttribute('data-action') !== null;
     }
 
     RightClick(event:any)

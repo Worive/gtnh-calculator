@@ -42,6 +42,12 @@
     white-space: pre-line;
 }
 
+#tooltip-action
+{
+    color: #cecf76;
+    white-space: pre-line;
+}
+
 #tooltip-mod
 {
     color: #5457FA;

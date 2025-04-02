@@ -73,7 +73,7 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
     console.log("Raw collection",collection);
 
     let matchedOutputs: {[key:string]:boolean} = {};
-    group.actualLinks = {};
+    group.actualLinks = {...group.links};
 
     for (const key of Object.keys(collection.inputOreDict)) {
         var oreDict = Repository.current.GetById<OreDict>(key);

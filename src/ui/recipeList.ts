@@ -63,15 +63,28 @@ export class RecipeList {
                 if (event.type === "contextmenu")
                     event.preventDefault();
                 const callback: ShowNeiCallback = {
-                    canSelectGoods: () => true,
-                    canSelectRecipe: () => true,
-                    onSelectGoods: () => {}, // Not used
                     onSelectRecipe: (recipe: Recipe) => {
                         this.addRecipe(recipe, obj);
                     }
                 };
 
                 ShowNei(goods, mode, callback);
+            }
+        });
+
+        this.actionHandlers.set("toggle_link_ignore", (obj, event, parent) => {
+            if (obj instanceof RecipeGroupModel && event.type === "click" && event.target instanceof IconBox) {
+                const goods = event.target.obj;
+                if (goods instanceof Goods) {
+                    const linkIgnore = obj.links[goods.id];
+                    if (linkIgnore === LinkAlgorithm.Ignore) {
+                        delete obj.links[goods.id];
+                    } else {
+                        obj.links[goods.id] = LinkAlgorithm.Ignore;
+                    }
+                }
+                
+                UpdateProject();
             }
         });
 
@@ -172,9 +185,12 @@ export class RecipeList {
                 if (tooltip) {
                     let formattedTooltip = tooltips[tooltip];
                     if (formattedTooltip) {
-                        ShowTooltip(element as HTMLElement, formattedTooltip.header, formattedTooltip.text);
+                        ShowTooltip(element as HTMLElement, {
+                            header: formattedTooltip.header,
+                            text: formattedTooltip.text
+                        });
                     } else {
-                        ShowTooltip(element as HTMLElement, tooltip);
+                        ShowTooltip(element as HTMLElement, { header: tooltip });
                     }
                 }
             }
@@ -230,12 +246,9 @@ export class RecipeList {
 
     private showNeiForProductSelection() {
         const callback: ShowNeiCallback = {
-            canSelectGoods: () => true,
-            canSelectRecipe: () => false,
             onSelectGoods: (goods: Goods, mode: ShowNeiMode) => {
                 this.addProduct(goods, 1);
             },
-            onSelectRecipe: () => {} // Not used
         };
 
         ShowNei(null, ShowNeiMode.Production, callback);
@@ -243,9 +256,6 @@ export class RecipeList {
 
     private showNeiForRecipeSelection(targetGroup: RecipeGroupModel) {
         const callback: ShowNeiCallback = {
-            canSelectGoods: () => false,
-            canSelectRecipe: () => true,
-            onSelectGoods: () => {}, // Not used
             onSelectRecipe: (recipe: Recipe) => {
                 this.addRecipe(recipe, targetGroup);
             }
@@ -385,7 +395,7 @@ export class RecipeList {
                     </div>
                     <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group"></button>
                 </div>
-                ${this.renderLinks(group.actualLinks)}
+                ${this.renderLinks(group.actualLinks, group)}
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
                             return this.renderRecipe(entry, group, level + 1);
@@ -420,7 +430,7 @@ export class RecipeList {
                     </div>
                     ${this.renderIoInfo(group.flow, group)}
                 </div>
-                ${this.renderLinks(group.actualLinks)}
+                ${this.renderLinks(group.actualLinks, group)}
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
                             return this.renderRecipe(entry, group, 1);
@@ -435,8 +445,8 @@ export class RecipeList {
         `;
     }
 
-    private renderLinks(links: {[key:string]:LinkAlgorithm}): string {
-        let goodsIds = Object.keys(links);
+    private renderLinks(links: {[key:string]:LinkAlgorithm}, group: RecipeGroupModel): string {
+        let goodsIds = Object.keys(links).sort();
         if (goodsIds.length === 0) return '';
         
         return `
@@ -449,7 +459,7 @@ export class RecipeList {
                         const goods = Repository.current.GetById<Goods>(goodsId);
                         const algorithm = links[goodsId];
                         let overText = algorithm === LinkAlgorithm.Match ? "" : ` data-amount="${linkAlgorithmNames[algorithm]}"`;
-                        return goods ? `<item-icon data-id="${goodsId}"${overText}></item-icon>` : '';
+                        return goods ? `<item-icon data-id="${goodsId}"${overText} data-action="toggle_link_ignore" data-iid="${group.iid}"></item-icon>` : '';
                     }).join('')}
                 </div>
             </div>

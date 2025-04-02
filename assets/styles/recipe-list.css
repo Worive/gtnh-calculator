@@ -132,7 +132,7 @@
 }
 
 /* Base grid layout for all items */
-.recipe-item, .recipe-group, .recipe-group.collapsed {
+.recipe-item, .recipe-group:not(.root-group), .recipe-group.collapsed:not(.root-group) {
     background-color: #2a2a2a;
     border: 1px solid #404040;
     border-radius: 4px;
