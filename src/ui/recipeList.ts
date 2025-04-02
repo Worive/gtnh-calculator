@@ -3,6 +3,7 @@ import { Goods, Repository, Item, Fluid, Recipe } from "../data/repository.js";
 import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm } from "../project.js";
 import { voltageTier, GtVoltageTier } from "../utils.js";
 import { ShowTooltip } from "./tooltip.js";
+import { IconBox } from "./itemIcon.js";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
     [LinkAlgorithm.Match]: "",
@@ -51,6 +52,26 @@ export class RecipeList {
                     parent.products.splice(index, 1);
                     UpdateProject();
                 }
+            }
+        });
+
+        this.actionHandlers.set("item_icon_click", (obj, event, parent) => {
+            if (event instanceof MouseEvent && (event.type === "click" || event.type === "contextmenu") && event.target instanceof IconBox && obj instanceof RecipeGroupModel) {
+                const goods = event.target.obj;
+
+                const mode = event.type === "click" ? ShowNeiMode.Production : ShowNeiMode.Consumption;
+                if (event.type === "contextmenu")
+                    event.preventDefault();
+                const callback: ShowNeiCallback = {
+                    canSelectGoods: () => true,
+                    canSelectRecipe: () => true,
+                    onSelectGoods: () => {}, // Not used
+                    onSelectRecipe: (recipe: Recipe) => {
+                        this.addRecipe(recipe, obj);
+                    }
+                };
+
+                ShowNei(goods, mode, callback);
             }
         });
 
@@ -122,7 +143,7 @@ export class RecipeList {
 
     private setupGlobalEventListeners() {
         let commonHandler = (e: Event) => {
-            if (e.type === "contextmenu" && e instanceof MouseEvent && !e.ctrlKey && !e.metaKey)
+            if (e.type === "contextmenu" && e instanceof MouseEvent && (e.ctrlKey || e.metaKey))
                 return;
             const element = (e.target as HTMLElement).closest("[data-iid][data-action]") as HTMLElement;
             if (element) {
@@ -142,6 +163,7 @@ export class RecipeList {
         document.addEventListener("click", commonHandler);
         document.addEventListener("change", commonHandler);
         document.addEventListener("contextmenu", commonHandler);
+
         // Tooltip handling
         document.addEventListener("mouseenter", (e) => {
             const element = (e.target as HTMLElement).closest("[data-tooltip]");
@@ -250,18 +272,18 @@ export class RecipeList {
         UpdateProject();
     }
 
-    private renderIoInfo(flow: FlowInformation): string {
+    private renderIoInfo(flow: FlowInformation, group: RecipeGroupModel): string {
         const formatAmount = (amount: number) => {
             return amount <= 100000 ? amount :
                 amount <= 10000000 ? Math.round(amount/1000) + "K" : Math.round(amount/1000000) + "M";
         };
 
-        const renderFlowItems = (items: {[key:string]:number}) => {
+        const renderFlowItems = (items: {[key:string]:number}, group: RecipeGroupModel) => {
             const sortedFlow = Object.entries(items).sort(([,a], [,b]) => Math.abs(b) - Math.abs(a));
             return sortedFlow.map(([goodsId, amount]) => {
                 const amountText = formatAmount(amount);
                 return `
-                    <item-icon data-id="${goodsId}" class="flow-item" data-amount="${amountText}"></item-icon>
+                    <item-icon data-id="${goodsId}" class="flow-item" data-amount="${amountText}" data-action="item_icon_click" data-iid="${group.iid}"></item-icon>
                 `;
             }).join('');
         };
@@ -280,20 +302,20 @@ export class RecipeList {
                 ${renderEnergyItems(flow.energy)}
             </div>
             <div class="io-items">
-                ${renderFlowItems(flow.input)}
+                ${renderFlowItems(flow.input, group)}
             </div>
             <div class="io-items">
-                ${renderFlowItems(flow.output)}
+                ${renderFlowItems(flow.output, group)}
             </div>
         `;
     }
 
-    private renderRecipeShortInfo(recipe: Recipe | null, recipeModel: RecipeModel): string {
+    private renderRecipeShortInfo(recipe: Recipe | null, recipeModel: RecipeModel, group: RecipeGroupModel): string {
         if (recipe === null) {
             return `<div class="short-info">Unknown recipe</div>`;
         }
         let crafter = Repository.current.GetObject(recipe.recipeType.craftItems[0], Item);
-        let result = `<item-icon data-id="${crafter.id}"></item-icon>`;
+        let result = `<item-icon data-id="${crafter.id}" data-action="item_icon_click" data-iid="${group.iid}"></item-icon>`;
         
         let shortInfoContent = recipe.recipeType.name;
         let gtRecipe = recipe.gtRecipe;
@@ -316,25 +338,25 @@ export class RecipeList {
                 ${shortInfoContent}
             `;
         }
-        
+
         result += `<div class="short-info">${shortInfoContent}</div>`;
         return result;
     }
 
-    private renderRecipe(recipeModel: RecipeModel, level: number = 0): string {
+    private renderRecipe(recipeModel: RecipeModel, group: RecipeGroupModel, level: number = 0): string {
         let recipe = Repository.current.GetById<Recipe>(recipeModel.recipeId);
         return `
             <div class="recipe-item" data-iid="${recipeModel.iid}" draggable="true">
                 <div class="grid-row" style="--nest-level: ${level}">
-                    ${this.renderRecipeShortInfo(recipe, recipeModel)}
-                    ${this.renderIoInfo(recipeModel.flow)}
+                    ${this.renderRecipeShortInfo(recipe, recipeModel, group)}
+                    ${this.renderIoInfo(recipeModel.flow, group)}
                     <button class="delete-btn" data-iid="${recipeModel.iid}" data-action="delete_recipe"></button>
                 </div>
             </div>
         `;
     }
 
-    private renderCollapsedGroup(group: RecipeGroupModel, level: number = 0): string {
+    private renderCollapsedGroup(group: RecipeGroupModel, parentGroup: RecipeGroupModel, level: number = 0): string {
         return `
             <div class="recipe-group collapsed" data-iid="${group.iid}" draggable="true">
                 <div class="grid-row" style="--nest-level: ${level}">
@@ -342,7 +364,7 @@ export class RecipeList {
                     <div class="short-info">
                         <div class="group-name">${group.name}</div>
                     </div>
-                    ${this.renderIoInfo(group.flow)}
+                    ${this.renderIoInfo(group.flow, parentGroup)}
                     <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group"></button>
                 </div>
             </div>
@@ -366,10 +388,10 @@ export class RecipeList {
                 ${this.renderLinks(group.actualLinks)}
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
-                            return this.renderRecipe(entry, level + 1);
+                            return this.renderRecipe(entry, group, level + 1);
                         } else if (entry instanceof RecipeGroupModel) {
                             return entry.collapsed ? 
-                                this.renderCollapsedGroup(entry, level + 1) : 
+                                this.renderCollapsedGroup(entry, group, level + 1) : 
                                 this.renderExpandedGroup(entry, level + 1);
                         }
                         return '';
@@ -396,15 +418,15 @@ export class RecipeList {
                         <button class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
                         <button class="add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
                     </div>
-                    ${this.renderIoInfo(group.flow)}
+                    ${this.renderIoInfo(group.flow, group)}
                 </div>
                 ${this.renderLinks(group.actualLinks)}
                     ${group.elements.map(entry => {
                         if (entry instanceof RecipeModel) {
-                            return this.renderRecipe(entry, 1);
+                            return this.renderRecipe(entry, group, 1);
                         } else if (entry instanceof RecipeGroupModel) {
                             return entry.collapsed ? 
-                                this.renderCollapsedGroup(entry, 1) : 
+                                this.renderCollapsedGroup(entry, group, 1) : 
                                 this.renderExpandedGroup(entry, 1);
                         }
                         return '';
@@ -448,7 +470,7 @@ export class RecipeList {
                 const goods = obj as Goods;
                 return `
                     <div class="product-item" data-iid="${product.iid}">
-                        <item-icon data-id="${goods.id}"></item-icon>
+                        <item-icon data-id="${goods.id}" data-action="item_icon_click" data-iid="${product.iid}"></item-icon>
                         <div class="amount-container">
                             <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1" data-iid="${product.iid}" data-action="update_amount">
                             <span class="amount-unit">/min</span>
