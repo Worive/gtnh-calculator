@@ -2,15 +2,33 @@ import { PageModel, loadPage, serializer } from './page.js';
 
 export class PageManager {
     private pages: string[] = [];
-    private container: HTMLElement;
     private currentPage: string | null = null;
+    private pageListContainer: HTMLElement;
 
-    constructor(containerId: string) {
-        this.container = document.getElementById(containerId)!;
-        this.container.classList.add('menu-container');
+    constructor() {
+        this.pageListContainer = document.querySelector('.page-list')!;
         this.loadPagesFromStorage();
         this.render();
         this.loadFirstPage();
+        this.setupEventListeners();
+    }
+
+    private setupEventListeners() {
+        this.pageListContainer.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            if (target.matches('[data-action="switch-page"]')) {
+                const pageName = target.dataset.pageName;
+                if (pageName) this.switchPage(pageName);
+            }
+        });
+
+        this.pageListContainer.addEventListener('click', () => {
+            const input = document.querySelector('[data-action="page-name-input"]') as HTMLInputElement;
+            if (input && input.value.trim()) {
+                this.createNewPage(input.value.trim());
+                input.value = '';
+            }
+        });
     }
 
     private loadPagesFromStorage() {
@@ -26,33 +44,20 @@ export class PageManager {
     }
 
     private render() {
-        this.container.innerHTML = '';
-        
-        // Add page buttons
-        this.pages.forEach(pageName => {
-            const button = document.createElement('button');
-            button.textContent = pageName;
-            button.classList.add('page-button');
-            if (pageName === this.currentPage) {
-                button.classList.add('active');
-            }
-            button.addEventListener('click', () => this.switchPage(pageName));
-            this.container.appendChild(button);
-        });
-
-        // Add "New Page" button
-        const addButton = document.createElement('button');
-        addButton.textContent = 'New Page';
-        addButton.classList.add('add-page-button');
-        addButton.addEventListener('click', () => this.createNewPage());
-        this.container.appendChild(addButton);
+        this.pageListContainer.innerHTML = this.pages.map(pageName => `
+            <button class="page-button ${pageName === this.currentPage ? 'active' : ''}"
+                    data-action="switch-page"
+                    data-page-name="${pageName}">
+                ${pageName}
+            </button>
+        `).join('');
     }
 
     private loadFirstPage() {
         if (this.pages.length > 0) {
             this.switchPage(this.pages[0]);
         } else {
-            this.createNewPage();
+            this.createNewPage('New');
         }
     }
 
@@ -64,13 +69,13 @@ export class PageManager {
         this.render();
     }
 
-    private createNewPage() {
-        const newPageName = 'New';
+    private createNewPage(pageName: string) {
+        let finalName = pageName;
         let counter = 1;
-        while (this.pages.includes(newPageName + (counter > 1 ? ` ${counter}` : ''))) {
+        while (this.pages.includes(finalName)) {
+            finalName = `${pageName} ${counter}`;
             counter++;
         }
-        const finalName = newPageName + (counter > 1 ? ` ${counter}` : '');
         
         const page = new PageModel();
         page.name = finalName;
@@ -83,4 +88,4 @@ export class PageManager {
     }
 }
 
-new PageManager('menu');
+new PageManager();

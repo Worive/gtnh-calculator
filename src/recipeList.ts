@@ -525,7 +525,7 @@ export class RecipeList {
                 const goods = obj as Goods;
                 return `
                     <div class="product-item">
-                        <item-icon data-id="${goods.id}" data-action="item_icon_click" data-iid="${product.iid}"></item-icon>
+                        <item-icon data-id="${goods.id}" data-action="item_icon_click" data-iid="${page.rootGroup.iid}"></item-icon>
                         <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1" data-iid="${product.iid}" data-action="update_amount">
                         <span class="amount-unit">/min</span>
                         ${goods.name}

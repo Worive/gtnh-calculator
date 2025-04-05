@@ -298,13 +298,11 @@ export function DragAndDrop(sourceIid:number, targetIid:number)
     }
 }
 
-const MAX_HISTORY = 50;
 
 const changeListeners: ProjectChangeListener[] = [];
 export var pageNames = Object.keys(localStorage).filter((key) => key.startsWith("p:")).sort();
-let currentPageName = pageNames.length > 0 ? pageNames[0] : "p:New Page";
+let currentPageName = "p:New";
 export var page: PageModel;
-loadPage(currentPageName);
 
 // Event system
 type ProjectChangeListener = () => void;
