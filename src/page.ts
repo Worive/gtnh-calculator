@@ -86,6 +86,7 @@ class ModelObjectIidScanner extends ModelObjectVisitor
 }
 
 let serializer = new ModelObjectSerializer();
+export { serializer };
 let iidScanner = new ModelObjectIidScanner();
 
 export function GetByIid(iid:number):iidScanResult
@@ -299,16 +300,14 @@ export function DragAndDrop(sourceIid:number, targetIid:number)
 
 const MAX_HISTORY = 50;
 
-export var pageNames = Object.keys(localStorage).filter((key) => key.startsWith("page_")).sort();
-let currentPageName = pageNames.length > 0 ? pageNames[0] : "page_0";
-export var page: PageModel = loadPage(currentPageName)
-
-// Undo history
-let history: string[] = [];
+const changeListeners: ProjectChangeListener[] = [];
+export var pageNames = Object.keys(localStorage).filter((key) => key.startsWith("p:")).sort();
+let currentPageName = pageNames.length > 0 ? pageNames[0] : "p:New Page";
+export var page: PageModel;
+loadPage(currentPageName);
 
 // Event system
 type ProjectChangeListener = () => void;
-const changeListeners: ProjectChangeListener[] = [];
 
 export function addProjectChangeListener(listener: ProjectChangeListener) {
     changeListeners.push(listener);
@@ -325,22 +324,23 @@ function notifyListeners() {
     changeListeners.forEach(listener => listener());
 }
 
-function loadPage(key:string):PageModel
+export function loadPage(pageName:string):void
 {
-    currentPageName = key;
-    const stored = localStorage.getItem(key);
-    if (stored) {
+    currentPageName = pageName;
+    if (pageName) {
         try {
-            let page = JSON.parse(stored);
-            let pageModel = new PageModel(page);
+            let pageData = JSON.parse(localStorage.getItem(pageName) ?? "{}");
+            let pageModel = new PageModel(pageData);
             SolvePage(pageModel);
-            console.log("Loaded page", stored);
-            return pageModel;
+            console.log("Loaded page", pageModel);
+            page = pageModel;
+            notifyListeners();
         } catch (e) {
             console.error("Failed to load project:", e);
         }
     }
-    return new PageModel();
+    page = new PageModel();
+    notifyListeners();
 }
 
 function savePage() {
