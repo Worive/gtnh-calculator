@@ -34,12 +34,12 @@ export class RecipeList {
         this.setupActionHandlers();
         this.setupGlobalEventListeners();
         this.setupDragAndDrop();
-        this.updateProductList();
+        this.renderProductList();
         this.updateRecipeList();
         
         // Listen for project changes
         addProjectChangeListener(() => {
-            this.updateProductList();
+            this.renderProductList();
             this.updateRecipeList();
         });
     }
@@ -327,15 +327,13 @@ export class RecipeList {
     private renderRecipeShortInfo(recipe: Recipe | null, recipeModel: RecipeModel, group: RecipeGroupModel): string {
         if (recipe === null) {
             return `
-                <td></td>
-                <td>Unknown recipe</td>
+                <td colspan="2">Unknown recipe</td>
             `;
         }
         let crafter = Repository.current.GetObject(recipe.recipeType.craftItems[0], Item);
-        let iconCell = `<td><item-icon data-id="${crafter.id}" data-action="item_icon_click" data-iid="${group.iid}"></item-icon></td>`;
-        
-        let shortInfoContent = recipe.recipeType.name;
         let gtRecipe = recipe.gtRecipe;
+        let shortInfoContent = recipe.recipeType.name;
+        let machineCountsText = "";
         if (gtRecipe && gtRecipe.durationTicks > 0) {
             const minTier = gtRecipe.voltageTier;
             const maxTier = voltageTier.length - 1;
@@ -344,16 +342,17 @@ export class RecipeList {
                 .map((tier: GtVoltageTier, index: number) => `<option value="${minTier + index}" ${minTier + index === recipeModel.voltageTier ? 'selected' : ''}>${tier.name}</option>`)
                 .join('');
             let machineCounts = recipeModel.recipesPerMinute * gtRecipe.durationMinutes / recipeModel.overclockFactor;
-            let machineCountsText = Math.ceil(machineCounts * 100) / 100;
+            machineCountsText = `${Math.ceil(machineCounts * 100) / 100}`;
 
             shortInfoContent = `
-                ${machineCountsText}x
                 <select class="voltage-tier-select" data-iid="${recipeModel.iid}" data-action="update_voltage_tier">
                     ${options}
                 </select>
                 ${shortInfoContent}
             `;
         }
+
+        let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="item_icon_click" data-iid="${group.iid}" data-amount="${machineCountsText}"></item-icon></div></td>`;
 
         let shortInfoCell = `<td><div class="short-info">${shortInfoContent}</div></td>`;
         return iconCell + shortInfoCell;
@@ -366,7 +365,9 @@ export class RecipeList {
                 ${this.renderRecipeShortInfo(recipe, recipeModel, group)}
                 ${this.renderIoInfo(recipeModel.flow, group)}
                 <td>
-                    <button class="delete-btn" data-iid="${recipeModel.iid}" data-action="delete_recipe"></button>
+                    <div class="icon-container">
+                        <button class="delete-btn" data-iid="${recipeModel.iid}" data-action="delete_recipe">x</button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -376,7 +377,9 @@ export class RecipeList {
         return `
             <tr class="recipe-group collapsed" data-iid="${group.iid}" draggable="true" style="--nest-level: ${level}">
                 <td>
-                    <button class="expand-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
+                    <div class="icon-container">
+                        <button class="expand-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
+                    </div>
                 </td>
                 <td>
                     <div class="short-info">
@@ -385,7 +388,9 @@ export class RecipeList {
                 </td>
                 ${this.renderIoInfo(group.flow, parentGroup)}
                 <td>
-                    <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group"></button>
+                    <div class="icon-container">
+                        <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group">x</button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -394,22 +399,26 @@ export class RecipeList {
     private renderExpandedGroup(group: RecipeGroupModel, level: number = 0): string {
         return `
             <tr class="recipe-group expanded" data-iid="${group.iid}">
-                <td colspan="6" class="expanded-group-cell">
+                <td colspan="6" class="expanded-group-cell nested-level-${level%2}">
                     <table class="recipe-table">
                         <tr>
                             <th class="icon-cell">
-                                <button class="collapse-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
+                                <div class="icon-container">
+                                    <button class="collapse-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
+                                </div>
                             </th>
                             <th class="short-info-cell">
                                 <div class="short-info">
-                                    <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
+                                    <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name" placeholder="Group name">
                                 </div>
                             </th>
                             <th class="energy-cell">POWER</th>
                             <th class="inputs-cell">INPUTS/min</th>
                             <th class="outputs-cell">OUTPUTS/min</th>
                             <th class="action-cell">
-                                <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group"></button>
+                                <div class="icon-container">
+                                    <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group">x</button>
+                                </div>
                             </th>
                         </tr>
                         ${this.renderLinks(group.actualLinks, group)}
@@ -436,9 +445,7 @@ export class RecipeList {
                 <thead>
                     <tr>
                         <th class="icon-cell"></th>
-                        <th class="short-info-cell">
-                            <input type="text" class="group-name-input" value="${group.name}" data-iid="${group.iid}" data-action="update_group_name">
-                        </th>
+                        <th class="short-info-cell"></th>
                         <th class="energy-cell">POWER</th>
                         <th class="inputs-cell">INPUTS/min</th>
                         <th class="outputs-cell">OUTPUTS/min</th>
@@ -446,7 +453,7 @@ export class RecipeList {
                     </tr>
                     <tr>
                         <td></td>
-                        <td></td>
+                        <td>Grand total:</td>
                         ${this.renderIoInfo(group.flow, group)}
                         <td></td>
                     </tr>
@@ -505,8 +512,7 @@ export class RecipeList {
         `;
     }
 
-    private updateProductList() {
-        // Filter out zero amounts and sort by amount descending
+    private renderProductList() {
         const products = page.products
             .filter(product => product instanceof ProductModel && product.amount !== 0)
             .sort((a, b) => (b as ProductModel).amount - (a as ProductModel).amount);
@@ -518,17 +524,16 @@ export class RecipeList {
                 if (!obj || !(obj instanceof Goods)) return '';
                 const goods = obj as Goods;
                 return `
-                    <div class="product-item" data-iid="${product.iid}">
+                    <div class="product-item">
                         <item-icon data-id="${goods.id}" data-action="item_icon_click" data-iid="${product.iid}"></item-icon>
-                        <div class="amount-container">
-                            <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1" data-iid="${product.iid}" data-action="update_amount">
-                            <span class="amount-unit">/min</span>
-                        </div>
-                        <div class="name">${goods.name}</div>
-                        <button class="delete-btn" data-iid="${product.iid}" data-action="delete_product"></button>
+                        <input type="number" class="amount" value="${product.amount}" min="-999999" step="0.1" data-iid="${product.iid}" data-action="update_amount">
+                        <span class="amount-unit">/min</span>
+                        ${goods.name}
+                        <button class="delete-btn" data-iid="${product.iid}" data-action="delete_product">x</button>
                     </div>
                 `;
             }).join("")}
+            <button class="add-product-btn" data-action="add_product" data-iid="0">Add Product</button>
         `;
     }
 
@@ -539,7 +544,7 @@ export class RecipeList {
     // Clean up when the component is destroyed
     destroy() {
         removeProjectChangeListener(() => {
-            this.updateProductList();
+            this.renderProductList();
             this.updateRecipeList();
         });
     }

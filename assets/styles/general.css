@@ -11,10 +11,11 @@ body {
     image-rendering: pixelated;
     text-rendering: geometricPrecision;
     font-size: 16px;
+    margin: 0px;
     line-height: 22px;
     overflow: hidden;
-    color: #3F3F3F;
-    background-color: #C6C6C6;
+    color: white;
+    background-color: #212121;
     word-break: break-word;
 }
 
@@ -26,21 +27,17 @@ body {
 }
 
 button {
-    font-family:'Minecraftia', sans-serif;
+    font-family: 'Minecraftia', sans-serif;
     font-size: 16px;
     line-height: 22px;
-    border-style: solid;
-    border-width: 2px;
-    background-color: #727272;
-    border-left-color: #A8A8A8;
-    border-top-color: #A8A8A8;
-    border-right-color: #565656;
-    border-bottom-color: #565656;
+    border: 2px solid;
     border-bottom-width: 4px;
-    pointer-events: all;
+    border-color: #A8A8A8 #565656 #565656 #A8A8A8;
+    background-color: #727272;
     color: white;
     text-shadow: 2px 2px #342C34;
     cursor: pointer;
+    pointer-events: all;
     box-shadow: 0 0 0 2px black;
 }
 
@@ -52,12 +49,14 @@ button:hover {
     border: none;
     border-image: none;
     background-color: transparent;
+    box-shadow: none;
 }
 
 .icon-button:hover {
     border:none;
     border-image: none;
     background-color: transparent;
+    box-shadow: none;
 }
 
 input {
@@ -66,6 +65,7 @@ input {
     line-height: 16px;
     color: white;
     text-shadow: 2px 2px #342C34;
+    pointer-events: all;
 }
 
 input:focus {
@@ -92,11 +92,13 @@ input::placeholder {
 }
 
 .panel {
+    background-color: #C6C6C6;
+    color: #3F3F3F;
+    border: 4px solid;
+    border-color: #ffffff #555555 #555555 #ffffff;
+    border-radius: 4px;
     position: absolute;
-    border-style: solid;
-    border-width: 8px;
-    border-image: url('./../images/Panel.png') 4 fill;
-    pointer-events: all;
+    box-shadow: 0 0 0 2px black;
 }
 
 .icon-grid
@@ -125,6 +127,7 @@ item-icon {
     width: 32px;
     height: 32px;
     position: relative;
+    display: inline-block;
     background-size: 8192px;
     background-repeat: no-repeat;
     pointer-events: auto;
@@ -179,10 +182,14 @@ p {
     padding: 0;
     z-index: 1000;
     pointer-events: none;
-    background-color: #B3B3B3;
+    background-color: #000000B0;
     visibility: hidden;
     top: 0;
     left: 0;
+}
+
+h2 {
+    font-size: 24px;
 }
 
 #panels:has(.panel:not(.hidden)) {

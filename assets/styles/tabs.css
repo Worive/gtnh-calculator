@@ -1,32 +1,63 @@
 .panel-tab-bar
 {
     position: absolute;
-    top: -64px;
-    left: -8px;
+    top: -58px;
+    left: -4px;
     display: flex;
 }
 
 .with-tabs {
     margin: 60px 0px 0px;
+    pointer-events: none;
 }
 
 .panel-tabs {
     display: flex;
-    gap: 0;
+    position: relative;
+    bottom: -4px;
+    gap: 2px;
+    height: 54px;
 }
 
 .panel-tab
 {
-    width: 40px;
-    height: 40px;
-    border-style: solid;
-    border-width: 16px 8px 8px;
-    border-image: url('./../images/Tab_Inactive.png') 8 4 4 fill;
-    cursor: pointer;
     position: relative;
+    margin-top: 6px;
+    width: 44px;
+    bottom: 0px;
+    background-color: #8B8B8B;
+    border: 4px solid;
+    border-color: #ffffff #555555 #555555 #ffffff;
+    border-radius: 4px;
+    border-bottom: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: all;
+    z-index: -1;
+    box-shadow: 0 0 0 2px black;
+    transition: margin-top 0.1s ease, background-color 0.1s ease;
+}
+
+.panel-tab.active{
+    background-color: #C6C6C6;
+    margin-top: 0px;;
+    z-index: auto;
+    box-shadow: none;
+    transition: margin-top 0.1s ease, background-color 0.1s ease;
+}
+
+.panel-tab.active::before{
+    content: "";
+    position: absolute;
+    border-radius: 4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    top: -4px;
+    z-index: -15;
+    box-shadow: 0 0 0 2px black;
 }
 
 .panel-tab .icon {
@@ -37,25 +68,10 @@
     transition: top 0.1s ease;
 }
 
-.panel-tab.active
-{
-    border-image: url('./../images/Tab_Active.png') 8 4 4 fill;
-}
-
 .panel-tab.active .icon {
     top: -6px;
 }
 
 .panel-tab:not(.active) .icon {
     top: -2px;
-}
-
-.panel-tab:first-child
-{
-    border-image: url('./../images/Tab_Inactive_First.png') 8 4 4 fill;
-}
-
-.panel-tab.active:first-child
-{
-    border-image: url('./../images/Tab_Active_First.png') 8 4 4 fill;
 }

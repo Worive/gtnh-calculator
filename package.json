@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "copy-files": "copyfiles -u 0 index.html assets/**/* data/**/* dist/",
-    "start": "npm run copy-files && concurrently \"tsc --watch\" \"live-server --mount=/:./dist --mount=/data/:./data/ --mount=/assets/:./assets/ --port=5500",
+    "start": "npm concurrently \"tsc --watch\" \"live-server --mount=/:./dist --mount=/data/:./data/ --mount=/assets/:./assets/ --port=5500",
     "build": "tsc && npm run copy-files"
   },
   "keywords": [

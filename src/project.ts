@@ -129,7 +129,7 @@ export class RecipeGroupModel extends RecipeGroupEntry
     actualLinks: {[key:string]:LinkAlgorithm} = {};
     elements: RecipeGroupEntry[] = [];
     collapsed: boolean = false;
-    name: string = "New Group";
+    name: string = "Group";
 
     Visit(visitor: ModelObjectVisitor): void {
         visitor.VisitData(this, "type", "recipe_group");
