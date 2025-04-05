@@ -86,10 +86,10 @@ export class PageManager {
 
         document.querySelector('[data-action="create-page"]')?.addEventListener('click', () => {
             const input = document.querySelector('[data-action="page-name-input"]') as HTMLInputElement;
-            if (input && input.value.trim()) {
-                this.createNewPage(input.value.trim());
-                input.value = '';
-            }
+            let name = input.value.trim();
+            if (!name) name = "New";
+            this.createNewPage(name);
+            input.value = '';
         });
     }
 
@@ -159,6 +159,8 @@ export class PageManager {
         
         if (page) {
             SetCurrentPage(page);
+            // Update window title
+            document.title = `${page.name} - GTNH calculator`;
         }
         
         this.render();
@@ -305,10 +307,12 @@ export class PageManager {
         this.pageCache.set(finalName, page);
         this.pages.push(finalName);
         this.pages.sort();
-
+        
         // Update current page if needed
         if (this.currentPage === oldName) {
             this.currentPage = finalName;
+            // Update window title
+            document.title = `${page.name} - GTNH calculator`;
         }
 
         this.render();

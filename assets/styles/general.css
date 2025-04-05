@@ -98,11 +98,11 @@ input::placeholder {
 
 .panel {
     background-color: #C6C6C6;
+    position:absolute;
     color: #3F3F3F;
     border: 4px solid;
     border-color: #ffffff #555555 #555555 #ffffff;
     border-radius: 4px;
-    position: absolute;
     box-shadow: 0 0 0 2px black;
 }
 
@@ -200,14 +200,16 @@ p {
     visibility: hidden;
     top: 0;
     left: 0;
+    pointer-events: none;
 }
 
 h2 {
     font-size: 24px;
 }
 
-#panels:has(.panel:not(.hidden)) {
+#panels:has(> :not(.hidden)) {
     visibility: visible;
+    pointer-events: auto;
 }
 
 .scrollbar-measure {
@@ -233,7 +235,7 @@ h2 {
 
 .hidden
 {
-    display: none;
+    display: none !important;
 }
 
 a {

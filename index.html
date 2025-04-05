@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="assets/styles/tooltip.css">
     <link rel="stylesheet" href="assets/styles/recipe-list.css">
     <link rel="stylesheet" href="assets/styles/menu.css">
+    <link rel="icon" href="assets/images/favicon.png" type="image/png">
 </head>
 <body>
     <script src="https://unpkg.com/javascript-lp-solver/prod/solver.js"></script>
@@ -50,25 +51,27 @@
     <div id="panels">
         <div id="loading" class="panel">LOADING...</div>
 
-        <div id="nei" class="panel hidden with-tabs">
+        <div id="nei" class="hidden panel-tab-container">
             <div class="panel-tab-bar">
                 <div id="nei-tabs" class="panel-tabs"></div>
             </div>
-            <div class="hgroup">
-                Search:
-                <input id="nei-search" placeholder="Start typing for search">
-            </div>
-            <div class="scroll-area" id="nei-scroll">
-                <div id="nei-content"></div>
+            <div class = "panel">
+                <div class="hgroup">
+                    Search:
+                    <input id="nei-search" placeholder="Start typing for search">
+                </div>
+                <div class="scroll-area" id="nei-scroll">
+                    <div id="nei-content"></div>
+                </div>
             </div>
         </div>
 
-        <div id="confirm-dialog" class="panel hidden">
+        <div id="confirm-dialog" class="hidden panel">
             <p id="confirm-text" style="text-align: center; flex-grow: 1; max-width: 550px;"></p>
             <div class="hgroup" style="justify-content: center; gap: 10px;">
                 <button id="confirm-yes">Yes</button>
                 <button id="confirm-no">No</button>
-                <button id="confirm-cancel" class="hidden">Cancel</button>
+                <button id="confirm-cancel">Cancel</button>
             </div>
         </div>
     </div>

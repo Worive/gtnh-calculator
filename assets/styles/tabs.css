@@ -1,13 +1,26 @@
 .panel-tab-bar
 {
     position: absolute;
-    top: -58px;
-    left: -4px;
+    top: 0px;
+    left: 0px;
     display: flex;
+    pointer-events: none;
 }
 
-.with-tabs {
-    margin: 60px 0px 0px;
+.panel-tab-container {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding-top: 54px;
+    z-index: 1;
+}
+
+.panel-tab-content .panel
+{
+    position: relative;
 }
 
 .panel-tabs {
@@ -16,6 +29,7 @@
     bottom: -4px;
     gap: 2px;
     height: 54px;
+    pointer-events: none;
 }
 
 .panel-tab
@@ -41,7 +55,7 @@
 
 .panel-tab.active{
     background-color: #C6C6C6;
-    margin-top: 0px;;
+    margin-top: 0px;
     z-index: auto;
     box-shadow: none;
     transition: margin-top 0.1s ease, background-color 0.1s ease;
