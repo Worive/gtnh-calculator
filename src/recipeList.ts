@@ -1,7 +1,7 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "./repository.js";
 import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, ShareCurrentPage } from "./page.js";
-import { voltageTier, GtVoltageTier } from "./utils.js";
+import { voltageTier, GtVoltageTier, formatAmount } from "./utils.js";
 import { ShowTooltip } from "./tooltip.js";
 import { IconBox } from "./itemIcon.js";
 
@@ -289,11 +289,6 @@ export class RecipeList {
     }
 
     private renderIoInfo(flow: FlowInformation, group: RecipeGroupModel): string {
-        const formatAmount = (amount: number) => {
-            return amount <= 100000 ? amount :
-                amount <= 10000000 ? Math.round(amount/1000) + "K" : Math.round(amount/1000000) + "M";
-        };
-
         const renderFlowItems = (items: {[key:string]:number}, group: RecipeGroupModel) => {
             const sortedFlow = Object.entries(items).sort(([,a], [,b]) => Math.abs(b) - Math.abs(a));
             return sortedFlow.map(([goodsId, amount]) => {

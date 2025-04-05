@@ -211,13 +211,23 @@ export class Fluid extends Goods
 
 export class OreDict extends RecipeObject
 {
-    get items():Int32Array {return this.GetSlice(5);}
+    items:Item[];
+
+    constructor(repository:Repository, offset:number) {
+        super(repository, offset);
+        var slice = this.GetSlice(5);
+        this.items = new Array(slice.length);
+        for (var i = 0; i < slice.length; i++) {
+            this.items[i] = repository.GetObject(slice[i], Item);
+        }
+    }
+
     MatchSearchText(query: SearchQuery): boolean
     {
         var items = this.items;
         for (var i = 0; i < items.length; i++) {
-            var ptr = items[i];
-            if (repository.ObjectMatchQueryBits(query, ptr) && repository.GetObject(ptr, Item).MatchSearchText(query))
+            var item = items[i];
+            if (repository.ObjectMatchQueryBits(query, item.objectOffset) && item.MatchSearchText(query))
                 return true;
         }
         return false;
@@ -298,7 +308,7 @@ export class Recipe extends SearchableObject
 
     MatchSearchText(query: SearchQuery): boolean 
     {
-        var slice = this.GetSlice(4);
+        var slice = this.GetSlice(5);
         var count = slice.length / 5;
         for (var i=0; i<count; i++) 
         {

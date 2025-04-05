@@ -1,6 +1,5 @@
-import { GetScrollbarWidth, voltageTier } from "./utils.js";
+import { GetScrollbarWidth, voltageTier, formatAmount } from "./utils.js";
 import { Goods, Fluid, Item, Repository, IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, RecipeInOut, RecipeObject, OreDict } from "./repository.js";
-import { IconBox } from "./itemIcon.js";
 import { SearchQuery } from "./searchQuery.js";
 import { ShowTooltip, HideTooltip } from "./tooltip.js";
 
@@ -112,10 +111,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
                 continue;
             var goods = item.goods;
             var iconAttrs = `class="item-icon-grid" style="--grid-position:${item.slot}" data-id="${goods.id}"`;
-            var amountText = item.amount == 0 ? "NC" : 
-                           item.amount <= 100000 ? item.amount :
-                           item.amount <= 10000000 ? Math.round(item.amount/1000) + "K" :
-                           Math.round(item.amount/1000000) + "M";
+            var amountText = formatAmount(item.amount);
             
             var isFluid = goods instanceof Fluid;
             var isGoods = goods instanceof Goods;
@@ -281,6 +277,30 @@ export function NeiSelect(goods:Goods)
     HideNei();
 }
 
+function AddToSet(set:Set<Recipe>, goods:Goods, mode:ShowNeiMode)
+{
+    let list = mode == ShowNeiMode.Production ? goods.production : goods.consumption;
+    for (var i=0; i<list.length; i++)
+        set.add(repository.GetObject(list[i], Recipe));
+}
+
+function GetAllOreDictRecipes(set:Set<Recipe>, goods:OreDict, mode:ShowNeiMode):void
+{
+    for (var i=0; i<goods.items.length; i++) {
+        AddToSet(set, goods.items[i], mode);
+    }
+}
+
+function GetAllFluidRecipes(set:Set<Recipe>, goods:Fluid, mode:ShowNeiMode):void
+{
+    AddToSet(set, goods, mode);
+    let containers = goods.containers;
+    for (var i=0; i<containers.length; i++) {
+        var container = repository.GetObject(repository.items[containers[i]], Item);
+        AddToSet(set, container, mode);
+    }
+}
+
 export function ShowNei(goods:RecipeObject | null, mode:ShowNeiMode, callback:ShowNeiCallback | null = null)
 {
     console.log("ShowNei", goods, mode, callback);
@@ -289,21 +309,16 @@ export function ShowNei(goods:RecipeObject | null, mode:ShowNeiMode, callback:Sh
     }
     nei.classList.remove("hidden");
     currentGoods = goods;
-    var pointerList:number[] = [];
+    let recipes:Set<Recipe> = new Set();
     if (goods instanceof OreDict) {
-        var allPointers:Set<number> = new Set();
-        for (var i=0; i<goods.items.length; i++) {
-            var pointer = goods.items[i];
-            var item = repository.GetObject(pointer, Item);
-            var subList = mode == ShowNeiMode.Production ? item.production : item.consumption;
-            for (var j=0; j<subList.length; j++) {
-                allPointers.add(subList[j]);
-            }
-        }
-        pointerList = Array.from(allPointers);
+        GetAllOreDictRecipes(recipes, goods, mode);
+    } else if (goods instanceof Fluid) {
+        GetAllFluidRecipes(recipes, goods, mode);
+    } else if (goods instanceof Item && goods.fluid != null) {
+        GetAllFluidRecipes(recipes, goods.fluid, mode);
     } else if (goods instanceof Goods) {
-        pointerList = Array.from(mode == ShowNeiMode.Production ? goods.production : goods.consumption);
-    } else pointerList = [];
+        AddToSet(recipes, goods, mode);
+    }
     
     // Clear all recipe lists first
     for (const recipeType of allRecipeTypes) {
@@ -311,8 +326,7 @@ export function ShowNei(goods:RecipeObject | null, mode:ShowNeiMode, callback:Sh
     }
     
     // Fill recipe lists
-    for (var i=0; i<pointerList.length; i++) {
-        var recipe = repository.GetObject(pointerList[i], Recipe);
+    for (var recipe of recipes) {
         var recipeType = recipe.recipeType;
         var list = mapRecipeTypeToRecipeList[recipeType.name];
         list.push(recipe);

@@ -18,9 +18,10 @@
     z-index: 1;
 }
 
-.panel-tab-content .panel
+.panel-tab-container .panel
 {
     position: relative;
+    z-index: -1;
 }
 
 .panel-tabs {

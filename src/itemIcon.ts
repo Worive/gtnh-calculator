@@ -97,7 +97,7 @@ export class IconBox extends HTMLElement
         }
 
         if (this.obj instanceof OreDict) {
-            return Repository.current.GetObject(this.obj.items[globalIndex % this.obj.items.length], Item);
+            return this.obj.items[globalIndex % this.obj.items.length];
         }
 
         return null;

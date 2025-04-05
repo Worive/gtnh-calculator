@@ -323,7 +323,7 @@ function notifyListeners() {
 
 export function SetCurrentPage(newPage: PageModel) {
     page = newPage;
-    notifyListeners();
+    UpdateProject();
 }
 
 export function UpdateProject(visualOnly:boolean = false) {
