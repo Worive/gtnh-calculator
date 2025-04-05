@@ -49,6 +49,28 @@ export class PageManager {
             }
         });
 
+        this.pageListContainer.addEventListener('blur', (e) => {
+            const target = e.target as HTMLElement;
+            if (target.matches('[data-action="rename-page"]')) {
+                const input = target as HTMLInputElement;
+                const oldName = input.dataset.pageName;
+                const newName = input.value.trim();
+                
+                if (oldName && newName && oldName !== newName) {
+                    this.renamePage(oldName, newName);
+                }
+            }
+        }, true);
+
+        this.pageListContainer.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const target = e.target as HTMLElement;
+                if (target.matches('[data-action="rename-page"]')) {
+                    target.blur();
+                }
+            }
+        }, true);
+
         document.querySelector('[data-action="create-page"]')?.addEventListener('click', () => {
             const input = document.querySelector('[data-action="page-name-input"]') as HTMLInputElement;
             if (input && input.value.trim()) {
@@ -71,13 +93,26 @@ export class PageManager {
     }
 
     private render() {
-        this.pageListContainer.innerHTML = this.pages.map(pageName => `
-            <button class="page-button ${pageName === this.currentPage ? 'active' : ''}"
-                    data-action="switch-page"
-                    data-page-name="${pageName}">
-                ${pageName}
-            </button>
-        `).join('');
+        this.pageListContainer.innerHTML = this.pages.map(pageName => {
+            if (pageName === this.currentPage) {
+                return `
+                    <div class="page-rename">
+                        <input type="text" 
+                               value="${pageName}"
+                               data-action="rename-page"
+                               data-page-name="${pageName}">
+                    </div>
+                `;
+            } else {
+                return `
+                    <button class="page-button"
+                            data-action="switch-page"
+                            data-page-name="${pageName}">
+                        ${pageName}
+                    </button>
+                `;
+            }
+        }).join('');
     }
 
     private loadFirstPage() {
@@ -227,6 +262,39 @@ export class PageManager {
         this.pageCache.set(pageName, model);
         model.addToHistory(serialized);
         this.switchPage(pageName);
+        this.render();
+    }
+
+    private renamePage(oldName: string, newName: string) {
+        const page = this.pageCache.get(oldName);
+        if (!page) return;
+
+        let finalName = newName;
+        if (this.pages.includes(newName)) {
+            finalName = this.generateUniquePageName(newName);
+        }
+
+        // Remove from old name
+        localStorage.removeItem(`p:${oldName}`);
+        this.pageCache.delete(oldName);
+        const oldIndex = this.pages.indexOf(oldName);
+        if (oldIndex !== -1) {
+            this.pages.splice(oldIndex, 1);
+        }
+
+        // Add to new name
+        page.name = finalName;
+        const serialized = JSON.stringify(serializer.Serialize(page));
+        localStorage.setItem(`p:${finalName}`, serialized);
+        this.pageCache.set(finalName, page);
+        this.pages.push(finalName);
+        this.pages.sort();
+
+        // Update current page if needed
+        if (this.currentPage === oldName) {
+            this.currentPage = finalName;
+        }
+
         this.render();
     }
 }

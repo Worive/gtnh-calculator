@@ -68,13 +68,6 @@
     padding: 2px;
 }
 
-.page-button.active {
-    color: white;
-    background-color: #51493A;
-    border-color: #211D17 #332E24 #332E24 #211D17;
-    border-width: 2px;
-}
-
 .new-page-widget {
     margin-top: auto;
 }
@@ -84,3 +77,27 @@
     align-items: center;
     gap: 8px;
 }
+
+.new-page-form input {
+    width: 70%;
+}
+
+.new-page-form button {
+    width: 30%;
+}
+
+.page-rename {
+    color: white;
+    background-color: #51493A;
+    border-color: #211D17 #332E24 #332E24 #211D17;
+    border-width: 2px;
+    padding: 4px;
+}
+
+.page-rename input {
+    width: 90%;
+    background-color: transparent;
+    border: none;
+    color: white;
+}
+
