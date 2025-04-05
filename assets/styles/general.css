@@ -14,6 +14,7 @@ body {
     line-height: 22px;
     overflow: hidden;
     color: #3F3F3F;
+    background-color: #C6C6C6;
     word-break: break-word;
 }
 
@@ -29,16 +30,22 @@ button {
     font-size: 16px;
     line-height: 22px;
     border-style: solid;
-    border-width: 6px;
-    border-image: url('./../images/Button.png') 3 fill;
+    border-width: 2px;
+    background-color: #727272;
+    border-left-color: #A8A8A8;
+    border-top-color: #A8A8A8;
+    border-right-color: #565656;
+    border-bottom-color: #565656;
+    border-bottom-width: 4px;
     pointer-events: all;
     color: white;
     text-shadow: 2px 2px #342C34;
     cursor: pointer;
+    box-shadow: 0 0 0 2px black;
 }
 
 button:hover {
-    border-image: url('./../images/Button_Hover.png') 3 fill;
+    box-shadow: 0 0 0 2px white;
 }
 
 .icon-button {

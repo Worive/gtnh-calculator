@@ -1,24 +1,15 @@
 /* Main layout */
 #recipe-list {
     position: fixed;
-    background-color: #2C2C2C;
-    display: flex;
-    padding: 20px;
-    gap: 20px;
-    overflow: hidden;
-    box-sizing: border-box;
+    height: 100%;
 }
 
 /* Product list styles */
 .product-list {
-    width: 400px;
-    background-color: #363636;
-    border-radius: 8px;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    height: calc(100vh - 40px);
     box-sizing: border-box;
 }
 
@@ -27,6 +18,8 @@
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+    padding: 0;
+    margin: 0;
 }
 
 .product-list-header h2 {
@@ -36,8 +29,10 @@
 
 .product-items {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
+    padding: 0;
+    margin: 0;
 }
 
 .product-item {
@@ -46,7 +41,6 @@
     gap: 10px;
     padding: 8px;
     background-color: #2a2a2a;
-    border-radius: 4px;
 }
 
 .product-item item-icon {
@@ -103,8 +97,6 @@
 /* Recipe list styles */
 .recipe-list {
     flex: 1;
-    background-color: #363636;
-    border-radius: 8px;
 }
 
 .recipe-list-header {
@@ -246,7 +238,7 @@
 
 .group-content.drag-over {
     background-color: #404040;
-    border: 2px dashed #4CAF50;
+    border: 1px dashed #4CAF50;
     border-radius: 4px;
     padding: 8px;
     min-height: 20px;
