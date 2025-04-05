@@ -204,12 +204,22 @@ p {
 }
 
 h2 {
+    font-weight:normal;
     font-size: 24px;
 }
 
 #panels:has(> :not(.hidden)) {
     visibility: visible;
     pointer-events: auto;
+}
+
+#loading {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 100px;
 }
 
 .scrollbar-measure {
@@ -220,10 +230,10 @@ h2 {
 	top: -9999px;
 }
 
-#loading
+h1
 {
+    font-weight:normal;
     font-size:64px;
-    padding: 100px 200px 50px;
 }
 
 .scroll-area
