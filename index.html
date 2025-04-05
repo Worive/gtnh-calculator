@@ -9,17 +9,40 @@
     <link rel="stylesheet" href="assets/styles/tabs.css">
     <link rel="stylesheet" href="assets/styles/tooltip.css">
     <link rel="stylesheet" href="assets/styles/recipe-list.css">
+    <link rel="stylesheet" href="assets/styles/menu.css">
 </head>
 <body>
     <script src="https://unpkg.com/javascript-lp-solver/prod/solver.js"></script>
     <script type="module" src="index.js"></script>
 
-    <!-- Recipe List Panel -->
-    <div id="recipe-list">
-        <div class="header"><h2>Products:</h2></div>
-        <div class="product-items"></div>
-        <div class="header"><h2>Recipes:</h2></div>
-        <div class="recipe-list">
+    <div id="main">
+        <div id="menu" class="menu-container">
+            <div class="logo">Greg Tech: New Horizons Calculator</div>
+            <div class="menu-links">
+                <a href="#" data-action="link" data-link="nei">NEI</a>•
+                <a href="https://github.com/ShadowTheAge/gtnh/" target="_blank">Github</a>•
+                <a href="https://gtnh.miraheze.org/" target="_blank">Wiki</a>•
+                <a href="http://bit.ly/gtnh-datasheets" target="_blank">Spreadsheet</a>
+            </div>
+            <div class="menu-pages">
+                <h2>Pages</h2>
+                <div class="page-list">
+                    <!-- Page buttons will be inserted here -->
+                </div>
+            </div>
+            <div class="new-page-widget">
+                <h2>New Page</h2>
+                <div class="new-page-form">
+                    <input type="text" data-action="page-name-input" placeholder="Page name">
+                    <button data-action="create-page">Create</button>
+                </div>
+            </div>
+        </div>
+        <div id="recipe-list">
+            <div class="header"><h2>Products:</h2></div>
+            <div class="product-items"></div>
+            <div class="header"><h2>Recipes:</h2></div>
+            <div class="recipe-list">
         </div>
     </div>
 

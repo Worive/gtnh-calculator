@@ -1,7 +1,7 @@
 /* Main layout */
 #recipe-list {
-    position: fixed;
-    overflow-y: scroll;
+    position: relative;
+    overflow-y: auto;
     padding: 8px;
     height: calc(100% - 16px);
     display: flex;
