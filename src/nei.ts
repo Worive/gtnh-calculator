@@ -186,9 +186,12 @@ class RecipeTypeAllocator implements NeiRowAllocator<RecipeType>
         let single = elements[0];
         let dom:string[] = [];
         dom.push(`<div class="nei-recipe-type" style="top:${rowY*elementSize}px; width:${elementWidth*elementSize}px">`);
-        for (let i=0; i<single.craftItems.length; i++) {
-            let item = repository.GetObject(single.craftItems[i], Item);
-            dom.push(`<item-icon data-id="${item.id}"></item-icon>`);
+        for (let block of single.singleblocks) {
+            if (block)
+                dom.push(`<item-icon data-id="${block.id}"></item-icon>`);
+        }
+        for (let block of single.multiblocks) {
+            dom.push(`<item-icon data-id="${block.id}"></item-icon>`);
         }
         dom.push(`<span class="nei-recipe-type-name">${single.name}</span>`);
         dom.push(`</div>`);
@@ -564,7 +567,7 @@ allRecipeTypes.forEach(recipeType => {
     tabs.push({
         name: recipeType.name,
         filler: FillNeiSpecificRecipes(recipeType),
-        iconId: repository.GetObject(recipeType.craftItems[0], Item).iconId,
+        iconId: recipeType.defaultCrafter.iconId,
         isVisible: () => mapRecipeTypeToRecipeList[recipeType.name].length > 0
     });
 });

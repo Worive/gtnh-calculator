@@ -167,6 +167,7 @@ export class RecipeModel extends RecipeGroupEntry
     type: string = "recipe";
     recipeId: string = "";
     voltageTier: number = 0;
+    crafter: string | undefined;
 
     recipesPerMinute:number = 0;
     overclockFactor:number = 1;
@@ -176,6 +177,7 @@ export class RecipeModel extends RecipeGroupEntry
         visitor.VisitData(this, "type", this.type);
         visitor.VisitData(this, "recipeId", this.recipeId);
         visitor.VisitData(this, "voltageTier", this.voltageTier);
+        visitor.VisitData(this, "crafter", this.crafter);
     }
 
     constructor(source:any = undefined)
@@ -186,6 +188,8 @@ export class RecipeModel extends RecipeGroupEntry
                 this.recipeId = source.recipeId;
             if (typeof source.voltageTier === "number")
                 this.voltageTier = source.voltageTier;
+            if (typeof source.crafter === "string")
+                this.crafter = source.crafter;
         }
     }
 }

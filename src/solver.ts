@@ -84,7 +84,7 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
     group.actualLinks = {...group.links};
 
     for (const key of Object.keys(collection.inputOreDict)) {
-        var oreDict = Repository.current.GetById<OreDict>(key);
+        var oreDict = Repository.current.GetById<OreDict>(key)!;
         for (const item of oreDict.items) {
             let algorithm = group.links[item.id] || LinkAlgorithm.Match;
             if (algorithm === LinkAlgorithm.Ignore || collection.output[item.id] === undefined)

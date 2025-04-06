@@ -3,6 +3,8 @@ import { SearchQuery } from "./searchQuery.js";
 const charCodeItem = "i".charCodeAt(0);
 const charCodeFluid = "f".charCodeAt(0);
 const charCodeRecipe = "r".charCodeAt(0);
+
+const DATA_VERSION = 2;
 export class Repository
 {
     static current:Repository;
@@ -25,12 +27,16 @@ export class Repository
         this.bytes = new Uint8Array(data);
         this.elements = new Int32Array(data);
         this.textReader = new TextDecoder();
-        this.items = this.GetSlice(this.elements[0]);
-        this.fluids = this.GetSlice(this.elements[1]);
-        this.oreDicts = this.GetSlice(this.elements[2]);
-        this.recipeTypes = this.GetSlice(this.elements[3]);
-        this.recipes = this.GetSlice(this.elements[4]);
-        this.service = this.GetSlice(this.elements[5]);
+        let dataVersion = this.elements[0];
+        if (dataVersion != DATA_VERSION)
+            throw new Error(`Unsupported data version: ${dataVersion}`);
+
+        this.items = this.GetSlice(this.elements[1]);
+        this.fluids = this.GetSlice(this.elements[2]);
+        this.oreDicts = this.GetSlice(this.elements[3]);
+        this.recipeTypes = this.GetSlice(this.elements[4]);
+        this.recipes = this.GetSlice(this.elements[5]);
+        this.service = this.GetSlice(this.elements[6]);
         this.FillObjectPositionMap(this.items);
         this.FillObjectPositionMap(this.fluids);
         this.FillObjectPositionMap(this.oreDicts);
@@ -44,8 +50,10 @@ export class Repository
         }
     }
 
-    public GetById<T extends SearchableObject>(id:string):T
+    public GetById<T extends SearchableObject>(id:string):T | null
     {
+        if (!id)
+            return null;
         var idCode = id.charCodeAt(0);
         var type:IMemMappedObjectPrototype<SearchableObject> = idCode == charCodeItem ? Item : idCode == charCodeFluid ? Fluid : idCode == charCodeRecipe ? Recipe : OreDict;
         return this.GetObject(this.objectPositionMap[id], type) as T;
@@ -236,10 +244,28 @@ export class OreDict extends RecipeObject
 
 export class RecipeType extends MemMappedObject
 {
+    singleblocks:Item[] = [];
+    multiblocks:Item[] = [];
+    defaultCrafter:Item;
+
+    constructor(repository:Repository, offset:number) {
+        super(repository, offset);
+        var singleblocks = this.GetSlice(5);
+        var multiblocks = this.GetSlice(3);
+        this.singleblocks = new Array(singleblocks.length);
+        this.multiblocks = new Array(multiblocks.length);
+        this.defaultCrafter = this.GetObject(6, Item);
+        for (var i = 0; i < singleblocks.length; i++) {
+            this.singleblocks[i] = repository.GetObject(singleblocks[i], Item);
+        }
+        for (var i = 0; i < multiblocks.length; i++) {
+            this.multiblocks[i] = repository.GetObject(multiblocks[i], Item);
+        }
+    }
+
     get name():string {return this.GetString(0);}
     get category():string {return this.GetString(1);}
     get dimensions():Int32Array {return this.GetSlice(2);}
-    get craftItems():Int32Array {return this.GetSlice(3);}
     get shapeless():boolean {return this.GetInt(4) === 1;}
 }
 

@@ -10,7 +10,8 @@ let oredictElements: IconBox[] = [];
 export const actions: { [key: string]: string } = {
     "item_icon_click": "Left/Right click to add recipe",
     "select": "Click to select",
-    "toggle_link_ignore": "Click to toggle link ignore"
+    "toggle_link_ignore": "Click to toggle link ignore",
+    "crafter_click": "Click to select another crafter"
 };
 
 // Start global cycle once

@@ -4,6 +4,7 @@ import { UpdateProject, addProjectChangeListener, removeProjectChangeListener, G
 import { voltageTier, GtVoltageTier, formatAmount } from "./utils.js";
 import { ShowTooltip } from "./tooltip.js";
 import { IconBox } from "./itemIcon.js";
+import { ShowDropdown } from "./dropdown.js";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
     [LinkAlgorithm.Match]: "",
@@ -89,6 +90,22 @@ export class RecipeList {
                 }
                 
                 UpdateProject();
+            }
+        });
+
+        this.actionHandlers.set("crafter_click", (obj, event, parent) => {
+            if (obj instanceof RecipeModel && event.type === "click") {
+                let options = [];
+                let recipe = Repository.current.GetById<Recipe>(obj.recipeId);
+                if (!recipe) return;
+                let recipeType = recipe.recipeType;
+                if (recipeType.singleblocks.length > 0)
+                    options.push(recipeType.defaultCrafter)
+                options.push(...recipeType.multiblocks);
+                ShowDropdown(event.target as HTMLElement, options, (selected: Goods) => {
+                    obj.crafter = recipeType.multiblocks.includes(selected as Item) ? selected.id : undefined;
+                    UpdateProject();
+                });
             }
         });
 
@@ -339,7 +356,12 @@ export class RecipeList {
                 <td colspan="2">Unknown recipe</td>
             `;
         }
-        let crafter = Repository.current.GetObject(recipe.recipeType.craftItems[0], Item);
+        let crafter:Item | null = null;
+        if (recipeModel.crafter)
+            crafter = Repository.current.GetById(recipeModel.crafter) as Item;
+        if (!crafter)
+            crafter = recipe.recipeType.defaultCrafter;
+        
         let gtRecipe = recipe.gtRecipe;
         let shortInfoContent = recipe.recipeType.name;
         let machineCountsText = "";
@@ -361,7 +383,7 @@ export class RecipeList {
             `;
         }
 
-        let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="item_icon_click" data-iid="${group.iid}" data-amount="${machineCountsText}"></item-icon></div></td>`;
+        let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="crafter_click" data-iid="${group.iid}" data-amount="${machineCountsText}"></item-icon></div></td>`;
 
         let shortInfoCell = `<td><div class="short-info">${shortInfoContent}</div></td>`;
         return iconCell + shortInfoCell;
