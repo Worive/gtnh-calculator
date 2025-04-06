@@ -1,13 +1,10 @@
 # GTNH Calculator
 
 A calculator tool for GregTech: New Horizons mod recipes and production chains.
+Large parts of this project were written using AI assistance, so code style and quality are all over the place.
+I just wanted to quickly put together something I can use to calculate GTNH chains. After this goal is done, it won't be an actively maintained project.
 
-## Features
-
-- Recipe chain calculation
-- Production optimization
-- Support for GT:NH specific mechanics like voltage tiers and overclocking
-- Interactive web interface
+Data building is done using my internal tools that I am not currently ready to publish. Later maybe.
 
 ## Development
 
@@ -25,8 +22,5 @@ npm start
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. 
+The code is under the MIT License - see the [LICENSE](LICENSE) file for details.
+However, the project contains some assets from Minecraft (Mojang trademark and copyright), the GTNH development team, and respective mod authors. These assets are used under fair use.

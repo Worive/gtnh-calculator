@@ -67,12 +67,13 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
 {
     type:RecipeType;
     dimensions:Int32Array;
-
+    allocator:RecipeTypeAllocator;
     constructor(type:RecipeType)
     {
         super();
         this.type = type;
         this.dimensions = type.dimensions;
+        this.allocator = new RecipeTypeAllocator();
     }
 
     CalculateWidth():number
@@ -162,7 +163,7 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
                     dom.push(` • Low gravity`);
                 if (recipe.gtRecipe.amperage != 1)
                     dom.push(` • ${recipe.gtRecipe.amperage}A`);
-                dom.push(`</span><span class="text-small">${recipe.gtRecipe.voltage}v • ${recipe.gtRecipe.voltage * recipe.gtRecipe.amperage * recipe.gtRecipe.durationTicks}eu</span>`);
+                dom.push(`</span><span class="text-small">${formatAmount(recipe.gtRecipe.voltage)}v • ${formatAmount(recipe.gtRecipe.voltage * recipe.gtRecipe.amperage * recipe.gtRecipe.durationTicks)}eu</span>`);
                 if (recipe.gtRecipe.additionalInfo != null) {
                     dom.push(`<span class="text-small">`);
                     dom.push(recipe.gtRecipe.additionalInfo);
@@ -171,6 +172,26 @@ class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
             }
             dom.push(`</div>`);
         }
+        return dom.join("");
+    }
+}
+
+class RecipeTypeAllocator implements NeiRowAllocator<RecipeType>
+{
+    CalculateWidth(): number { return -1; }
+    CalculateHeight(obj: RecipeType): number { return 1; }
+    
+    BuildRowDom(elements:RecipeType[], elementWidth:number, elementHeight:number, rowY:number):string
+    {
+        let single = elements[0];
+        let dom:string[] = [];
+        dom.push(`<div class="nei-recipe-type" style="top:${rowY*elementSize}px; width:${elementWidth*elementSize}px">`);
+        for (let i=0; i<single.craftItems.length; i++) {
+            let item = repository.GetObject(single.craftItems[i], Item);
+            dom.push(`<item-icon data-id="${item.id}"></item-icon>`);
+        }
+        dom.push(`<span class="nei-recipe-type-name">${single.name}</span>`);
+        dom.push(`</div>`);
         return dom.join("");
     }
 }
@@ -197,11 +218,18 @@ var FillNeiAllRecipes:NeiFiller = function(grid:NeiGrid, search : SearchQuery | 
 {
     for (const recipeType of allRecipeTypes) {
         var list = recipes[recipeType.name];
-        if (list.length >= 0) {
-            let allocator = grid.BeginAllocation(list)
-            for (let i=0; i<list.length; i++) {
-                if (search == null || repository.IsObjectMatchingSearch(list[i], search))
-                    allocator.Add(list[i]);
+        if (list.length > 0) {
+            {
+                let allocator = grid.BeginAllocation(list.allocator);
+                allocator.Add(recipeType);
+            }
+
+            {
+                let allocator = grid.BeginAllocation(list)
+                for (let i=0; i<list.length; i++) {
+                    if (search == null || repository.IsObjectMatchingSearch(list[i], search))
+                        allocator.Add(list[i]);
+                }
             }
         }
     }
@@ -346,7 +374,7 @@ export function ShowNei(goods:RecipeObject | null, mode:ShowNeiMode, callback:Sh
     Resize();
 }
 
-type NeiGridContents = Recipe | Goods;
+type NeiGridContents = Recipe | Goods | RecipeType;
 
 interface NeiRowAllocator<T extends NeiGridContents>
 {
@@ -412,6 +440,8 @@ class NeiGrid implements NeiGridAllocator<any>
         this.FinishRow();
         this.allocator = allocator;
         this.elementWidth = allocator.CalculateWidth();
+        if (this.elementWidth == -1)
+            this.elementWidth = this.width;
         this.elementsPerRow = Math.max(1, Math.trunc(this.width/this.elementWidth));
         //this.elementWidth = this.width / this.elementsPerRow;
         return this;
