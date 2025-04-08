@@ -62,14 +62,16 @@ button:hover {
 
 input {
     font-family:'Minecraftia', sans-serif;
+    background-color: #8B8B8B;
     font-size: 16px;
     line-height: 16px;
     color: white;
     text-shadow: 2px 2px #342C34;
     pointer-events: all;
     border-style: solid;
-    border-width: 6px;
-    border-image: url('./../images/InputBox.png') 3 fill;
+    border-width: 2px;
+    border-color: #373737 #ffffff #ffffff #373737;
+    margin: 2px;
     height: 16;
 }
 
