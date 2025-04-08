@@ -29,6 +29,8 @@ export class IconBox extends HTMLElement
     constructor()
     {
         super();
+        const highlightStyle = document.getElementById('item-icon-highlight-style') as HTMLStyleElement;
+        
         this.addEventListener("mouseenter", () => {
             const obj = this.GetDisplayObject();
             if (obj) {
@@ -38,8 +40,25 @@ export class IconBox extends HTMLElement
                     goods: obj,
                     action: actionText ?? "Left/Right click to view Production/Consumption for this item"
                 });
+                
+                // Update highlight style
+                const currentIconId = this.style.getPropertyValue('--icon-id');
+                if (currentIconId) {
+                    highlightStyle.textContent = `
+                        item-icon[style*="--icon-id: ${currentIconId}"] {
+                            box-shadow: 0 0 0 2px #4CAF50;
+                            background-color: #4CAF5020;
+                        }
+                    `;
+                }
             }
         });
+        
+        this.addEventListener("mouseleave", () => {
+            // Clear highlight style
+            highlightStyle.textContent = '';
+        });
+        
         this.addEventListener('contextmenu', this.RightClick);
         this.addEventListener('click', this.LeftClick);
         this.UpdateIconId();
