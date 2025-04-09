@@ -1,4 +1,4 @@
-import { Goods, Item } from "./repository.js";
+import { Goods, Item, RecipeObject } from "./repository.js";
 import { SolvePage } from "./solver.js";
 import { showConfirmDialog } from './dialogues.js';
 
@@ -106,10 +106,33 @@ export abstract class ModelObject
     }
 }
 
-export type FlowInformation = {
-    input: {[key:string]:number};
-    output: {[key:string]:number};
-    energy: {[key:number]:number};
+export class FlowInformation {
+    input: {[key:string]:number} = {};
+    output: {[key:string]:number} = {};
+    energy: {[key:number]:number} = {};
+
+    Add(goods:RecipeObject, amount:number, isOutput:boolean) {
+        if (isOutput) {
+            this.output[goods.id] = (this.output[goods.id] || 0) + amount;
+        } else {
+            this.input[goods.id] = (this.input[goods.id] || 0) + amount;
+        }
+    }
+
+    Merge(other:FlowInformation) {
+        for (const key in other.input) {
+            if (other.input[key] === 0) continue;
+            this.input[key] = (this.input[key] || 0) + other.input[key];
+        }
+        for (const key in other.output) {
+            if (other.output[key] === 0) continue;
+            this.output[key] = (this.output[key] || 0) + other.output[key];
+        }
+        for (const key in other.energy) {
+            if (other.energy[key] === 0) continue;
+            this.energy[key] = (this.energy[key] || 0) + other.energy[key];
+        }
+    }   
 }
 
 export enum LinkAlgorithm {
@@ -119,7 +142,7 @@ export enum LinkAlgorithm {
     //AtMost,
 }
 
-let emptyFlow:FlowInformation = {input: {}, output: {}, energy: {}};
+let emptyFlow:FlowInformation = new FlowInformation();
 
 export abstract class RecipeGroupEntry extends ModelObject{
     flow: FlowInformation = emptyFlow;

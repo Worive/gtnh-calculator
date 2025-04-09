@@ -74,10 +74,10 @@ export class IconBox extends HTMLElement
     }
 
     private UpdateHighlightStyle() {
-        const currentIconId = this.style.getPropertyValue('--icon-id');
-        if (currentIconId) {
+        const currentIconId = this.obj?.id;
+        if (currentIconId && !this.classList.contains('item-icon-grid')) {
             highlightStyle.textContent = `
-                item-icon[style*="--icon-id: ${currentIconId}"] {
+                item-icon[data-id="${currentIconId}"] {
                     box-shadow: 0 0 0 2px #4CAF50;
                     background-color: #4CAF5020;
                 }

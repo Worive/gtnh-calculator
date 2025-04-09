@@ -4,7 +4,7 @@ const charCodeItem = "i".charCodeAt(0);
 const charCodeFluid = "f".charCodeAt(0);
 const charCodeRecipe = "r".charCodeAt(0);
 
-const DATA_VERSION = 2;
+const DATA_VERSION = 3;
 export class Repository
 {
     static current:Repository;
@@ -196,8 +196,7 @@ export class Item extends Goods
 {
     get stackSize():number {return this.GetInt(15);}
     get damage():number {return this.GetInt(16);}
-    get fluid():Fluid | null {return this.GetObject(17, Fluid);}
-    get fluidAmount():number {return this.GetInt(18);}
+    get container():FluidContainer | null {return this.GetObject(17, FluidContainer);}
     
     get tooltipDebugInfo(): string {
         var baseInfo = `${this.mod}:${this.internalName} (${this.numericId}:${this.damage})`;
@@ -206,6 +205,13 @@ export class Item extends Goods
             baseInfo += "\n" + nbt;
         return baseInfo;
     }
+}
+
+export class FluidContainer extends MemMappedObject
+{
+    get fluid():Fluid {return this.GetObject(0, Fluid);}
+    get amount():number {return this.GetInt(1);}
+    get empty():Item {return this.GetObject(2, Item);}
 }
 
 export class Fluid extends Goods

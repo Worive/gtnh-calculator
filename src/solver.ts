@@ -4,11 +4,45 @@ import { Goods, Item, OreDict, Recipe, RecipeIoType, RecipeObject, Repository } 
 import { defaultMachine, MachineCoefficient, machines } from "./machines.js";
 import { voltageTier } from "./utils.js";
 
-type LinkCollection = {
-    output: {[key:string]:{[key:string]:number}},
-    input: {[key:string]:{[key:string]:number}},
-    inputOreDict: {[key:string]:{[key:string]:number}},
-    inputOreDictRecipe: {[key:string]:RecipeModel[]},
+class LinkCollection {
+    output: {[key:string]:{[key:string]:number}} = {};
+    input: {[key:string]:{[key:string]:number}} = {};
+    inputOreDict: {[key:string]:{[key:string]:number}} = {};
+    inputOreDictRecipe: {[key:string]:RecipeModel[]} = {};
+
+    AddInput(goods:RecipeObject, amount:number, linkVar:string):void {
+        if (amount === 0) return;
+        let input = this.input[goods.id] ||= {};
+        input[linkVar] = (input[linkVar] || 0) + amount;
+    }
+
+    AddOutput(goods:RecipeObject, amount:number, linkVar:string):void {
+        let output = this.output[goods.id] ||= {};
+        output[linkVar] = (output[linkVar] || 0) - amount;
+    }
+
+    AddInputOreDict(oreDict:RecipeObject, amount:number, linkVar:string, recipe:RecipeModel):void {
+        if (amount === 0) return;
+        let inputOreDict = this.inputOreDict[oreDict.id] ||= {};
+        inputOreDict[linkVar] = (inputOreDict[linkVar] || 0) + amount;
+        let inputOreDictRecipe = this.inputOreDictRecipe[oreDict.id] ||= [];
+        inputOreDictRecipe.push(recipe);
+    }
+    
+    Merge(other:LinkCollection):void {
+        for (const key in other.output) {
+            this.output[key] = {...this.output[key], ...other.output[key]};
+        }
+        for (const key in other.input) {
+            this.input[key] = {...this.input[key], ...other.input[key]};
+        }
+        for (const key in other.inputOreDict) {
+            this.inputOreDict[key] = {...this.inputOreDict[key], ...other.inputOreDict[key]};
+        }
+        for (const key in other.inputOreDictRecipe) {
+            this.inputOreDictRecipe[key] = [...this.inputOreDictRecipe[key] || [], ...other.inputOreDictRecipe[key]];
+        }
+    }
 }
 
 function MatchVariablesToConstraints(model:Model, name:string, variableList: {[key:string]:number}):void
@@ -40,43 +74,31 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
             model.variables[varName] = {"obj":1};
             for (const slot of recipe.items) {
                 const goods = slot.goods;
-                let matchKey = goods.id;
                 let amount = slot.amount * slot.probability;
-                if (goods instanceof Item && goods.fluid) {
-                    matchKey = goods.fluid.id;
-                    amount *= goods.fluidAmount;
-                }
+                let container = goods instanceof Item && goods.container;
 
-                if (slot.type == RecipeIoType.ItemOutput || slot.type == RecipeIoType.FluidOutput) {
-                    let output = collection.output[matchKey] ||= {};
-                    output[varName] = (output[varName] || 0) - amount;
-                } else if (slot.type == RecipeIoType.ItemInput || slot.type == RecipeIoType.FluidInput) {
-                    if (slot.amount === 0) continue;
-                    let input = collection.input[matchKey] ||= {};
-                    input[varName] = (input[varName] || 0) + amount;
-                } else if (slot.type == RecipeIoType.OreDictInput) {
-                    if (slot.amount === 0) continue;
-                    let inputOreDict = collection.inputOreDict[matchKey] ||= {};
-                    inputOreDict[varName] = (inputOreDict[varName] || 0) + amount;
-                    let inputOreDictRecipe = collection.inputOreDictRecipe[matchKey] ||= [];
-                    inputOreDictRecipe.push(child);
+                if (slot.type == RecipeIoType.OreDictInput) {
+                    collection.AddInputOreDict(goods, amount, varName, child);
+                } else if (container) {
+                    if (slot.type == RecipeIoType.ItemOutput) {
+                        collection.AddOutput(container.fluid, amount * container.amount, varName);
+                        collection.AddOutput(container.empty, amount, varName);
+                    } else if (slot.type == RecipeIoType.ItemInput) {
+                        collection.AddInput(container.fluid, amount * container.amount, varName);
+                        collection.AddInput(container.empty, amount, varName);
+                    }
+                } else {
+                    if (slot.type == RecipeIoType.ItemOutput || slot.type == RecipeIoType.FluidOutput) {
+                        collection.AddOutput(goods, amount, varName);
+                    } else if (slot.type == RecipeIoType.ItemInput || slot.type == RecipeIoType.FluidInput) {
+                        collection.AddInput(goods, amount, varName);
+                    }
                 }
             }
         } else if (child instanceof RecipeGroupModel) {
-            let childCollection:LinkCollection = {output: {}, input: {}, inputOreDict: {}, inputOreDictRecipe: {}};
+            let childCollection:LinkCollection = new LinkCollection();
             CreateAndMatchLinks(child, model, childCollection);
-            for (const key in childCollection.output) {
-                collection.output[key] = {...collection.output[key], ...childCollection.output[key]};
-            }
-            for (const key in childCollection.input) {
-                collection.input[key] = {...collection.input[key], ...childCollection.input[key]};
-            }
-            for (const key in childCollection.inputOreDict) {
-                collection.inputOreDict[key] = {...collection.inputOreDict[key], ...childCollection.inputOreDict[key]};
-            }
-            for (const key in childCollection.inputOreDictRecipe) {
-                collection.inputOreDictRecipe[key] = [...collection.inputOreDictRecipe[key] || [], ...childCollection.inputOreDictRecipe[key]];
-            }
+            collection.Merge(childCollection);
         }
     }
 
@@ -127,7 +149,7 @@ function GetParameter(coefficient: MachineCoefficient, voltageTier: number): num
 
 function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
 {
-    let flow:FlowInformation = {input: {}, output: {}, energy: {}};
+    let flow:FlowInformation = new FlowInformation();
     recipeModel.flow = flow;
     let name = `recipe_${recipeModel.iid}`;
     let recipe = Repository.current.GetById(recipeModel.recipeId) as Recipe;
@@ -141,12 +163,11 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
 
         var isProduction = item.type == RecipeIoType.FluidOutput || item.type == RecipeIoType.ItemOutput;
         let amount = item.amount * item.probability * solutionValue;
-        if (goods instanceof Item && goods.fluid) {
-            amount *= goods.fluidAmount;
-            goods = goods.fluid;
-        }
-        var element = isProduction ? flow.output : flow.input;
-        element[goods.id] = (element[goods.id] || 0) + amount;
+        let container = goods instanceof Item && goods.container;
+        if (container) {
+            flow.Add(container.fluid, amount * container.amount, isProduction);
+            flow.Add(container.empty, amount, isProduction);
+        } else flow.Add(goods, amount, isProduction);
     }
 
     let gtRecipe = recipe.gtRecipe;
@@ -182,22 +203,6 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
     }
 }
 
-function AppendFlow(flow:FlowInformation, source:FlowInformation):void
-{
-    for (const key in source.input) {
-        if (source.input[key] === 0) continue;
-        flow.input[key] = (flow.input[key] || 0) + source.input[key];
-    }
-    for (const key in source.output) {
-        if (source.output[key] === 0) continue;
-        flow.output[key] = (flow.output[key] || 0) + source.output[key];
-    }
-    for (const key in source.energy) {
-        if (source.energy[key] === 0) continue;
-        flow.energy[key] = (flow.energy[key] || 0) + source.energy[key];
-    }
-}
-
 function ApplySolutionGroup(group:RecipeGroupModel, solution:Solution, model:Model, feasible:boolean):void
 {
     for (const child of group.elements) {
@@ -207,10 +212,10 @@ function ApplySolutionGroup(group:RecipeGroupModel, solution:Solution, model:Mod
             ApplySolutionGroup(child, solution, model, feasible);
     }
 
-    let flow:FlowInformation = {input: {}, output: {}, energy: {}};
+    let flow:FlowInformation = new FlowInformation();
     group.flow = flow;
     for (const child of group.elements) {
-        AppendFlow(group.flow, child.flow);
+        flow.Merge(child.flow);
     }
     for (const link in group.actualLinks) {
         let delta = (flow.input[link] || 0) - (flow.output[link] || 0);
@@ -237,7 +242,7 @@ export function SolvePage(page:PageModel):void
             variables: {},
         }
 
-        let collection:LinkCollection = {output: {}, input: {}, inputOreDict: {}, inputOreDictRecipe: {}};
+        let collection:LinkCollection = new LinkCollection();
         for (const product of page.products) {
             if (product.amount > 0) {
                 collection.input[product.goodsId] = {"_amount": -product.amount};

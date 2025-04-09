@@ -379,8 +379,8 @@ function ShowNeiInternal(goods:RecipeObject | null, mode:ShowNeiMode, tabIndex:n
         GetAllOreDictRecipes(recipes, goods, mode);
     } else if (goods instanceof Fluid) {
         GetAllFluidRecipes(recipes, goods, mode);
-    } else if (goods instanceof Item && goods.fluid != null) {
-        GetAllFluidRecipes(recipes, goods.fluid, mode);
+    } else if (goods instanceof Item && goods.container) {
+        GetAllFluidRecipes(recipes, goods.container.fluid, mode);
     } else if (goods instanceof Goods) {
         AddToSet(recipes, goods, mode);
     }

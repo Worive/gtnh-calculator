@@ -51,6 +51,12 @@ function ShowTooltipRaw(target:HTMLElement, header:string, debug:string|null, de
     SetTextOptional(tooltipAction, action);
     SetTextOptional(tooltipMod, mod);
 
+    tooltipRecipe.style.display = "none";
+    if (recipe) {
+        tooltipRecipe.style.display = "block";
+        tooltipRecipe.innerHTML = GetSingleRecipeDom(recipe);
+    }
+
     const targetRect = target.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
 
@@ -66,12 +72,6 @@ function ShowTooltipRaw(target:HTMLElement, header:string, debug:string|null, de
         tooltip.style.top = `${window.innerHeight - tooltipRect.height}px`;
     } else {
         tooltip.style.top = `${Math.max(targetRect.top, 0)}px`;
-    }
-
-    tooltipRecipe.style.display = "none";
-    if (recipe) {
-        tooltipRecipe.style.display = "block";
-        tooltipRecipe.innerHTML = GetSingleRecipeDom(recipe);
     }
 }
 
