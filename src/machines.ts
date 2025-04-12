@@ -616,9 +616,8 @@ machines["Absolute Baryonic Perfection Purification Unit"] = {
     perfectOverclock: 0,
     speed: 1,
     power: 1,
-    parallels: (recipe, choices) => 1 + (choices[0] || 0), // Assuming choices[0] is number of successful recipes
-    choices: ["successfulRecipes"],
-    info: "Parallels increase per successful recipe.",
+    parallels: 1,
+    info: "Machine not implemented",
 };
 
 machines["High Energy Laser Purification Unit"] = {
@@ -626,14 +625,15 @@ machines["High Energy Laser Purification Unit"] = {
     speed: 1,
     power: 1,
     parallels: 1,
+    info: "Machine not implemented",
 };
 
 machines["Pyrolyse Oven"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => (choices[0] || 1) * 0.5, // Assuming choices[0] is coil tier (CuNi: 1, FeAlCr: 2, etc.)
+    speed: (recipe, choices) => (choices.coils + 1) * 0.5,
     power: 1,
     parallels: 1,
-    choices: ["coils"],
+    choices: {coils: CoilTierChoice},
 };
 
 machines["Elemental Duplicator"] = {
@@ -668,21 +668,16 @@ machines["Transcendent Plasma Mixer"] = {
     perfectOverclock: 0,
     speed: 1,
     power: 1,
-    parallels: (recipe, choices) => choices[0] || 1, // Assuming choices[0] is the parallel setting
-    choices: ["parallels"],
-    info: "Parallels are set in the parallel menu.",
+    parallels: (recipe, choices) => choices.parallels,
+    choices: {parallels: {description: "Parallels", min: 1}}
 };
 
 machines["Forge of the Gods"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => {
-        // TODO: Implement speed bonuses based on upgrades
-        return 1; // Placeholder
-    },
+    speed: 1,
     power: 1,
-    parallels: 16,
-    choices: ["upgrades"],
-    info: "Speed depends on upgrades.",
+    parallels: 1,
+    info: "Machine not implemented",
 };
 
 machines["Vacuum Freezer"] = {
@@ -693,12 +688,11 @@ machines["Vacuum Freezer"] = {
 };
 
 machines["Mega Vacuum Freezer"] = {
-    perfectOverclock: MAX_OVERCLOCK, // Assuming perfect overclocks are always possible with exotic coolants
+    perfectOverclock: (recipe, choices) => choices.coolant,
     speed: 1,
     power: 1,
     parallels: 256,
-    choices: ["coolants", "upgradeTier"],
-    info: "Up to 3 perfect overclocks with exotic coolants after Tier 2 upgrade. Need to implement coolant and upgrade logic.",
+    choices: {coolant: {description: "Coolant", choices: ["No Coolant", "Molten SpaceTime", "Spatially Enlarged Fluid", "Molten Eternity"]}},
 };
 
 machines["Industrial Wire Factory"] = {
@@ -724,10 +718,7 @@ machines["Dissolution Tank"] = {
 
 machines["Source Chamber"] = {
     perfectOverclock: 0,
-    speed: (recipe) => {
-        // TODO: Implement speed scaling with EU/t
-        return 1; // Placeholder
-    },
+    speed: 1,
     power: 1,
     parallels: 1,
     info: "Output energy scales with EU/t up to the point shown in the recipe.",
@@ -749,19 +740,19 @@ machines["Alloy Blast Smelter"] = {
 
 machines["Mega Alloy Blast Smelter"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => 1 + (choices[0] >= 5 && choices[1] ? 0.25 : 0), // Assuming choices[0] is coil tier, choices[1] is glass tier present (true/false)
-    power: (recipe, choices) => 1 - Math.min(0.25, (choices[0] || 0) > (recipe.voltageTier || 1) ? ((choices[0] || 0) - (recipe.voltageTier || 1)) * 0.05 : 0), // Assuming choices[0] is coil tier
+    speed: (recipe, choices) => Math.max(1, 1 - 0.05 * (choices.coilTier - 3)),
+    power: (recipe, choices) => Math.pow(0.95, choices.coilTier - recipe.voltageTier),
     parallels: 256,
-    choices: ["coilTier", "glassTierPresent"],
-    info: "Speed bonus if coil tier is TPV or higher and equivalent or better glass tier is present. Power consumption reduction per coil tier above recipe tier.",
+    choices: {coilTier: CoilTierChoice},
+    info: "Assumes matching glass tier.",
 };
 
 machines["Industrial Coke Oven"] = {
     perfectOverclock: 0,
     speed: 1,
-    power: (recipe, choices) => 1 - (recipe.voltageTier || 1) * 0.04, // Assuming recipe.voltageTier is voltage tier
-    parallels: (recipe, choices) => choices[0] === "Heat Proof Casings" ? 24 : 12, // Assuming choices[0] is casing type
-    choices: ["casingType"],
+    power: (recipe, choices) => 1 - (recipe.voltageTier || 1) * 0.04,
+    parallels: (recipe, choices) => choices.casingType == 1 ? 24 : 12,
+    choices: {casingType: {description: "Casing Type", choices: ["Heat Resistant Casings", "Heat Proof Casings"]}},
     info: "Energy discount per voltage tier. Parallels depend on casing type.",
 };
 
@@ -803,16 +794,12 @@ machines["Flotation Cell Regulator"] = {
 machines["ExxonMobil Chemical Plant"] = {
     perfectOverclock: 0,
     speed: (recipe, choices) => {
-        const coilTier = choices[0] || 1; // Default to 1 if no choice
-        if (coilTier === 1) return 1.5;
-        if (coilTier === 2) return 2;
-        if (coilTier === 3) return 2.5;
-        return 1 + (coilTier - 1) * 0.5; // General formula
+        return (choices.coilTier + 1) * 0.5;
     },
     power: 1,
-    parallels: (recipe, choices) => (choices[1] || 1) * 2, // Assuming choices[1] is pipe casing tier
-    choices: ["coilTier", "pipeCasingTier"],
-    info: "Speed increases with higher tier coils. Parallels depend on pipe casing tier.",
+    parallels: (recipe, choices) => (choices.pipeCasingTier + 1) * 2,
+    choices: {coilTier: CoilTierChoice, pipeCasingTier: PipeCasingTierChoice},
+    info: "Catalyst logic not implemented.",
 };
 
 machines["Thorium Reactor [LFTR]"] = {
@@ -826,9 +813,10 @@ machines["Matter Fabrication CPU"] = {
     perfectOverclock: 0,
     speed: 1,
     power: 0.8,
-    parallels: (recipe, choices) => choices[0] === "Scrap" ? 64 : 8 * (recipe.voltageTier || 1), // Assuming choices[0] is mode
-    choices: ["mode"],
-    info: "Parallels depend on the mode (Scrap or UU).",
+    parallels: (recipe, choices) => {
+        let scrap = recipe.recipe?.gtRecipe?.voltageTier == 0;
+        return scrap ? 64 : 8 * recipe.voltageTier;
+    },
 };
 
 machines["Molecular Transformer"] = {
@@ -846,11 +834,11 @@ machines["Industrial Centrifuge"] = {
 };
 
 machines["Utupu-Tanuri"] = {
-    perfectOverclock: (recipe, choices) => (choices[0] || 0) > 0, // Assuming choices[0] is number of 1800K increments over min heat
-    speed: (recipe, choices) => 2.2 + (choices[0] || 0) > 0 ? 4 : 0.5,
-    power: (recipe, choices) => 1 + (choices[0] || 0) * 0.05, // Assuming choices[0] is number of 900K increments over min heat
+    perfectOverclock: (recipe, choices) => Math.floor(choices.heatIncrements / 2),
+    speed: (recipe, choices) => 2.2 * Math.pow(1.05, choices.heatIncrements),
+    power: 0.5,
     parallels: 4,
-    choices: ["heatIncrements"],
+    choices: {heatIncrements: {description: "Heat Difference Tiers", min: 0}},
     info: "Perfect overclock, speed, and power depend on temperature increments over the minimum.",
 };
 
@@ -886,8 +874,8 @@ machines["Quantum Force Transformer"] = {
     perfectOverclock: 0,
     speed: 1,
     power: 1,
-    parallels: (recipe, choices) => 1 + (choices[0] || 0), // Assuming choices[0] is number of catalysts
-    choices: ["catalysts"],
+    parallels: (recipe, choices) => 1 + choices.catalysts,
+    choices: {catalysts: {description: "Catalysts", min: 0}},
     info: "Parallels increase per catalyst.",
 };
 
@@ -900,20 +888,16 @@ machines["Sparge Tower Controller"] = {
 
 machines["Tree Growth Simulator"] = {
     perfectOverclock: 0,
-    speed: (recipe) => {
-        // TODO: Implement fixed 5-second speed
-        return 1; // Placeholder
-    },
+    speed: 1,
     power: 1,
     parallels: 1,
-    info: "Speed is fixed at 5 seconds. Need to implement time based speed",
+    info: "Machine not implemented",
 };
 
 machines["Draconic Evolution Fusion Crafter"] = {
-    perfectOverclock: (recipe, choices) => (choices[0] || 0) > (recipe.voltageTier || 1), // Assuming choices[0] is casing tier
-    speed: (recipe, choices) => 1 / Math.max(1, (choices[0] || 1) - (recipe.voltageTier || 0)), // Assuming choices[0] is casing tier
+    perfectOverclock: 0,
+    speed: (recipe, choices) => 1 / Math.max(1, (choices.casingTier - (recipe.recipe?.gtRecipe?.voltageTier || 0))),
     power: 1,
     parallels: 1,
-    choices: ["casingTier"],
-    info: "Gains perfect overclock if casings are above the recipe tier. Recipe time is divided by the number of tiers above the recipe.",
+    choices: {casingTier: PipeCasingTierChoice}
 };

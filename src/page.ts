@@ -192,14 +192,14 @@ export class RecipeModel extends RecipeGroupEntry
     recipe?:Recipe;
     voltageTier: number = 0;
     crafter: string | undefined;
-    choices: number[] = [];
+    choices: {[key:string]:number} = {};
 
     recipesPerMinute:number = 0;
     overclockFactor:number = 1;
     powerFactor:number = 1;
     parallels:number = 0;
     overclockTiers:number = 0;
-    perfectOverclock:boolean = false;
+    perfectOverclocks:number = 0;
     selectedOreDicts:{[key:string]:Item} = {};
     solverInfo?:string;
 

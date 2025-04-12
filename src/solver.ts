@@ -142,10 +142,10 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
     return collection;
 }
 
-function GetParameter(coefficient: MachineCoefficient, voltageTier: number): number {
+function GetParameter(coefficient: MachineCoefficient, recipeModel:RecipeModel): number {
     if (typeof coefficient === "number")
         return coefficient;
-    return coefficient(voltageTier, 0);
+    return coefficient(recipeModel, recipeModel.choices);
 }
 
 function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
@@ -178,7 +178,7 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
         let crafter = recipeModel.crafter ? Repository.current.GetById(recipeModel.crafter) as Item : null;
         let machineInfo = crafter ? machines[crafter.name] || singleBlockMachine : singleBlockMachine;
         let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
-        let machineParallels = Math.max(1, GetParameter(machineInfo.parallels, recipeModel.voltageTier));
+        let machineParallels = Math.max(1, GetParameter(machineInfo.parallels, recipeModel));
         let maxParallels = Math.floor(actualVoltage / gtRecipe.voltage);
         let parallels = Math.min(maxParallels, machineParallels);
         let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
@@ -191,14 +191,16 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
                 overclockSpeed = overclockPower = Math.pow(2, overclockTiers);
             }
         }
-        let energyModifier = GetParameter(machineInfo.power, recipeModel.voltageTier);
-        let speedModifier = GetParameter(machineInfo.speed, recipeModel.voltageTier);
+        let energyModifier = GetParameter(machineInfo.power, recipeModel);
+        let speedModifier = GetParameter(machineInfo.speed, recipeModel);
+        let perfectOverclocks = GetParameter(machineInfo.perfectOverclock, recipeModel);
+        perfectOverclocks = Math.min(perfectOverclocks, overclockTiers);
         //console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
         recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
         recipeModel.powerFactor = overclockPower * energyModifier;
         recipeModel.parallels = parallels;
         recipeModel.overclockTiers = overclockTiers;
-        recipeModel.perfectOverclock = machineInfo.perfectOverclock;
+        recipeModel.perfectOverclocks = perfectOverclocks;
         recipeModel.solverInfo = machineInfo.info;
         flow.energy[recipeModel.voltageTier] = gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * overclockPower * energyModifier;
     }
