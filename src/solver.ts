@@ -177,6 +177,7 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
             recipeModel.crafter = recipe.recipeType.defaultCrafter.id;
         let crafter = recipeModel.crafter ? Repository.current.GetById(recipeModel.crafter) as Item : null;
         let machineInfo = crafter ? machines[crafter.name] || singleBlockMachine : singleBlockMachine;
+        recipeModel.ValidateChoices(machineInfo);
         let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
         let machineParallels = Math.max(1, GetParameter(machineInfo.parallels, recipeModel));
         let maxParallels = Math.floor(actualVoltage / gtRecipe.voltage);
@@ -201,7 +202,6 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
         recipeModel.parallels = parallels;
         recipeModel.overclockTiers = overclockTiers;
         recipeModel.perfectOverclocks = perfectOverclocks;
-        recipeModel.solverInfo = machineInfo.info;
         flow.energy[recipeModel.voltageTier] = gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * overclockPower * energyModifier;
     }
 }

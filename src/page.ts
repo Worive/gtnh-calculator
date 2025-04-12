@@ -1,6 +1,8 @@
 import { Goods, Item, Recipe, RecipeObject } from "./repository.js";
 import { SolvePage } from "./solver.js";
 import { showConfirmDialog } from './dialogues.js';
+import { Machine } from "./machines.js";
+import { Choice } from "./machines.js";
 
 let nextIid = 0;
 
@@ -201,7 +203,6 @@ export class RecipeModel extends RecipeGroupEntry
     overclockTiers:number = 0;
     perfectOverclocks:number = 0;
     selectedOreDicts:{[key:string]:Item} = {};
-    solverInfo?:string;
 
     Visit(visitor: ModelObjectVisitor): void {
         visitor.VisitData(this, "type", this.type);
@@ -221,9 +222,31 @@ export class RecipeModel extends RecipeGroupEntry
                 this.voltageTier = source.voltageTier;
             if (typeof source.crafter === "string")
                 this.crafter = source.crafter;
-            if (source.choices instanceof Array)
+            if (source.choices instanceof Object)
                 this.choices = source.choices;
         }
+    }
+
+    ValidateChoices(machineInfo: Machine): void {
+        if (!machineInfo.choices) {
+            this.choices = {};
+            return;
+        }
+
+        const validatedChoices: {[key:string]:number} = {};
+
+        for (const [key, choice] of Object.entries(machineInfo.choices)) {
+            const currentValue = this.choices[key];
+            const typedChoice = choice as Choice;
+
+            const min = typedChoice.min ?? 0;
+            let max = typedChoice.max ?? 999;
+            if (typedChoice.choices)
+                max = typedChoice.choices.length - 1;
+            validatedChoices[key] = Math.min(Math.max(currentValue ?? min, min), max);
+        }
+
+        this.choices = validatedChoices;
     }
 }
 

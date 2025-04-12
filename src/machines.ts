@@ -1,6 +1,6 @@
 import { RecipeModel } from "./page.js";
 import { Goods, Item, Recipe, Repository } from "./repository.js";
-import { TIER_UEV } from "./utils.js";
+import { TIER_LV, TIER_UEV } from "./utils.js";
 
 export type MachineCoefficient = number | ((recipe:RecipeModel, choices:{[key:string]:number}) => number);
 
@@ -15,7 +15,7 @@ function getCoilChoices():string[] {
 
 const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
 
-type Machine = {
+export type Machine = {
     choices?: {[key:string]:Choice};
     perfectOverclock: MachineCoefficient;
     speed: MachineCoefficient;
@@ -24,11 +24,9 @@ type Machine = {
     info?: string;
 }
 
-type Choice = {
+export type Choice = {
     description: string;
-    tooltip?: string;
     choices?: string[];
-    default?: number;
     min?: number;
     max?: number;
 }
@@ -51,14 +49,6 @@ export const singleBlockMachine:Machine = {
     parallels: 1,
 };
 
-export const defaultMachine:Machine = {
-    perfectOverclock: 0,
-    speed: 1,
-    power: 1,
-    parallels: 1,
-    info: "This machine is not in the database, assuming default values",
-};
-
 function IsRecipeType(recipe:RecipeModel, type:string):boolean {
     return recipe.recipe ? recipe.recipe.recipeType.name == type : false;
 }
@@ -67,7 +57,7 @@ machines["Large Electric Compressor"] = {
     perfectOverclock: 0,
     speed: 2,
     power: 0.9,
-    parallels: (recipe) => recipe.voltageTier * 2,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 2,
 };
 
 machines["Hot Isostatic Pressurization Unit"] = {
@@ -77,7 +67,7 @@ machines["Hot Isostatic Pressurization Unit"] = {
     // TODO: 75%/110%
     power: 0.75,
     // TODO: 4/1 per voltage tier
-    parallels: (recipe) => recipe.voltageTier * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
     info: "Assumes it is not overheated"
 };
 
@@ -87,7 +77,7 @@ machines["Pseudostable Black Hole Containment Field"] = {
     power: 0.7,
     parallels: (recipe, choices) => {
         // TODO: 2x/4x when stability is BELOW 50/20
-        return recipe.voltageTier * 8;
+        return (recipe.voltageTier + 1) * 8;
     },
     info: "Parallels depend on stability, which is not represented.",
 };
@@ -166,16 +156,16 @@ machines["Fluid Shaper"] = {
     perfectOverclock: 0,
     speed: 3, // TODO: Speed decays
     power: 0.8,
-    parallels: (recipe, choices) => recipe.voltageTier * 2 + recipe.voltageTier * 3 * choices.widthExpansion,
+    parallels: (recipe, choices) => (recipe.voltageTier + 1) * 2 + (recipe.voltageTier + 1) * 3 * choices.widthExpansion,
     choices: {widthExpansion: {description: "Width Expansion"}},
-    info: "Speed decays over time. Parallels depend on voltage tier and width expansion.",
+    info: "Speed decays over time.",
 };
 
 machines["Zyngen"] = {
     perfectOverclock: 0,
     speed: (recipe, choices) => 1 + choices.coilTier * 0.05,
     power: 1,
-    parallels: (recipe, choices) => recipe.voltageTier * choices.coilTier,
+    parallels: (recipe, choices) => (recipe.voltageTier + 1) * choices.coilTier,
     choices: {coilTier: CoilTierChoice},
 };
 
@@ -184,7 +174,7 @@ machines["High Current Industrial Arc Furnace"] = {
     speed: 3.5,
     power: 1,
     parallels: (recipe, choices) => {
-        return IsRecipeType(recipe, "Plasma Arc Furnace") ? recipe.voltageTier * 8 * choices.w : recipe.voltageTier * choices.w;
+        return IsRecipeType(recipe, "Plasma Arc Furnace") ? (recipe.voltageTier + 1) * 8 * choices.w : (recipe.voltageTier + 1) * choices.w;
     },
     choices: {w: {description: "W", min: 1}},
 };
@@ -193,7 +183,7 @@ machines["Large Scale Auto-Assembler v1.01"] = {
     perfectOverclock: 0,
     speed: 3,
     power: 1,
-    parallels: (recipe) => recipe.voltageTier * 2,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 2,
 };
 
 let PipeCasingTierChoice:Choice = {
@@ -272,27 +262,28 @@ machines["Mega Blast Furnace"] = {
         return Math.pow(0.95, choices.coilTier - tier);
     },
     parallels: 256,
+    choices: {coilTier: CoilTierChoice},
 };
 
 machines["Big Barrel Brewery"] = {
     perfectOverclock: 0,
     speed: 1.5,
     power: 1,
-    parallels: (recipe) => recipe.voltageTier * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
 };
 
 machines["TurboCan Pro"] = {
     perfectOverclock: 0,
     speed: 2,
     power: 1,
-    parallels: (recipe) => recipe.voltageTier * 8,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 8,
 };
 
 machines["Ore Washing Plant"] = {
     perfectOverclock: 0,
     speed: 5,
     power: 1,
-    parallels: (recipe) => recipe.voltageTier * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
 };
 
 machines["Oil Cracking Unit"] = {
@@ -315,7 +306,7 @@ machines["Industrial Cutting Factory"] = {
     perfectOverclock: 0,
     speed: 3,
     power: 0.75,
-    parallels: (recipe) => recipe.voltageTier * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
 };
 
 machines["Distillation Tower"] = {
@@ -333,7 +324,7 @@ machines["Dangote Distillus"] = {
         if (IsRecipeType(recipe, "Distillation Tower")) {
             return choices.tier == 0 ? 4 : 12;
         } else {
-            return recipe.voltageTier * 4 * (choices.tier + 1);
+            return (recipe.voltageTier + 1) * 4 * (choices.tier + 1);
         }
     },
     choices: {tier: {description: "Tier", choices: ["T1", "T2"]}},
@@ -382,7 +373,7 @@ machines["Industrial Extrusion Machine"] = {
     perfectOverclock: 0,
     speed: 3.5,
     power: 1,
-    parallels: (recipe) => recipe.voltageTier * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
 };
 
 machines["Assembly Line"] = {
@@ -412,7 +403,7 @@ machines["Thermic Heating Device"] = {
     perfectOverclock: 0,
     speed: 2.2,
     power: 0.9,
-    parallels: (recipe) => recipe.voltageTier * 8,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 8,
 };
 
 machines["Furnace"] = {
@@ -437,7 +428,7 @@ machines["Industrial Sledgehammer"] = {
     perfectOverclock: 0,
     speed: 2,
     power: 1,
-    parallels: (recipe, choices) => (recipe.voltageTier || 1) * (choices.anvilTier + 1) * 8,
+    parallels: (recipe, choices) => (recipe.voltageTier + 1) * (choices.anvilTier + 1) * 8,
     choices: {anvilTier: {description: "Anvil Tier", choices: ["T1 - Vanilla", "T2 - Steel", "T3 - Dark Steel / Thaumium", "T4 - Void Metal"]}},
 };
 
@@ -459,7 +450,7 @@ machines["Density^2"] = {
     perfectOverclock: 0,
     speed: 2,
     power: 1,
-    parallels: (recipe) => Math.floor((recipe.voltageTier || 1) / 2) + 1,
+    parallels: (recipe) => Math.floor((recipe.voltageTier + 1) / 2) + 1,
 };
 
 machines["Large Chemical Reactor"] = {
@@ -489,9 +480,9 @@ let precisionLatheSpeed:number[] = [0.75, 0.8, 0.9, 1, 1.5, 2, 3, 4];
 
 machines["Industrial Precision Lathe"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => ((precisionLatheSpeed[choices.itemPipeCasings] + recipe.voltageTier) / 4),
+    speed: (recipe, choices) => ((precisionLatheSpeed[choices.itemPipeCasings] + recipe.voltageTier + 1) / 4),
     power: 0.8,
-    parallels: (recipe, choices) => precisionLatheParallels[choices.itemPipeCasings] + recipe.voltageTier * 2,
+    parallels: (recipe, choices) => precisionLatheParallels[choices.itemPipeCasings] + (recipe.voltageTier + 1) * 2,
     choices: {itemPipeCasings:PipeCasingTierChoice}
 };
 
@@ -502,7 +493,7 @@ machines["Industrial Maceration Stack"] = {
     parallels: (recipe, choices) => {
         const hasUpgrade = choices.upgradeChip == 1;
         const n = hasUpgrade ? 8 : 2;
-        return n * recipe.voltageTier;
+        return n * (recipe.voltageTier + 1);
     },
     choices: {upgradeChip: {description: "Upgrade Chip", choices: ["No Upgrade", "Maceration Upgrade Chip"]}},
     info: "Parallels depend on whether the Maceration Upgrade Chip is inserted.",
@@ -512,7 +503,7 @@ machines["Industrial Material Press"] = {
     perfectOverclock: 0,
     speed: 6,
     power: 1,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
 };
 
 machines["Nano Forge"] = {
@@ -535,7 +526,7 @@ machines["Amazon Warehousing Depot"] = {
     perfectOverclock: 0,
     speed: 6,
     power: 0.75,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 16,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 16,
 };
 
 machines["PCB Factory"] = {
@@ -640,7 +631,7 @@ machines["Elemental Duplicator"] = {
     perfectOverclock: 0,
     speed: 2,
     power: 1,
-    parallels: (recipe) => 8 * (recipe.voltageTier || 1),
+    parallels: (recipe) => 8 * (recipe.voltageTier + 1),
 };
 
 machines["Research station"] = {
@@ -654,14 +645,14 @@ machines["Boldarnator"] = {
     perfectOverclock: 0,
     speed: 3,
     power: 0.75,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 8,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 8,
 };
 
 machines["Large Thermal Refinery"] = {
     perfectOverclock: 0,
     speed: 2.5,
     power: 0.8,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 8,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 8,
 };
 
 machines["Transcendent Plasma Mixer"] = {
@@ -699,7 +690,7 @@ machines["Industrial Wire Factory"] = {
     perfectOverclock: 0,
     speed: 3,
     power: 0.75,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 4,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 4,
 };
 
 machines["Digester"] = {
@@ -750,7 +741,7 @@ machines["Mega Alloy Blast Smelter"] = {
 machines["Industrial Coke Oven"] = {
     perfectOverclock: 0,
     speed: 1,
-    power: (recipe, choices) => 1 - (recipe.voltageTier || 1) * 0.04,
+    power: (recipe, choices) => 1 - (recipe.voltageTier + 1) * 0.04,
     parallels: (recipe, choices) => choices.casingType == 1 ? 24 : 12,
     choices: {casingType: {description: "Casing Type", choices: ["Heat Resistant Casings", "Heat Proof Casings"]}},
     info: "Energy discount per voltage tier. Parallels depend on casing type.",
@@ -774,7 +765,7 @@ machines["Zhuhai - Fishing Port"] = {
     perfectOverclock: 0,
     speed: 1,
     power: 1,
-    parallels: (recipe) => ((recipe.voltageTier || 1) + 1) * 2,
+    parallels: (recipe) => ((recipe.voltageTier + 1) + 1) * 2,
 };
 
 machines["Reactor Fuel Processing Plant"] = {
@@ -814,8 +805,8 @@ machines["Matter Fabrication CPU"] = {
     speed: 1,
     power: 0.8,
     parallels: (recipe, choices) => {
-        let scrap = recipe.recipe?.gtRecipe?.voltageTier == 0;
-        return scrap ? 64 : 8 * recipe.voltageTier;
+        let scrap = recipe.recipe?.gtRecipe?.voltageTier == TIER_LV;
+        return scrap ? 64 : 8 * (recipe.voltageTier + 1);
     },
 };
 
@@ -830,7 +821,7 @@ machines["Industrial Centrifuge"] = {
     perfectOverclock: 0,
     speed: 2.25,
     power: 0.9,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 6,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 6,
 };
 
 machines["Utupu-Tanuri"] = {
@@ -846,21 +837,21 @@ machines["Industrial Electrolyzer"] = {
     perfectOverclock: 0,
     speed: 2.8,
     power: 0.9,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 2,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 2,
 };
 
 machines["Industrial Mixing Machine"] = {
     perfectOverclock: 0,
     speed: 3.5,
     power: 1,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 8,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 8,
 };
 
 machines["Nuclear Salt Processing Plant"] = {
     perfectOverclock: 0,
     speed: 2.5,
     power: 1,
-    parallels: (recipe) => (recipe.voltageTier || 1) * 2,
+    parallels: (recipe) => (recipe.voltageTier + 1) * 2,
 };
 
 machines["IsaMill Grinding Machine"] = {

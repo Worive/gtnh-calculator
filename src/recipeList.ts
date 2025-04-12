@@ -5,6 +5,7 @@ import { voltageTier, GtVoltageTier, formatAmount } from "./utils.js";
 import { ShowTooltip } from "./tooltip.js";
 import { IconBox } from "./itemIcon.js";
 import { ShowDropdown } from "./dropdown.js";
+import { machines, singleBlockMachine } from "./machines.js";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
     [LinkAlgorithm.Match]: "",
@@ -160,6 +161,15 @@ export class RecipeList {
             }
         });
 
+        this.actionHandlers.set("update_machine_choice", (obj, event, parent) => {
+            if (obj instanceof RecipeModel && event.type === "change") {
+                const target = event.target as HTMLInputElement | HTMLSelectElement;
+                const choice = target.getAttribute("data-choice")!;
+                obj.choices[choice] = parseFloat(target.value);
+                UpdateProject();
+            }
+        });
+
         this.actionHandlers.set("share", (obj, event, parent) => {
             if (obj instanceof RecipeGroupModel && event.type === "click") {
                 ShareCurrentPage();
@@ -211,8 +221,7 @@ export class RecipeList {
                                 text = `${obj.parallels} parallels\n` +
                                        `${overclocksText} ${initialTier == finalTier ? `(${initialTierName})` : `(${initialTierName} → ${finalTierName})`}\n` +
                                        text + `\n${obj.overclockFactor}x machine speed\n` +
-                                       `${obj.powerFactor}x eu per recipe\n` +
-                                       `${obj.solverInfo ?? ""}`;
+                                       `${obj.powerFactor}x eu per recipe`;
                             }
                             ShowTooltip(element as HTMLElement, {
                                 header: recipe?.recipeType.name + " recipe",
@@ -374,7 +383,8 @@ export class RecipeList {
         }
         
         let gtRecipe = recipe.gtRecipe;
-        let shortInfoContent = crafter?.name ?? recipe.recipeType.name;
+        let shortInfoContent = `<span data-tooltip="recipe" data-iid="${recipeModel.iid}">${crafter?.name ?? recipe.recipeType.name}</span>`;
+        let machineInfo = machines[crafter.name] ?? singleBlockMachine;
         let machineCountsText = "";
         if (gtRecipe && gtRecipe.durationTicks > 0) {
             const minTier = gtRecipe.voltageTier;
@@ -403,9 +413,62 @@ export class RecipeList {
             `;
         }
 
+        // Render machine choices if they exist
+        if (machineInfo.choices) {
+            const choicesHtml = Object.entries(machineInfo.choices).map(([key, choice]) => {
+                const currentValue = recipeModel.choices[key] ?? choice.min ?? 0;
+                let inputHtml = '';
+                
+                if (choice.choices) {
+                    // Render as dropdown
+                    const options = choice.choices.map((option, index) => 
+                        `<option value="${index}" ${index === currentValue ? 'selected' : ''}>${option}</option>`
+                    ).join('');
+                    inputHtml = `
+                        <select class="machine-choice" data-iid="${recipeModel.iid}" data-action="update_machine_choice" data-choice="${key}">
+                            ${options}
+                        </select>
+                    `;
+                } else {
+                    // Render as number input
+                    const min = choice.min ?? 0;
+                    const max = choice.max ?? 999;
+                    inputHtml = `
+                        <input type="number" class="machine-choice" 
+                            data-iid="${recipeModel.iid}" 
+                            data-action="update_machine_choice"
+                            data-choice="${key}"
+                            value="${currentValue}"
+                            min="${min}"
+                            max="${max}"
+                        >
+                    `;
+                }
+
+                return `
+                    <div class="machine-choice-container">
+                        <label>${choice.description}:</label>
+                        ${inputHtml}
+                    </div>
+                `;
+            }).join('');
+
+            if (choicesHtml) {
+                shortInfoContent += `
+                    <div class="machine-choices">
+                        ${choicesHtml}
+                    </div>
+                `;
+            }
+
+            if (machineInfo.info) {
+                shortInfoContent += `<span class="text-small white-text">${machineInfo.info}</span>`;
+            }
+        }
+
         let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="crafter_click" data-iid="${recipeModel.iid}" data-amount="${machineCountsText}"></item-icon></div></td>`;
 
-        let shortInfoCell = `<td><div class="short-info" data-tooltip="recipe" data-iid="${recipeModel.iid}">${shortInfoContent}</div></td>`;
+        let shortInfoCell = `<td><div class="short-info" data-iid="${recipeModel.iid}">${shortInfoContent}</div></td>`;
         return iconCell + shortInfoCell;
     }
 
