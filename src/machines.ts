@@ -1,5 +1,5 @@
 import { RecipeModel } from "./page.js";
-import { Goods, Item, Repository } from "./repository.js";
+import { Goods, Item, Recipe, Repository } from "./repository.js";
 import { TIER_UEV } from "./utils.js";
 
 export type MachineCoefficient = number | ((recipe:RecipeModel, choices:{[key:string]:number}) => number);
@@ -12,6 +12,8 @@ function getCoilChoices():string[] {
     }
     return coils;
 }
+
+const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
 
 type Machine = {
     choices?: {[key:string]:Choice};
@@ -57,6 +59,10 @@ export const defaultMachine:Machine = {
     info: "This machine is not in the database, assuming default values",
 };
 
+function IsRecipeType(recipe:RecipeModel, type:string):boolean {
+    return recipe.recipe ? recipe.recipe.recipeType.name == type : false;
+}
+
 machines["Large Electric Compressor"] = {
     perfectOverclock: 0,
     speed: 2,
@@ -95,14 +101,14 @@ machines["Bacterial Vat"] = {
 };
 
 machines["Circuit Assembly Line"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY,
+    perfectOverclock: MAX_OVERCLOCK,
     speed: 1,
     power: 1,
     parallels: 1,
 };
 
 machines["Component Assembly Line"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY,
+    perfectOverclock: MAX_OVERCLOCK,
     speed: 1,
     power: 1,
     parallels: 1
@@ -120,7 +126,7 @@ machines["Naquadah Fuel Refinery"] = {
     speed: 1,
     power: 1,
     parallels: 1,
-    choices: {"coils": {
+    choices: {coils: {
         description: "Coils",
         choices: ["T1 Field Restriction Coil", "T2 Advanced Field Restriction Coil", "T3 Ultimate Field Restriction Coil", "T4 Temporal Field Restriction Coil"],
     }},
@@ -134,7 +140,7 @@ machines["Neutron Activator"] = {
     speed: (recipe, choices) => Math.pow((1/0.9), (choices.speedingPipeCasing - 4)),
     power: 0,
     parallels: 1,
-    choices: {"speedingPipeCasing": {
+    choices: {speedingPipeCasing: {
         description: "Speeding Pipe Casing",
         min: 4,
     }},
@@ -144,14 +150,13 @@ machines["Neutron Activator"] = {
 machines["Precise Auto-Assembler MT-3662"] = {
     perfectOverclock: 0,
     speed: (recipe, choices) => {
-        let precise = recipe.recipe && recipe.recipe.recipeType.name == "Precise Assembler";
-        return precise ? 1 : 2;
+        return IsRecipeType(recipe, "Precise Assembler") ? 1 : 2;
     },
     power: 1,
     parallels: (recipe, choices) => {
         return Math.pow(2, (choices.precisionTier - 1) * 16);
     },
-    choices: {"precisionTier": {
+    choices: {precisionTier: {
         description: "Precision Tier",
         choices: ["Imprecise (MK-0)", "MK-I", "MK-II", "MK-III", "MK-IV"],
     }},
@@ -159,22 +164,19 @@ machines["Precise Auto-Assembler MT-3662"] = {
 
 machines["Fluid Shaper"] = {
     perfectOverclock: 0,
-    speed: (recipe) => {
-        // TODO: Implement speed decay calculation
-        return 3; // Placeholder (up to 300% = 3)
-    },
+    speed: 3, // TODO: Speed decays
     power: 0.8,
-    parallels: (recipe, choices) => recipe.voltageTier * 2 + recipe.voltageTier * 3 * (choices.widthExpansion || 0), // Assuming choices[0] is width expansion
-    choices: ["widthExpansion"],
+    parallels: (recipe, choices) => recipe.voltageTier * 2 + recipe.voltageTier * 3 * choices.widthExpansion,
+    choices: {widthExpansion: {description: "Width Expansion"}},
     info: "Speed decays over time. Parallels depend on voltage tier and width expansion.",
 };
 
 machines["Zyngen"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => 1 + (choices[0] || 0) * 0.05, // Assuming choices[0] is coil tier
+    speed: (recipe, choices) => 1 + choices.coilTier * 0.05,
     power: 1,
-    parallels: (recipe, choices) => recipe.voltageTier * (choices[0] || 1), // Assuming choices[0] is coil tier, default to 1 if no choice
-    choices: ["coilTier"],
+    parallels: (recipe, choices) => recipe.voltageTier * choices.coilTier,
+    choices: {coilTier: CoilTierChoice},
 };
 
 machines["High Current Industrial Arc Furnace"] = {
@@ -182,10 +184,9 @@ machines["High Current Industrial Arc Furnace"] = {
     speed: 3.5,
     power: 1,
     parallels: (recipe, choices) => {
-        const mode = choices[0] || "Electric"; // Default to Electric
-        return mode === "Plasma" ? recipe.voltageTier * 8 * (choices[1] || 1) : recipe.voltageTier * (choices[1] || 1); // Assuming choices[1] is W
+        return IsRecipeType(recipe, "Plasma Arc Furnace") ? recipe.voltageTier * 8 * choices.w : recipe.voltageTier * choices.w;
     },
-    choices: ["mode", "W"],
+    choices: {w: {description: "W", min: 1}},
 };
 
 machines["Large Scale Auto-Assembler v1.01"] = {
@@ -195,24 +196,62 @@ machines["Large Scale Auto-Assembler v1.01"] = {
     parallels: (recipe) => recipe.voltageTier * 2,
 };
 
+let PipeCasingTierChoice:Choice = {
+    description: "Pipe Casing Tier",
+    choices: ["T1: Tin", "T2: Brass", "T3: Electrum", "T4: Platinum", "T5: Osmium", "T6: Quantium", "T7: Fluxed Electrum", "T8: Black Plutonium"],
+}
+
 machines["Industrial Autoclave"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => 1 + (choices[0] || 0) * 0.25, // Assuming choices[0] is coil level (125% faster = 1 + 0.25 per level)
-    power: (recipe, choices) => recipe.consumption * (12 - (choices[1] || 0)) / 12, // Assuming choices[1] is Pipe Casing Tier
-    parallels: (recipe, choices) => (choices[1] || 0) * 12, // Assuming choices[1] is Item Pipe Casing Tier
-    choices: ["coilLevel", "pipeCasingTier"],
-    info: "Power consumption depends on Pipe Casing Tier. Parallels depend on Item Pipe Casing Tier.",
+    speed: (recipe, choices) => 1.25 + choices.coilTier * 0.25,
+    power: (recipe, choices) => (11 - choices.pipeCasingTier) / 12,
+    parallels: (recipe, choices) => choices.pipeCasingTier * 12 + 12,
+    choices: {coilTier: CoilTierChoice, pipeCasingTier: PipeCasingTierChoice},
 };
 
+const ebfRecipeBaseCoilTierCache: {[key: string]: number} = {};
+
+function GetEbfRecipeBaseCoilTier(recipe?: Recipe): number {
+    if (!recipe) return 0;
+    const recipeId = recipe.id;
+    let cached = ebfRecipeBaseCoilTierCache[recipeId];
+    if (cached !== undefined) return cached;
+
+    let recipeInfo = recipe.gtRecipe.additionalInfo;
+    if (!recipeInfo) return 0;
+
+    let coilTier = 0;
+    if (recipeInfo.endsWith("(Cupronickel)")) coilTier = 0;
+    else if (recipeInfo.endsWith("(Kanthal)")) coilTier = 1;
+    else if (recipeInfo.endsWith("(Nichrome)")) coilTier = 2;
+    else if (recipeInfo.endsWith("(TPV)")) coilTier = 3;
+    else if (recipeInfo.endsWith("(HSS-G)")) coilTier = 4;
+    else if (recipeInfo.endsWith("(HSS-S)")) coilTier = 5;
+    else if (recipeInfo.endsWith("(Naquadah)")) coilTier = 6;
+    else if (recipeInfo.endsWith("(Naquadah Alloy)")) coilTier = 7;
+    else if (recipeInfo.endsWith("(Trinium)")) coilTier = 8;
+    else if (recipeInfo.endsWith("(Electrum Flux)")) coilTier = 9;
+    else if (recipeInfo.endsWith("(Awakened Draconium)")) coilTier = 10;
+    else if (recipeInfo.endsWith("(Infinity)")) coilTier = 11;
+    else if (recipeInfo.endsWith("(Hypogen)")) coilTier = 12;
+    else if (recipeInfo.endsWith("(Eternal)")) coilTier = 13;
+
+    ebfRecipeBaseCoilTierCache[recipeId] = coilTier;
+    return coilTier;
+}
+
 machines["Electric Blast Furnace"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY,
-    speed: 2,
-    power: (recipe) => {
-        // TODO: Implement power reduction based on temperature
-        return 1; // Placeholder
+    perfectOverclock: (recipe, choices) => {
+        let tier = GetEbfRecipeBaseCoilTier(recipe.recipe);
+        return Math.floor((choices.coilTier - tier)/2);
+    },
+    speed: 1,
+    power: (recipe, choices) => {
+        let tier = GetEbfRecipeBaseCoilTier(recipe.recipe);
+        return Math.pow(0.95, choices.coilTier - tier);
     },
     parallels: 1,
-    info: "Speed can become 4 with perfect overclock. Power consumption reduces with higher temperature.",
+    choices: {coilTier: CoilTierChoice},
 };
 
 machines["Volcanus"] = {
@@ -223,14 +262,16 @@ machines["Volcanus"] = {
 };
 
 machines["Mega Blast Furnace"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY,
-    speed: 2,
-    power: (recipe) => {
-        // TODO: Implement power reduction based on temperature
-        return 1; // Placeholder
+    perfectOverclock: (recipe, choices) => {
+        let tier = GetEbfRecipeBaseCoilTier(recipe.recipe);
+        return Math.floor((choices.coilTier - tier)/2);
+    },
+    speed: 1,
+    power: (recipe, choices) => {
+        let tier = GetEbfRecipeBaseCoilTier(recipe.recipe);
+        return Math.pow(0.95, choices.coilTier - tier);
     },
     parallels: 256,
-    info: "Speed can become 4 with perfect overclock. Power consumption reduces with higher temperature.",
 };
 
 machines["Big Barrel Brewery"] = {
@@ -257,19 +298,17 @@ machines["Ore Washing Plant"] = {
 machines["Oil Cracking Unit"] = {
     perfectOverclock: 0,
     speed: 1,
-    power: (recipe, choices) => 1 - Math.min(0.5, (choices[0] || 0) * 0.1), // Assuming choices[0] is coil tier
+    power: (recipe, choices) => 1 - Math.min(0.5, (choices.coilTier + 1) * 0.1),
     parallels: 1,
-    choices: ["coilTier"],
-    info: "Power consumption reduces with higher coil tiers.",
+    choices: {coilTier: CoilTierChoice},
 };
 
 machines["Mega Oil Cracker"] = {
     perfectOverclock: 0,
     speed: 1,
-    power: (recipe, choices) => 1 - Math.min(0.5, (choices[0] || 0) * 0.1), // Assuming choices[0] is coil tier
+    power: (recipe, choices) => 1 - Math.min(0.5, (choices.coilTier + 1) * 0.1),
     parallels: 256,
-    choices: ["coilTier"],
-    info: "Power consumption reduces with higher coil tiers.",
+    choices: {coilTier: CoilTierChoice},
 };
 
 machines["Industrial Cutting Factory"] = {
@@ -288,20 +327,16 @@ machines["Distillation Tower"] = {
 
 machines["Dangote Distillus"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => choices[0] === "DTower" ? 3.5 : 2, // Assuming choices[0] is mode
-    power: (recipe, choices) => choices[0] === "DTower" ? 0.15 : 1, // Assuming choices[0] is mode
+    speed: (recipe, choices) => IsRecipeType(recipe, "Distillation Tower") ? 3.5 : 2,
+    power: (recipe, choices) => IsRecipeType(recipe, "Distillation Tower") ? 1 : 0.15,
     parallels: (recipe, choices) => {
-        if (choices[0] === "DTower") {
-            if (recipe.voltageTier === 1) return 4;
-            if (recipe.voltageTier === 2) return 12;
-            return 1; // Placeholder for other tiers
-        } else if (choices[0] === "Distillery") {
-            return (recipe.voltageTier || 1) * 4 * (choices[1] || 1); // Assuming choices[1] is InputTier
+        if (IsRecipeType(recipe, "Distillation Tower")) {
+            return choices.tier == 0 ? 4 : 12;
+        } else {
+            return recipe.voltageTier * 4 * (choices.tier + 1);
         }
-        return 1; // Default
     },
-    choices: ["mode", "inputTier"],
-    info: "Parallels and speed/power depend on the mode (DTower or Distillery).",
+    choices: {tier: {description: "Tier", choices: ["T1", "T2"]}},
 };
 
 machines["Mega Distillation Tower"] = {
@@ -315,29 +350,32 @@ machines["Electric Implosion Compressor"] = {
     perfectOverclock: 0,
     speed: 1,
     power: 1,
-    parallels: (recipe, choices) => Math.pow(4, ((choices[0] as any) || 1) - 1), // Assuming choices[0] is containment block tier
-    choices: ["containmentBlockTier"],
-    info: "Parallels depend on the containment block tier.",
+    parallels: (recipe, choices) => Math.pow(4, choices.containmentBlockTier),
+    choices: {containmentBlockTier: {description: "Containment Block Tier", choices: ["Neutronium", "Infinity", "Transcendent Metal", "SpaceTime", "Universum"]}},
 };
+
+let electroMagnets:{name:string, speed:number, power:number, parallels:number}[] = [
+    {name: "Iron Electromagnet", speed: 1.1, power: 0.8, parallels: 8},
+    {name: "Steel Electromagnet", speed: 1.25, power: 0.75, parallels: 24},
+    {name: "Neodymium Electromagnet", speed: 1.5, power: 0.7, parallels: 48},
+    {name: "Samarium Electromagnet", speed: 2, power: 0.6, parallels: 96},
+    {name: "Tengam Electromagnet", speed: 2.5, power: 0.5, parallels: 256},
+]
 
 machines["Magnetic Flux Exhibitor"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => {
-        // TODO: Implement speed bonus based on electromagnets
-        return 1; // Placeholder
-    },
-    power: 1,
-    parallels: 1,
-    choices: ["electromagnetTier"],
-    info: "Speed depends on the tier of electromagnets.",
+    speed: (recipe, choices) => electroMagnets[choices.electromagnet].speed,
+    power: (recipe, choices) => electroMagnets[choices.electromagnet].power,
+    parallels: (recipe, choices) => electroMagnets[choices.electromagnet].parallels,
+    choices: {electromagnet: {description: "Electromagnet", choices: electroMagnets.map(m => m.name)}},
 };
 
 machines["Dissection Apparatus"] = {
     perfectOverclock: 0,
     speed: 3,
     power: 0.85,
-    parallels: (recipe, choices) => (choices[0] || 1) * 8, // Assuming choices[0] is Item Pipe Casing Tier
-    choices: ["itemPipeCasingTier"],
+    parallels: (recipe, choices) => (choices.pipeCasingTier + 1) * 8,
+    choices: {pipeCasingTier: PipeCasingTierChoice},
 };
 
 machines["Industrial Extrusion Machine"] = {
@@ -356,24 +394,18 @@ machines["Assembly Line"] = {
 
 machines["Advanced Assembly Line"] = {
     perfectOverclock: 0,
-    speed: (recipe) => {
-        // TODO: Implement laser overclock logic
-        return 1; // Placeholder
-    },
-    power: (recipe) => {
-        // TODO: Implement power calculation with laser overclock
-        return 1; // Placeholder
-    },
+    speed: 1, // TODO
+    power: 1, // TODO
     parallels: 1,
-    info: "Performs laser overclock with extra amperage. Speed reduces recipe time by 50% per laser overclock. Power depends on the number of slices working and overclocked EU/t.",
+    info: "Laser overclocks and slices logic not implemented.",
 };
 
 machines["Large Fluid Extractor"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => 1.5 * Math.pow(1.10, (choices[0] || 0)), // Assuming choices[0] is Heating Coil Tier
-    power: (recipe, choices) => 0.80 * Math.pow(0.90, (choices[0] || 0)), // Assuming choices[0] is Heating Coil Tier
-    parallels: (recipe, choices) => (choices[1] || 1) * 8, // Assuming choices[1] is solenoid tier (MV is tier 2)
-    choices: ["heatingCoilTier", "solenoidTier"],
+    speed: (recipe, choices) => 1.5 * Math.pow(1.10, (choices.coilTier + 1)),
+    power: (recipe, choices) => 0.80 * Math.pow(0.90, (choices.coilTier + 1)),
+    parallels: (recipe, choices) => (choices.solenoidTier + 2) * 8,
+    choices: {coilTier: CoilTierChoice, solenoidTier: {description: "Solenoid Tier", choices: ["MV", "HV", "EV", "IV", "LuV", "ZPM", "UV", "UHV", "UEV", "UIV", "UMV"]}},
 };
 
 machines["Thermic Heating Device"] = {
@@ -395,19 +427,18 @@ machines["Multi Smelter"] = {
     speed: 1,
     power: 1,
     parallels: (recipe, choices) => {
-        const coilTier = choices[0] || 0;
-        return Math.min(8192, 8 * Math.pow(2, coilTier));
+        return 8 * Math.pow(2, choices.coilTier);
     },
-    choices: ["coilTier"],
-    info: "Parallels increase with coil tier.",
+    choices: {coilTier: CoilTierChoice},
+    info: "Parallel amount needs testing!",
 };
 
 machines["Industrial Sledgehammer"] = {
     perfectOverclock: 0,
     speed: 2,
     power: 1,
-    parallels: (recipe, choices) => (recipe.voltageTier || 1) * (choices[0] || 1) * 8, // Assuming choices[0] is Anvil Tier
-    choices: ["anvilTier"],
+    parallels: (recipe, choices) => (recipe.voltageTier || 1) * (choices.anvilTier + 1) * 8,
+    choices: {anvilTier: {description: "Anvil Tier", choices: ["T1 - Vanilla", "T2 - Steel", "T3 - Dark Steel / Thaumium", "T4 - Void Metal"]}},
 };
 
 machines["Nuclear Reactor"] = {
@@ -432,14 +463,14 @@ machines["Density^2"] = {
 };
 
 machines["Large Chemical Reactor"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY,
+    perfectOverclock: MAX_OVERCLOCK,
     speed: 1,
     power: 1,
     parallels: 1,
 };
 
 machines["Mega Chemical Reactor"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY,
+    perfectOverclock: MAX_OVERCLOCK,
     speed: 1,
     power: 1,
     parallels: 256,
@@ -447,19 +478,21 @@ machines["Mega Chemical Reactor"] = {
 
 machines["Hyper-Intensity Laser Engraver"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => Math.cbrt(choices[0] || 1), // Assuming choices[0] is laser source amperage input
+    speed: 3,
     power: 0.8,
-    parallels: 1,
-    choices: ["laserAmperage"],
-    info: "Speed is the cube root of laser source amperage input.",
+    parallels: (recipe, choices) => Math.cbrt(choices.laserAmperage),
+    choices: {laserAmperage: {description: "Laser Amperage", min: 1}},
 };
+
+let precisionLatheParallels:number[] = [1, 1, 2, 4, 8, 12, 16, 32];
+let precisionLatheSpeed:number[] = [0.75, 0.8, 0.9, 1, 1.5, 2, 3, 4];
 
 machines["Industrial Precision Lathe"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => 100 / (1 / ((choices[0] || 0) + (recipe.voltageTier || 1) / 4)), // Assuming choices[0] is Item Pipe Casing Speed Boost
+    speed: (recipe, choices) => ((precisionLatheSpeed[choices.itemPipeCasings] + recipe.voltageTier) / 4),
     power: 0.8,
-    parallels: (recipe, choices) => (choices[0] || 0) + (recipe.voltageTier || 1) * 2, // Assuming choices[0] is Item Pipe Casing Parallel
-    choices: ["itemPipeCasingSpeedBoost", "itemPipeCasingParallel"],
+    parallels: (recipe, choices) => precisionLatheParallels[choices.itemPipeCasings] + recipe.voltageTier * 2,
+    choices: {itemPipeCasings:PipeCasingTierChoice}
 };
 
 machines["Industrial Maceration Stack"] = {
@@ -467,11 +500,11 @@ machines["Industrial Maceration Stack"] = {
     speed: 1.6,
     power: 1,
     parallels: (recipe, choices) => {
-        const hasUpgrade = choices[0] === "Maceration Upgrade Chip";
+        const hasUpgrade = choices.upgradeChip == 1;
         const n = hasUpgrade ? 8 : 2;
-        return n * (recipe.voltageTier || 1);
+        return n * recipe.voltageTier;
     },
-    choices: ["upgradeChip"],
+    choices: {upgradeChip: {description: "Upgrade Chip", choices: ["No Upgrade", "Maceration Upgrade Chip"]}},
     info: "Parallels depend on whether the Maceration Upgrade Chip is inserted.",
 };
 
@@ -483,11 +516,12 @@ machines["Industrial Material Press"] = {
 };
 
 machines["Nano Forge"] = {
-    perfectOverclock: (recipe, choices) => (recipe.voltageTier || 1) > (recipe.voltageTier || 1), // Always false for now, need to compare recipe tier to machine tier
+    perfectOverclock: 0,
     speed: 1,
     power: 1,
     parallels: 1,
-    info: "Gains perfect overclock if recipe tier is lower than Nano Forge tier.  Need access to machine tier to implement perfectOverclock correctly",
+    choices: {tier: {description: "Tier", choices: ["T1 (Carbon Nanite)", "T2 (Neutronium Nanite)", "T3 (Transcendent Metal Nanite)"]}},
+    info: "Nano forge perfect overclock not implemented.",
 };
 
 machines["Neutronium Compressor"] = {
@@ -505,29 +539,27 @@ machines["Amazon Warehousing Depot"] = {
 };
 
 machines["PCB Factory"] = {
-    perfectOverclock: 0,
-    speed: (recipe, choices) => {
-        // TODO: Implement speed calculation based on trace size
-        return 1; // Placeholder
-    },
-    power: (recipe, choices) => Math.sqrt(choices[0] || 1), // Assuming choices[0] is number of structures
+    perfectOverclock: (recipe, choices) => choices.cooling >= 2 ? MAX_OVERCLOCK : 0,
+    speed: (recipe, choices) => 1/Math.pow(100/choices.traceSize, 2),
+    power: (recipe, choices) => choices.cooling > 0 && choices.biochamber > 0 ? Math.sqrt(2) : 1,
     parallels: (recipe, choices) => {
-        const nanites = choices[1] || 1; // Assuming choices[1] is nanites
-        if (nanites >= 8) return 4;
-        if (nanites >= 4) return 3;
-        if (nanites >= 2) return 2;
-        return 1;
+        const nanites = choices.nanites;
+        return Math.floor(Math.log2(nanites) + 1);
     },
-    choices: ["structures", "nanites"],
-    info: "Speed depends on trace size. Power is multiplied by the square root of structures. Parallels depend on nanites.",
+    choices: {nanites: {description: "Nanites", min: 1}, 
+        traceSize: {description: "Trace Size", min:50, max:200}, 
+        biochamber: {description: "Biochamber", choices: ["No Biochamber", "Biochamber"]}, 
+        cooling: {description: "Cooling", choices: ["No Cooling", "Liquid Cooling", "Thermosink Radiator"]},
+    },
+    info: "Production multiplier based on trace size is not implemented.",
 };
 
 machines["Dimensionally Transcendent Plasma Forge"] = {
-    perfectOverclock: (recipe, choices) => choices[0] === "Convergence", // Assuming choices[0] indicates Convergence
+    perfectOverclock: (recipe, choices) => choices.convergence > 0 ? MAX_OVERCLOCK : 0,
     speed: 1,
-    power: 1,
+    power: (recipe, choices) => choices.convergence > 0 ? 0.5 : 1,
     parallels: 1,
-    choices: ["convergence"],
+    choices: {convergence: {description: "Convergence", choices: ["No Convergence", "Convergence"]}},
     info: "Gains perfect overclock when Convergence is active. Fuel consumption can be reduced after 8 hours. Extra power cost during Perfect Overclocks is added in form of increased catalyst amounts. Need to implement convergence and time logic.",
 };
 
@@ -661,7 +693,7 @@ machines["Vacuum Freezer"] = {
 };
 
 machines["Mega Vacuum Freezer"] = {
-    perfectOverclock: Number.POSITIVE_INFINITY, // Assuming perfect overclocks are always possible with exotic coolants
+    perfectOverclock: MAX_OVERCLOCK, // Assuming perfect overclocks are always possible with exotic coolants
     speed: 1,
     power: 1,
     parallels: 256,
