@@ -15,6 +15,7 @@
     gap: 4px;
     padding: 4px;
     border: 2px solid #A0A0A0;
+    align-items: center;
 }
 
 .product-item {

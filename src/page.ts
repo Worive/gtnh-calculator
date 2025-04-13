@@ -423,38 +423,24 @@ async function GetUrlHashFromJson(json:string):Promise<string>
     return base64;
 }
 
-export async function ShareCurrentPage() {
+export async function CopyCurrentPageUrl() {
     const serialized = serializer.Serialize(page);
-    
-    showConfirmDialog(
-        `Share page "${page.name}"`,
-        "Copy URL to clipboard",
-        "Download",
-        "Cancel"
-    ).then(async action => {
-        if (action === "option1") {
-            // Copy URL to clipboard
-            try {
-                const jsonString = JSON.stringify(serialized);
-                const hash = await GetUrlHashFromJson(jsonString);
-                const url = `${window.location.origin}${window.location.pathname}#${hash}`;
-                await navigator.clipboard.writeText(url);
-            } catch (e) {
-                console.error("Failed to copy URL to clipboard:", e);
-            }
-        } else if (action === "option2") {
-            // Download
-            const prettyJson = JSON.stringify(serialized, null, 2);
-            const blob = new Blob([prettyJson], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${page.name}.gtnh`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-        // If cancel, do nothing
-    });
+    const jsonString = JSON.stringify(serialized);
+    const hash = await GetUrlHashFromJson(jsonString);
+    const url = `${window.location.origin}${window.location.pathname}#${hash}`;
+    await navigator.clipboard.writeText(url);
+}
+
+export function DownloadCurrentPage() {
+    const serialized = serializer.Serialize(page);
+    const prettyJson = JSON.stringify(serialized, null, 2);
+    const blob = new Blob([prettyJson], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${page.name}.gtnh`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }

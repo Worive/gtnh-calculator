@@ -1,6 +1,6 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "./repository.js";
-import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, ShareCurrentPage } from "./page.js";
+import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, serializer, CopyCurrentPageUrl, DownloadCurrentPage } from "./page.js";
 import { voltageTier, GtVoltageTier, formatAmount } from "./utils.js";
 import { ShowTooltip } from "./tooltip.js";
 import { IconBox } from "./itemIcon.js";
@@ -184,9 +184,16 @@ export class RecipeList {
             }
         });
 
-        this.actionHandlers.set("share", (obj, event, parent) => {
-            if (obj instanceof RecipeGroupModel && event.type === "click") {
-                ShareCurrentPage();
+
+        this.actionHandlers.set("copy_link", (obj, event) => {
+            if (event.type === "click") {
+                CopyCurrentPageUrl();
+            }
+        });
+
+        this.actionHandlers.set("download", (obj, event) => {
+            if (event.type === "click") {
+                DownloadCurrentPage();
             }
         });
     }
@@ -195,7 +202,7 @@ export class RecipeList {
         let commonHandler = (e: Event) => {
             if (e.type === "contextmenu" && e instanceof MouseEvent && (e.ctrlKey || e.metaKey))
                 return;
-            const element = (e.target as HTMLElement).closest("[data-iid][data-action]") as HTMLElement;
+            const element = (e.target as HTMLElement).closest("[data-action]") as HTMLElement;
             if (element) {
                 const iid = parseInt(element.getAttribute("data-iid")!) || page.iid;
                 const action = element.getAttribute("data-action")!;
@@ -224,7 +231,7 @@ export class RecipeList {
                         let obj = GetByIid(parseInt(element.getAttribute("data-iid")!))?.current as RecipeModel;
                         if (obj) {
                             let recipe = Repository.current.GetById<Recipe>(obj.recipeId);
-                            let text = `${obj.recipesPerMinute} recipes per minute`;
+                            let text = `${obj.recipesPerMinute/page.timeScale} recipes/${page.settings.timeUnit}`;
                             if (recipe?.gtRecipe) {
                                 let initialTier = recipe.gtRecipe.voltageTier;
                                 let finalTier = initialTier + obj.overclockTiers;
@@ -582,8 +589,8 @@ export class RecipeList {
         ).join('');
 
         return `
+            <h2>Settings:</h2>
             <div class="settings-panel">
-                <button class="share-btn" data-iid="${page.rootGroup.iid}" data-action="share">Share</button>
                 <div class="setting-item">
                     <label>Voltage tier for new recipes:</label>
                     <select data-iid="${page.iid}" data-action="update_min_voltage">
@@ -597,6 +604,10 @@ export class RecipeList {
                         <option value="sec" ${page.settings.timeUnit === "sec" ? 'selected' : ''}>Seconds</option>
                         <option value="tick" ${page.settings.timeUnit === "tick" ? 'selected' : ''}>Ticks</option>
                     </select>
+                </div>
+                <div class="share-links">
+                    <a href="#" data-action="copy_link">Copy shareable link to clipboard</a> •
+                    <a href="#" data-action="download">Download</a>
                 </div>
             </div>
         `;
@@ -668,8 +679,8 @@ export class RecipeList {
             <tr class="group-links">
                 <td colspan="6">
                     <div>
-                        <button class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</button>
-                        <button class="add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</button>
+                        <a href="#" class="add-recipe-btn" data-iid="${group.iid}" data-action="add_recipe">Add Recipe</a> •
+                        <a href="#" class="add-group-btn" data-iid="${group.iid}" data-action="add_group">Add Group</a>
                     </div>
                 </td>
             </tr>
