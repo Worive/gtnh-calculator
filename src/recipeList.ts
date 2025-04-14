@@ -484,10 +484,12 @@ export class RecipeList {
                     </div>
                 `;
             }
+        }
 
-            if (machineInfo.info) {
-                shortInfoContent += `<span class="text-small white-text">${machineInfo.info}</span>`;
-            }
+        if (machineInfo.info) {
+            if (!machineInfo.choices)
+                shortInfoContent += `<br>`;
+            shortInfoContent += `<span class="text-small white-text">${machineInfo.info}</span>`;
         }
 
         let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="crafter_click" data-iid="${recipeModel.iid}" data-amount="${machineCountsText}"></item-icon></div></td>`;

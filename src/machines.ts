@@ -4,15 +4,6 @@ import { TIER_LV, TIER_UEV } from "./utils.js";
 
 export type MachineCoefficient = number | ((recipe:RecipeModel, choices:{[key:string]:number}) => number);
 
-function getCoilChoices():string[] {
-    const COIL_TIERS = 14;
-    const coils:string[] = [];
-    for (var i=0; i<COIL_TIERS; i++) {
-        coils[i] = Repository.current.GetById<Item>(`i:gregtech:gt.blockcasings5:${i}`)!.name;
-    }
-    return coils;
-}
-
 const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
 
 export type Machine = {
@@ -33,7 +24,7 @@ export type Choice = {
 
 let CoilTierChoice:Choice = {
     description: "Coils",
-    choices: getCoilChoices(),
+    choices: ["T1: Cupronickel", "T2: Kanthal", "T3: Nichrome", "T4: TPV", "T5: HSS-G", "T6: HSS-S", "T7: Naquadah", "T8: Naquadah Alloy", "T9: Trinium", "T10: Electrum Flux", "T11: Awakened Draconium", "T12: Infinity", "T13: Hypogen", "T14: Eternal"],
 }
 
 type MachineList = {
@@ -51,6 +42,44 @@ export const singleBlockMachine:Machine = {
 
 function IsRecipeType(recipe:RecipeModel, type:string):boolean {
     return recipe.recipe ? recipe.recipe.recipeType.name == type : false;
+}
+
+export const notImplementedMachine:Machine = {
+    perfectOverclock: 0,
+    speed: 1,
+    power: 1,
+    parallels: 1,
+    info: "Machine not implemented (Calculated as a singleblock)",
+}
+
+machines["Steam Compressor"] = machines["Steam Alloy Smelter"] = machines["Steam Extractor"] = machines["Steam Furnace"] = machines["Steam Forge Hammer"] = machines["Steam Macerator"] = {
+    perfectOverclock: 0,
+    speed: 0.5,
+    power: 0,
+    parallels: 1,
+    info: "Steam machine: Steam consumption not calculated, set the voltage to LV",
+}
+
+machines["High Pressure Steam Compressor"] = machines["High Pressure Alloy Smelter"] = machines["High Pressure Steam Extractor"] = machines["High Pressure Steam Furnace"] = machines["High Pressure Steam Forge Hammer"] = machines["High Pressure Steam Macerator"] = {
+    perfectOverclock: 0,
+    speed: 1,
+    power: 0,
+    parallels: 1,
+    info: "High pressure steam machine: Steam consumption not calculated, set the voltage to LV",
+}
+
+machines["Steam Squasher"] = machines["Steam Separator"] = machines["Steam Presser"] = machines["Steam Grinder"] = machines["Steam Purifier"] = machines["Steam Blender"] = {
+    perfectOverclock: 0,
+    speed: (recipe, choices) => choices.pressure == 1 ? 2.5 : 1.25,
+    power: 0,
+    parallels: 8,
+    info: "Steam multiblock machine: Steam consumption not calculated, set the voltage to LV",
+    choices: {
+        pressure: {
+            description: "Pressure",
+            choices: ["Normal", "High"],
+        },
+    },
 }
 
 machines["Large Electric Compressor"] = {
@@ -120,7 +149,6 @@ machines["Naquadah Fuel Refinery"] = {
         description: "Coils",
         choices: ["T1 Field Restriction Coil", "T2 Advanced Field Restriction Coil", "T3 Ultimate Field Restriction Coil", "T4 Temporal Field Restriction Coil"],
     }},
-    info: "Speed depends on the tier of coils used.",
 };
 
 // HERE
@@ -496,7 +524,6 @@ machines["Industrial Maceration Stack"] = {
         return n * (recipe.voltageTier + 1);
     },
     choices: {upgradeChip: {description: "Upgrade Chip", choices: ["No Upgrade", "Maceration Upgrade Chip"]}},
-    info: "Parallels depend on whether the Maceration Upgrade Chip is inserted.",
 };
 
 machines["Industrial Material Press"] = {
@@ -551,7 +578,7 @@ machines["Dimensionally Transcendent Plasma Forge"] = {
     power: (recipe, choices) => choices.convergence > 0 ? 0.5 : 1,
     parallels: 1,
     choices: {convergence: {description: "Convergence", choices: ["No Convergence", "Convergence"]}},
-    info: "Gains perfect overclock when Convergence is active. Fuel consumption can be reduced after 8 hours. Extra power cost during Perfect Overclocks is added in form of increased catalyst amounts. Need to implement convergence and time logic.",
+    info: "Extra power cost during Perfect Overclocks is added in form of increased catalyst amounts (Not implemented).",
 };
 
 machines["Bricked Blast Furnace"] = {
@@ -663,13 +690,7 @@ machines["Transcendent Plasma Mixer"] = {
     choices: {parallels: {description: "Parallels", min: 1}}
 };
 
-machines["Forge of the Gods"] = {
-    perfectOverclock: 0,
-    speed: 1,
-    power: 1,
-    parallels: 1,
-    info: "Machine not implemented",
-};
+machines["Forge of the Gods"] = notImplementedMachine;
 
 machines["Vacuum Freezer"] = {
     perfectOverclock: 0,
@@ -684,6 +705,7 @@ machines["Mega Vacuum Freezer"] = {
     power: 1,
     parallels: 256,
     choices: {coolant: {description: "Coolant", choices: ["No Coolant", "Molten SpaceTime", "Spatially Enlarged Fluid", "Molten Eternity"]}},
+    info: "Coolant calculation not implemented.",
 };
 
 machines["Industrial Wire Factory"] = {
@@ -744,7 +766,6 @@ machines["Industrial Coke Oven"] = {
     power: (recipe, choices) => 1 - (recipe.voltageTier + 1) * 0.04,
     parallels: (recipe, choices) => choices.casingType == 1 ? 24 : 12,
     choices: {casingType: {description: "Casing Type", choices: ["Heat Resistant Casings", "Heat Proof Casings"]}},
-    info: "Energy discount per voltage tier. Parallels depend on casing type.",
 };
 
 machines["Cryogenic Freezer"] = {
@@ -785,11 +806,11 @@ machines["Flotation Cell Regulator"] = {
 machines["ExxonMobil Chemical Plant"] = {
     perfectOverclock: 0,
     speed: (recipe, choices) => {
-        return (choices.coilTier + 1) * 0.5;
+        return choices.coilTier * 0.5 + 1;
     },
     power: 1,
     parallels: (recipe, choices) => (choices.pipeCasingTier + 1) * 2,
-    choices: {coilTier: CoilTierChoice, pipeCasingTier: PipeCasingTierChoice},
+    choices: {coilTier: CoilTierChoice, pipeCasingTier: {description: "Pipe Casing Tier", choices: ["T1: Bronze", "T2: Steel", "T3: Titanium", "T4: Tungstensteel"]}},
     info: "Catalyst logic not implemented.",
 };
 
@@ -830,7 +851,7 @@ machines["Utupu-Tanuri"] = {
     power: 0.5,
     parallels: 4,
     choices: {heatIncrements: {description: "Heat Difference Tiers", min: 0}},
-    info: "Perfect overclock, speed, and power depend on temperature increments over the minimum.",
+    info: "Extracting heat difference from the recipe is not implemented.",
 };
 
 machines["Industrial Electrolyzer"] = {
@@ -867,7 +888,6 @@ machines["Quantum Force Transformer"] = {
     power: 1,
     parallels: (recipe, choices) => 1 + choices.catalysts,
     choices: {catalysts: {description: "Catalysts", min: 0}},
-    info: "Parallels increase per catalyst.",
 };
 
 machines["Sparge Tower Controller"] = {
@@ -877,13 +897,7 @@ machines["Sparge Tower Controller"] = {
     parallels: 1,
 };
 
-machines["Tree Growth Simulator"] = {
-    perfectOverclock: 0,
-    speed: 1,
-    power: 1,
-    parallels: 1,
-    info: "Machine not implemented",
-};
+machines["Tree Growth Simulator"] = notImplementedMachine;
 
 machines["Draconic Evolution Fusion Crafter"] = {
     perfectOverclock: 0,

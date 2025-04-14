@@ -1,7 +1,7 @@
 import { Model, Solution } from "./types/javascript-lp-solver.js";
 import { PageModel, RecipeGroupModel, RecipeModel, ProductModel, FlowInformation, LinkAlgorithm } from './page.js';
 import { Goods, Item, OreDict, Recipe, RecipeIoType, RecipeObject, Repository } from "./repository.js";
-import { singleBlockMachine, MachineCoefficient, machines } from "./machines.js";
+import { singleBlockMachine, MachineCoefficient, machines, notImplementedMachine } from "./machines.js";
 import { voltageTier } from "./utils.js";
 
 class LinkCollection {
@@ -142,10 +142,13 @@ function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:Lin
     return collection;
 }
 
-function GetParameter(coefficient: MachineCoefficient, recipeModel:RecipeModel): number {
+function GetParameter(coefficient: MachineCoefficient, recipeModel:RecipeModel, min:number = 0): number {
     if (typeof coefficient === "number")
         return coefficient;
-    return coefficient(recipeModel, recipeModel.choices);
+    let coef = coefficient(recipeModel, recipeModel.choices);
+    if (coef < min)
+        return min;
+    return coef;
 }
 
 function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
@@ -176,26 +179,27 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
         if (!recipeModel.crafter && recipe.recipeType.singleblocks.length == 0)
             recipeModel.crafter = recipe.recipeType.defaultCrafter.id;
         let crafter = recipeModel.crafter ? Repository.current.GetById(recipeModel.crafter) as Item : null;
-        let machineInfo = crafter ? machines[crafter.name] || singleBlockMachine : singleBlockMachine;
+        let machineInfo = crafter ? machines[crafter.name] || notImplementedMachine : singleBlockMachine;
         recipeModel.ValidateChoices(machineInfo);
         let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
-        let machineParallels = Math.max(1, GetParameter(machineInfo.parallels, recipeModel));
-        let maxParallels = Math.floor(actualVoltage / gtRecipe.voltage);
+        let machineParallels = GetParameter(machineInfo.parallels, recipeModel, 1);
+        let energyModifier = GetParameter(machineInfo.power, recipeModel);
+        let maxParallels = Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier));
         let parallels = Math.min(maxParallels, machineParallels);
         let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
         let overclockSpeed = 1;
         let overclockPower = 1;
-        if (overclockTiers > 0) {
-            if (machineInfo.perfectOverclock) {
-                overclockSpeed = Math.pow(4, overclockTiers);
-            } else {
-                overclockSpeed = overclockPower = Math.pow(2, overclockTiers);
-            }
+        let perfectOverclocks = Math.min(GetParameter(machineInfo.perfectOverclock, recipeModel), overclockTiers);
+        let normalOverclocks = overclockTiers - perfectOverclocks;
+        if (perfectOverclocks > 0) {
+            overclockSpeed = Math.pow(4, perfectOverclocks);
         }
-        let energyModifier = GetParameter(machineInfo.power, recipeModel);
+        if (normalOverclocks > 0) {
+            let coef = Math.pow(2, normalOverclocks);
+            overclockSpeed *= coef;
+            overclockPower *= coef;
+        }
         let speedModifier = GetParameter(machineInfo.speed, recipeModel);
-        let perfectOverclocks = GetParameter(machineInfo.perfectOverclock, recipeModel);
-        perfectOverclocks = Math.min(perfectOverclocks, overclockTiers);
         //console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
         recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
         recipeModel.powerFactor = overclockPower * energyModifier;
