@@ -497,7 +497,7 @@ machines["Mega Chemical Reactor"] = {
 
 machines["Hyper-Intensity Laser Engraver"] = {
     perfectOverclock: 0,
-    speed: 3,
+    speed: 3.5,
     power: 0.8,
     parallels: (recipe, choices) => Math.cbrt(choices.laserAmperage),
     choices: {laserAmperage: {description: "Laser Amperage", min: 1}},
