@@ -29,7 +29,7 @@ document.addEventListener("keydown", (event) => {
         return;
     }
 
-    if (event.key === "Backspace") {
+    if (event.key === "Backspace" && document.activeElement !== searchBox) {
         Back();
         return;
     }

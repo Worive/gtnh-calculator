@@ -50,34 +50,8 @@ namespace Source
         {
             Console.WriteLine($"Starting atlas creation with {iconsPaths.Count} icons...");
             
-            var images = new List<Image<Rgba32>>();
-            for (var i = 0; i < iconsPaths.Count; i++)
-            {
-                var path = iconsPaths[i];
-                if (path == null) continue;
-                
-                if (i % 1000 == 0)
-                {
-                    Console.WriteLine($"Loading icon {i + 1} of {iconsPaths.Count}...");
-                }
-                
-                var image = LoadImageFromArchive(path);
-                if (image != null)
-                {
-                    images.Add(image);
-                }
-            }
-
-            Console.WriteLine($"Loaded {images.Count} icons successfully.");
-
-            if (images.Count == 0)
-            {
-                Console.WriteLine("No valid icons found to create atlas.");
-                return null;
-            }
-
-            // Calculate required dimensions
-            var iconsCount = images.Count;
+            // Calculate required dimensions first
+            var iconsCount = iconsPaths.Count;
             var requiredHeight = (iconsCount - 1) / (1 << IconAtlas.DimensionBits) + 1;
             var width = (1 << IconAtlas.DimensionBits) * IconAtlas.ImageSize;
             var height = requiredHeight * IconAtlas.ImageSize;
@@ -88,30 +62,40 @@ namespace Source
             using var atlas = new Image<Rgba32>(width, height);
             
             // Draw all images onto the atlas
-            for (var i = 0; i < images.Count; i++)
+            for (var i = 0; i < iconsPaths.Count; i++)
             {
+                var path = iconsPaths[i];
+                if (path == null) continue;
+                
                 if (i % 1000 == 0)
                 {
-                    Console.WriteLine($"Compositing icon {i + 1} of {images.Count}...");
+                    Console.WriteLine($"Processing icon {i + 1} of {iconsPaths.Count}...");
                 }
                 
-                var image = images[i];
-                var positionX = (i & IconAtlas.XMask) * IconAtlas.ImageSize;
-                var positionY = ((i & IconAtlas.YMask) >> IconAtlas.DimensionBits) * IconAtlas.ImageSize;
+                var image = LoadImageFromArchive(path);
+                if (image == null) continue;
                 
-                atlas.Mutate(x => x.DrawImage(image, new Point(positionX, positionY), 1f));
-                image.Dispose();
+                using (image)
+                {
+                    var positionX = (i & IconAtlas.XMask) * IconAtlas.ImageSize;
+                    var positionY = ((i & IconAtlas.YMask) >> IconAtlas.DimensionBits) * IconAtlas.ImageSize;
+                    
+                    atlas.Mutate(x => x.DrawImage(image, new Point(positionX, positionY), 1f));
+                }
             }
 
             Console.WriteLine("Resizing...");
 
             // Resize to 50% and save as WebP
             using var resized = atlas.Clone(x => x.Resize(width / 2, height / 2, KnownResamplers.Box));
-            Console.WriteLine("Saving as WEBP...");
+            
+            Console.WriteLine("Saving as WEBP (This might take a while)...");
             var encoder = new WebpEncoder
             {
                 FileFormat = WebpFileFormatType.Lossless,
-                Quality = 100
+                NearLossless = true,
+                NearLosslessQuality = 60,
+                SkipMetadata = true,
             };
             
             using var fileStream = File.Create(savePath);

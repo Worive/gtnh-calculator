@@ -4,7 +4,7 @@ A calculator tool for GregTech: New Horizons mod recipes and production chains.
 Large parts of this project were written using AI assistance, so code style and quality are all over the place.
 I just wanted to quickly put together something I can use to calculate GTNH chains. After this goal is done, it won't be an actively maintained project.
 
-Data building is done using my internal tools that I am not currently ready to publish. Later maybe.
+Data building is done using the NESQL Exporter mod and a C# processing tool. See [export/README.md](export/README.md) for detailed instructions.
 
 ## Development
 
