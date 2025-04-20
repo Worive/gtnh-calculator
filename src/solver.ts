@@ -129,6 +129,13 @@ function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkC
         recipeModel.parallels = parallels;
         recipeModel.overclockTiers = overclockTiers;
         recipeModel.perfectOverclocks = perfectOverclocks;
+
+        if (recipeModel.fixedCrafterCount) {
+            let crafterName = `fixed_${recipeModel.iid}`;
+            let fixedRecipesPerMinute = recipeModel.fixedCrafterCount * recipeModel.overclockFactor / recipe.gtRecipe.durationMinutes;
+            model.variables[varName][crafterName] = 1;
+            model.constraints[crafterName] = {equal:fixedRecipesPerMinute};
+        }
     }
 }
 
@@ -200,6 +207,7 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
     let recipe = recipeModel.recipe!;
     let solutionValue = (solution[name] || 0) as number;
     recipeModel.recipesPerMinute = solutionValue;
+    recipeModel.crafterCount = 0;
     for (const item of recipe.items) {
         var goods:RecipeObject = item.goods;
         if (item.type == RecipeIoType.OreDictInput && recipeModel.selectedOreDicts[item.goods.id])
@@ -217,6 +225,7 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
     let gtRecipe = recipe.gtRecipe;
     if (gtRecipe && gtRecipe.durationTicks > 0) {
         flow.energy[recipeModel.voltageTier] = gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * recipeModel.powerFactor;
+        recipeModel.crafterCount = solutionValue * gtRecipe.durationMinutes / recipeModel.overclockFactor;
     }
 }
 

@@ -63,3 +63,40 @@
 {
     position: relative;
 }
+
+.dropdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.item-name {
+    font-size: 14px;
+    color: #fff;
+} 
+
+.crafter-count {
+    width: 160px;
+    background-color: #2C2C2C;
+    border: 1px solid #505050;
+    border-radius: 2px;
+    color: #ffffff;
+    padding: 2px 4px;
+    text-align: right;
+    -moz-appearance: textfield;
+}

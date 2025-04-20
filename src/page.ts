@@ -195,8 +195,10 @@ export class RecipeModel extends RecipeGroupEntry
     voltageTier: number = 0;
     crafter: string | undefined;
     choices: {[key:string]:number} = {};
+    fixedCrafterCount?:number;
 
     recipesPerMinute:number = 0;
+    crafterCount:number = 0;
     overclockFactor:number = 1;
     powerFactor:number = 1;
     parallels:number = 0;
@@ -210,6 +212,7 @@ export class RecipeModel extends RecipeGroupEntry
         visitor.VisitData(this, "voltageTier", this.voltageTier);
         visitor.VisitData(this, "crafter", this.crafter);
         visitor.VisitData(this, "choices", this.choices);
+        visitor.VisitData(this, "fixedCrafterCount", this.fixedCrafterCount);
     }
 
     constructor(source:any = undefined)
@@ -224,6 +227,8 @@ export class RecipeModel extends RecipeGroupEntry
                 this.crafter = source.crafter;
             if (source.choices instanceof Object)
                 this.choices = source.choices;
+            if (typeof source.fixedCrafterCount === "number")
+                this.fixedCrafterCount = source.fixedCrafterCount;
         }
     }
 

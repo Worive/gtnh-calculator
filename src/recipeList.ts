@@ -1,10 +1,10 @@
 import { ShowNei, ShowNeiMode, ShowNeiCallback } from "./nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "./repository.js";
-import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, serializer, CopyCurrentPageUrl, DownloadCurrentPage } from "./page.js";
+import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, CopyCurrentPageUrl, DownloadCurrentPage } from "./page.js";
 import { voltageTier, GtVoltageTier, formatAmount } from "./utils.js";
 import { ShowTooltip } from "./tooltip.js";
 import { IconBox } from "./itemIcon.js";
-import { ShowDropdown } from "./dropdown.js";
+import { ShowDropdown, HideDropdown } from "./dropdown.js";
 import { machines, singleBlockMachine } from "./machines.js";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
@@ -89,10 +89,51 @@ export class RecipeList {
                 if (recipeType.singleblocks.length > 0)
                     options.push(recipeType.singleblocks[obj.voltageTier] ?? recipeType.defaultCrafter);
                 options.push(...recipeType.multiblocks);
-                ShowDropdown(event.target as HTMLElement, options, (selected: Goods) => {
-                    obj.crafter = recipeType.multiblocks.includes(selected as Item) ? selected.id : undefined;
-                    UpdateProject();
-                });
+
+                const populateDropdown = (container: HTMLElement) => {
+                    container.innerHTML = `
+                        <div class="dropdown-list">
+                            <h2>Select crafter:</h2>
+                            ${options.map(goods => {
+                                const isSingleblock = recipeType.singleblocks.includes(goods as Item);
+                                const displayName = isSingleblock ? "Singleblock machine" : goods.name;
+                                return `
+                                    <div class="dropdown-item" 
+                                        data-iid="${obj.iid}"
+                                        data-action="select_crafter"
+                                        data-id="${goods.id}">
+                                        <item-icon data-id="${goods.id}"></item-icon>
+                                        <span class="item-name">${displayName}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                            <div>
+                                <label>
+                                    <input type="checkbox" 
+                                        data-iid="${obj.iid}"
+                                        data-action="toggle_fixed_crafter_count"
+                                        ${obj.fixedCrafterCount !== undefined ? 'checked' : ''}>
+                                    Set fixed crafter count
+                                </label>
+                            </div>
+                            ${obj.fixedCrafterCount !== undefined ? `
+                                <div>
+                                    <label>
+                                        Crafter count:
+                                        <input type="number" class="crafter-count"
+                                            data-iid="${obj.iid}"
+                                            data-action="update_fixed_crafter_count"
+                                            value="${obj.fixedCrafterCount}"
+                                            min="0">
+                                    </label>
+                                </div>
+                                <span class="text-small">When selecting fixed crafter count, you usually need remove the product from the desired product list and let it be calculated, otherwise the model will likely become infeasible</span>
+                            ` : ''}
+                        </div>
+                    `;
+                };
+
+                ShowDropdown(event.target as HTMLElement, populateDropdown);
             }
         });
 
@@ -184,7 +225,6 @@ export class RecipeList {
             }
         });
 
-
         this.actionHandlers.set("copy_link", (obj, event) => {
             if (event.type === "click") {
                 CopyCurrentPageUrl();
@@ -194,6 +234,39 @@ export class RecipeList {
         this.actionHandlers.set("download", (obj, event) => {
             if (event.type === "click") {
                 DownloadCurrentPage();
+            }
+        });
+
+        this.actionHandlers.set("select_crafter", (obj, event, parent) => {
+            if (obj instanceof RecipeModel && event.type === "click") {
+                const target = event.target as HTMLElement;
+                const item = target.closest('.dropdown-item');
+                if (item) {
+                    const goodsId = item.getAttribute('data-id');
+                    obj.crafter = goodsId ?? undefined;
+                    UpdateProject();
+                    HideDropdown();
+                }
+            }
+        });
+
+        this.actionHandlers.set("toggle_fixed_crafter_count", (obj, event, parent) => {
+            if (obj instanceof RecipeModel && event.type === "change") {
+                const target = event.target as HTMLInputElement;
+                if (target.checked) {
+                    obj.fixedCrafterCount = obj.crafterCount;
+                } else {
+                    obj.fixedCrafterCount = undefined;
+                }
+                UpdateProject();
+            }
+        });
+
+        this.actionHandlers.set("update_fixed_crafter_count", (obj, event, parent) => {
+            if (obj instanceof RecipeModel && event.type === "change") {
+                const target = event.target as HTMLInputElement;
+                obj.fixedCrafterCount = parseFloat(target.value);
+                UpdateProject();
             }
         });
     }
@@ -417,8 +490,8 @@ export class RecipeList {
                 .slice(minTier, maxTier + 1)
                 .map((tier: GtVoltageTier, index: number) => `<option value="${minTier + index}" ${minTier + index === recipeModel.voltageTier ? 'selected' : ''}>${tier.name}</option>`)
                 .join('');
-            let machineCounts = recipeModel.recipesPerMinute * gtRecipe.durationMinutes / recipeModel.overclockFactor;
-            machineCountsText = `${Math.ceil(machineCounts * 100) / 100}`;
+            let machineCounts = recipeModel.crafterCount;
+            machineCountsText = formatAmount(machineCounts);
 
             if (recipeModel.parallels > 1 || recipeModel.overclockTiers > 0) {
                 let info = [];
@@ -492,7 +565,9 @@ export class RecipeList {
             shortInfoContent += `<span class="text-small white-text">${machineInfo.info}</span>`;
         }
 
-        let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="crafter_click" data-iid="${recipeModel.iid}" data-amount="${machineCountsText}"></item-icon></div></td>`;
+        let iconCell = `<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="crafter_click" data-iid="${recipeModel.iid}" data-amount="${machineCountsText}">`+
+            `${recipeModel.fixedCrafterCount !== undefined ? `<span class="probability">FIXED</span>` : ''}`+
+            `</item-icon></div></td>`;
 
         let shortInfoCell = `<td><div class="short-info" data-iid="${recipeModel.iid}">${shortInfoContent}</div></td>`;
         return iconCell + shortInfoCell;

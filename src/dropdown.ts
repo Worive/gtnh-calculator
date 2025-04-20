@@ -1,10 +1,11 @@
 import { Goods, Repository, Item } from "./repository.js";
+import { addProjectChangeListener } from "./page.js";
 
 export class Dropdown {
     private static instance: Dropdown;
     private dropdown: HTMLElement;
     private currentTarget: HTMLElement | null = null;
-    private clickCallback: ((goods: Goods) => void) | null = null;
+    private currentPopulateCallback: ((container: HTMLElement) => void) | null = null;
 
     private constructor() {
         this.dropdown = document.getElementById("dropdown")!;
@@ -13,22 +14,21 @@ export class Dropdown {
         document.addEventListener("click", (e) => {
             if (this.currentTarget) {
                 // Ignore clicks on the target element that triggered the dropdown
-                if (e.target === this.currentTarget || this.currentTarget.contains(e.target as Node)) {
+                // or any of its children
+                if (e.target === this.currentTarget || 
+                    this.currentTarget.contains(e.target as Node) ||
+                    this.dropdown.contains(e.target as Node)) {
                     return;
-                }
-
-                const target = e.target as HTMLElement;
-                const itemIcon = target.closest('item-icon');
-                
-                if (itemIcon && this.clickCallback) {
-                    const goodsId = itemIcon.getAttribute('data-id');
-                    if (goodsId) {
-                        const goods = Repository.current.GetById(goodsId);
-                        this.clickCallback(goods as Goods);
-                    }
                 }
                 
                 this.hide();
+            }
+        });
+
+        // Register a single project change listener
+        addProjectChangeListener(() => {
+            if (this.isVisible() && this.currentPopulateCallback) {
+                this.currentPopulateCallback(this.dropdown);
             }
         });
     }
@@ -40,33 +40,20 @@ export class Dropdown {
         return Dropdown.instance;
     }
 
-    public show(target: HTMLElement, goodsList: Goods[], clickCallback?: (goods: Goods) => void): void {
+    public getDropdownElement(): HTMLElement {
+        return this.dropdown;
+    }
+
+    public show(target: HTMLElement, populateCallback: (container: HTMLElement) => void): void {
         this.currentTarget = target;
-        this.clickCallback = clickCallback || null;
+        this.currentPopulateCallback = populateCallback;
         
         // Clear previous content
         this.dropdown.innerHTML = "";
         
-        // Create icon grid
-        const grid = document.createElement('div');
-        grid.className = 'icon-grid';
-        let width = Math.min(goodsList.length, 3);
-        let height = Math.ceil(goodsList.length / width);
-        grid.style.setProperty('--grid-width', width.toString());
-        grid.style.setProperty('--grid-height', height.toString());
+        // Call the provided callback to populate the dropdown
+        populateCallback(this.dropdown);
         
-        // Add item icons
-        for (let index = 0; index < goodsList.length; index++) {
-            const goods = goodsList[index];
-            const itemIcon = document.createElement('item-icon');
-            itemIcon.className = 'item-icon-grid';
-            itemIcon.setAttribute('data-id', goods.id.toString());
-            itemIcon.setAttribute('data-action', 'select');
-            itemIcon.style.setProperty('--grid-position', index.toString());
-            grid.appendChild(itemIcon);
-        }
-        
-        this.dropdown.appendChild(grid);
         this.dropdown.style.display = "block";
         
         // Position the dropdown
@@ -91,7 +78,7 @@ export class Dropdown {
 
     public hide(): void {
         this.currentTarget = null;
-        this.clickCallback = null;
+        this.currentPopulateCallback = null;
         this.dropdown.style.display = "none";
     }
 
@@ -100,6 +87,10 @@ export class Dropdown {
     }
 }
 
-export function ShowDropdown(target: HTMLElement, goodsList: Goods[], clickCallback?: (goods: Goods) => void): void {
-    Dropdown.getInstance().show(target, goodsList, clickCallback);
+export function ShowDropdown(target: HTMLElement, populateCallback: (container: HTMLElement) => void): void {
+    Dropdown.getInstance().show(target, populateCallback);
+}
+
+export function HideDropdown(): void {
+    Dropdown.getInstance().hide();
 }
