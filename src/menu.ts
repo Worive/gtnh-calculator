@@ -382,3 +382,19 @@ export class PageManager {
 }
 
 new PageManager();
+
+// Menu toggle functionality
+const menuToggle: HTMLElement | null = document.querySelector('.menu-toggle')!;
+const menu: HTMLElement | null = document.getElementById('menu')!;
+
+menuToggle.addEventListener('click', (): void => {
+    menu.classList.toggle('visible');
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e: MouseEvent): void => {
+    const target: HTMLElement = e.target as HTMLElement;
+    if (!menu.contains(target) && !menuToggle.contains(target)) {
+        menu.classList.remove('visible');
+    }
+});

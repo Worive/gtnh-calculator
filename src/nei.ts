@@ -526,8 +526,8 @@ class NeiGrid implements NeiGridAllocator<any>
 
 function Resize()
 {
-    var newUnitWidth = Math.round((window.innerWidth - 120 - scrollWidth) / elementSize);
-    var newUnitHeight = Math.round((window.innerHeight - 160) / elementSize);
+    var newUnitWidth = Math.round((window.innerWidth - 30 - scrollWidth) / elementSize);
+    var newUnitHeight = Math.round((window.innerHeight - 120) / elementSize);
     var widthRemainder = window.innerWidth - newUnitWidth;
     if (newUnitWidth !== unitWidth || newUnitHeight !== unitHeight)
     {

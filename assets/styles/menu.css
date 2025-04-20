@@ -14,6 +14,7 @@
     overflow-y: auto;
     background-color: #C6C6C6;
     color: #3F3F3F;
+    transition: transform 0.15s ease;
 }
 
 .menu-container {
@@ -102,5 +103,43 @@
     background-color: transparent;
     border: none;
     color: white;
+}
+
+/* Menu toggle button */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    padding: 4px 8px;
+}
+
+/* Media query for small screens */
+@media screen and (max-width: 1200px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    #menu {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        z-index: 999;
+    }
+
+    #menu.visible {
+        transform: translateX(0);
+    }
+
+    #recipe-list {
+        margin-left: 0;
+    }
+
+    .status-message {
+        margin-left: 40px;
+    }
 }
 
