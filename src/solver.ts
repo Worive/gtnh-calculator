@@ -65,37 +65,78 @@ function CreateLinkByAlgorithm(model:Model, algorithm:LinkAlgorithm, group:Recip
     model.constraints[linkName] = {equal:amount};
 }
 
+function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkCollection)
+{
+    let recipe = Repository.current.GetById(recipeModel.recipeId) as Recipe;
+    recipeModel.recipe = recipe;
+    let varName = `recipe_${recipeModel.iid}`;
+    model.variables[varName] = {"obj":1};
+    for (const slot of recipe.items) {
+        const goods = slot.goods;
+        let amount = slot.amount * slot.probability;
+        let container = goods instanceof Item && goods.container;
+
+        if (slot.type == RecipeIoType.OreDictInput) {
+            collection.AddInputOreDict(goods, amount, varName, recipeModel);
+        } else if (container) {
+            if (slot.type == RecipeIoType.ItemOutput) {
+                collection.AddOutput(container.fluid, amount * container.amount, varName);
+                collection.AddOutput(container.empty, amount, varName);
+            } else if (slot.type == RecipeIoType.ItemInput) {
+                collection.AddInput(container.fluid, amount * container.amount, varName);
+                collection.AddInput(container.empty, amount, varName);
+            }
+        } else {
+            if (slot.type == RecipeIoType.ItemOutput || slot.type == RecipeIoType.FluidOutput) {
+                collection.AddOutput(goods, amount, varName);
+            } else if (slot.type == RecipeIoType.ItemInput || slot.type == RecipeIoType.FluidInput) {
+                collection.AddInput(goods, amount, varName);
+            }
+        }
+    }
+
+    recipeModel.overclockFactor = 1;
+
+    let gtRecipe = recipe.gtRecipe;
+    if (gtRecipe && gtRecipe.durationTicks > 0) {
+        if (!recipeModel.crafter && recipe.recipeType.singleblocks.length == 0)
+            recipeModel.crafter = recipe.recipeType.defaultCrafter.id;
+        let crafter = recipeModel.crafter ? Repository.current.GetById(recipeModel.crafter) as Item : null;
+        let machineInfo = crafter ? machines[crafter.name] || notImplementedMachine : singleBlockMachine;
+        recipeModel.ValidateChoices(machineInfo);
+        let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
+        let machineParallels = GetParameter(machineInfo.parallels, recipeModel, 1);
+        let energyModifier = GetParameter(machineInfo.power, recipeModel);
+        let maxParallels = Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier));
+        let parallels = Math.min(maxParallels, machineParallels);
+        let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
+        let overclockSpeed = 1;
+        let overclockPower = 1;
+        let perfectOverclocks = Math.min(GetParameter(machineInfo.perfectOverclock, recipeModel), overclockTiers);
+        let normalOverclocks = overclockTiers - perfectOverclocks;
+        if (perfectOverclocks > 0) {
+            overclockSpeed = Math.pow(4, perfectOverclocks);
+        }
+        if (normalOverclocks > 0) {
+            let coef = Math.pow(2, normalOverclocks);
+            overclockSpeed *= coef;
+            overclockPower *= coef;
+        }
+        let speedModifier = GetParameter(machineInfo.speed, recipeModel);
+        //console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
+        recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
+        recipeModel.powerFactor = overclockPower * energyModifier;
+        recipeModel.parallels = parallels;
+        recipeModel.overclockTiers = overclockTiers;
+        recipeModel.perfectOverclocks = perfectOverclocks;
+    }
+}
+
 function CreateAndMatchLinks(group:RecipeGroupModel, model:Model, collection:LinkCollection)
 {
     for (const child of group.elements) {
         if (child instanceof RecipeModel) {
-            let recipe = Repository.current.GetById(child.recipeId) as Recipe;
-            child.recipe = recipe;
-            let varName = `recipe_${child.iid}`;
-            model.variables[varName] = {"obj":1};
-            for (const slot of recipe.items) {
-                const goods = slot.goods;
-                let amount = slot.amount * slot.probability;
-                let container = goods instanceof Item && goods.container;
-
-                if (slot.type == RecipeIoType.OreDictInput) {
-                    collection.AddInputOreDict(goods, amount, varName, child);
-                } else if (container) {
-                    if (slot.type == RecipeIoType.ItemOutput) {
-                        collection.AddOutput(container.fluid, amount * container.amount, varName);
-                        collection.AddOutput(container.empty, amount, varName);
-                    } else if (slot.type == RecipeIoType.ItemInput) {
-                        collection.AddInput(container.fluid, amount * container.amount, varName);
-                        collection.AddInput(container.empty, amount, varName);
-                    }
-                } else {
-                    if (slot.type == RecipeIoType.ItemOutput || slot.type == RecipeIoType.FluidOutput) {
-                        collection.AddOutput(goods, amount, varName);
-                    } else if (slot.type == RecipeIoType.ItemInput || slot.type == RecipeIoType.FluidInput) {
-                        collection.AddInput(goods, amount, varName);
-                    }
-                }
-            }
+            PreProcessRecipe(child, model, collection);
         } else if (child instanceof RecipeGroupModel) {
             let childCollection:LinkCollection = new LinkCollection();
             CreateAndMatchLinks(child, model, childCollection);
@@ -156,10 +197,9 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
     let flow:FlowInformation = new FlowInformation();
     recipeModel.flow = flow;
     let name = `recipe_${recipeModel.iid}`;
-    let recipe = Repository.current.GetById(recipeModel.recipeId) as Recipe;
+    let recipe = recipeModel.recipe!;
     let solutionValue = (solution[name] || 0) as number;
     recipeModel.recipesPerMinute = solutionValue;
-    recipeModel.overclockFactor = 1;
     for (const item of recipe.items) {
         var goods:RecipeObject = item.goods;
         if (item.type == RecipeIoType.OreDictInput && recipeModel.selectedOreDicts[item.goods.id])
@@ -176,37 +216,7 @@ function ApplySolutionRecipe(recipeModel:RecipeModel, solution:Solution):void
 
     let gtRecipe = recipe.gtRecipe;
     if (gtRecipe && gtRecipe.durationTicks > 0) {
-        if (!recipeModel.crafter && recipe.recipeType.singleblocks.length == 0)
-            recipeModel.crafter = recipe.recipeType.defaultCrafter.id;
-        let crafter = recipeModel.crafter ? Repository.current.GetById(recipeModel.crafter) as Item : null;
-        let machineInfo = crafter ? machines[crafter.name] || notImplementedMachine : singleBlockMachine;
-        recipeModel.ValidateChoices(machineInfo);
-        let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
-        let machineParallels = GetParameter(machineInfo.parallels, recipeModel, 1);
-        let energyModifier = GetParameter(machineInfo.power, recipeModel);
-        let maxParallels = Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier));
-        let parallels = Math.min(maxParallels, machineParallels);
-        let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
-        let overclockSpeed = 1;
-        let overclockPower = 1;
-        let perfectOverclocks = Math.min(GetParameter(machineInfo.perfectOverclock, recipeModel), overclockTiers);
-        let normalOverclocks = overclockTiers - perfectOverclocks;
-        if (perfectOverclocks > 0) {
-            overclockSpeed = Math.pow(4, perfectOverclocks);
-        }
-        if (normalOverclocks > 0) {
-            let coef = Math.pow(2, normalOverclocks);
-            overclockSpeed *= coef;
-            overclockPower *= coef;
-        }
-        let speedModifier = GetParameter(machineInfo.speed, recipeModel);
-        //console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
-        recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
-        recipeModel.powerFactor = overclockPower * energyModifier;
-        recipeModel.parallels = parallels;
-        recipeModel.overclockTiers = overclockTiers;
-        recipeModel.perfectOverclocks = perfectOverclocks;
-        flow.energy[recipeModel.voltageTier] = gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * overclockPower * energyModifier;
+        flow.energy[recipeModel.voltageTier] = gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * recipeModel.powerFactor;
     }
 }
 
