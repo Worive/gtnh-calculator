@@ -110,7 +110,7 @@ function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkC
         let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
         let machineParallels = GetParameter(machineInfo.parallels, recipeModel, 1);
         let energyModifier = GetParameter(machineInfo.power, recipeModel);
-        let maxParallels = Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier));
+        let maxParallels = Math.max(1, Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier)));
         let parallels = Math.min(maxParallels, machineParallels);
         let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
         let overclockSpeed = 1;
