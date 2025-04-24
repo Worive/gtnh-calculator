@@ -446,10 +446,18 @@ export class RecipeList {
 
         const renderEnergyItems = (energy: {[key:number]:number}) => {
             let out = "";
+            let totalEnergy = 0;
+
             for (const [tier, amount] of Object.entries(energy)) {
                 const tierInfo = voltageTier[parseInt(tier)];
                 out += `${tierInfo.name}: ${Math.ceil(100 * amount/tierInfo.voltage)/100}A<br>`;
+                totalEnergy += Math.ceil(amount)
             }
+
+            const formattedTotalEnergy  = new Intl.NumberFormat().format(totalEnergy);
+
+            out += `<br>EU/t: ${formattedTotalEnergy}`
+
             return out;
         }
 
