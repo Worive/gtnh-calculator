@@ -476,10 +476,8 @@ export class RecipeList {
                 <td colspan="2">Unknown recipe</td>
             `;
         }
-        let crafter:Item | null = null;
+        let crafter = recipeModel.multiblockCrafter ?? recipe.recipeType.singleblocks[recipeModel.voltageTier] ?? recipe.recipeType.defaultCrafter;
         let machineInfo = recipeModel.machineInfo;
-        if (!crafter)
-            crafter = recipe.recipeType.singleblocks[recipeModel.voltageTier] ?? recipe.recipeType.defaultCrafter;
         
         let gtRecipe = recipe.gtRecipe;
         let shortInfoContent = `<span data-tooltip="recipe" data-iid="${recipeModel.iid}">${crafter?.name ?? recipe.recipeType.name}</span>`;

@@ -107,6 +107,7 @@ function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkC
         if (crafter === null && recipe.recipeType.singleblocks.length == 0)
             crafter = recipe.recipeType.defaultCrafter;
         let machineInfo = crafter ? (machines[crafter.name] || notImplementedMachine) : singleBlockMachine;
+        recipeModel.multiblockCrafter = crafter;
         recipeModel.machineInfo = machineInfo;
         recipeModel.ValidateChoices(machineInfo);
         let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;

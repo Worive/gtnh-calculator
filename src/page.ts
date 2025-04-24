@@ -206,6 +206,7 @@ export class RecipeModel extends RecipeGroupEntry
     perfectOverclocks:number = 0;
     selectedOreDicts:{[key:string]:Item} = {};
     machineInfo:Machine = singleBlockMachine;
+    multiblockCrafter:Item | null = null;
 
     Visit(visitor: ModelObjectVisitor): void {
         visitor.VisitData(this, "type", this.type);
