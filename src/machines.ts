@@ -151,8 +151,6 @@ machines["Naquadah Fuel Refinery"] = {
     }},
 };
 
-// HERE
-
 machines["Neutron Activator"] = {
     perfectOverclock: 0,
     speed: (recipe, choices) => Math.pow((1/0.9), (choices.speedingPipeCasing - 4)),

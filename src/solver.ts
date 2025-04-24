@@ -113,7 +113,7 @@ function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkC
         let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
         let machineParallels = GetParameter(machineInfo.parallels, recipeModel, 1);
         let energyModifier = GetParameter(machineInfo.power, recipeModel);
-        let maxParallels = Math.max(1, Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier)));
+        let maxParallels = Math.max(1, Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier * gtRecipe.amperage)));
         let parallels = Math.min(maxParallels, machineParallels);
         let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
         let overclockSpeed = 1;
@@ -129,9 +129,9 @@ function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkC
             overclockPower *= coef;
         }
         let speedModifier = GetParameter(machineInfo.speed, recipeModel);
-        console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
+        //console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
         recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
-        recipeModel.powerFactor = overclockPower * energyModifier;
+        recipeModel.powerFactor = overclockPower * energyModifier / speedModifier;
         recipeModel.parallels = parallels;
         recipeModel.overclockTiers = overclockTiers;
         recipeModel.perfectOverclocks = perfectOverclocks;
