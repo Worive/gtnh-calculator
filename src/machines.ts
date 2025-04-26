@@ -70,7 +70,7 @@ machines["High Pressure Steam Compressor"] = machines["High Pressure Alloy Smelt
 
 machines["Steam Squasher"] = machines["Steam Separator"] = machines["Steam Presser"] = machines["Steam Grinder"] = machines["Steam Purifier"] = machines["Steam Blender"] = {
     perfectOverclock: 0,
-    speed: (recipe, choices) => choices.pressure == 1 ? 2.5 : 1.25,
+    speed: (recipe, choices) => choices.pressure == 1 ? 1.25 : 0.625,
     power: 0,
     parallels: 8,
     info: "Steam multiblock machine: Steam consumption not calculated, set the voltage to LV",
