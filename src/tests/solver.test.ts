@@ -4,8 +4,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { setupRepository } from './setup';
 
-const TOLERANCE = 0.01; // 1% tolerance for floating point comparisons
-
 function loadTestFiles(): string[] {
     const testDir = path.join(__dirname, '..', '..', 'tests');
     const files = fs.readdirSync(testDir);

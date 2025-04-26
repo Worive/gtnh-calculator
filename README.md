@@ -1,6 +1,8 @@
 # GTNH Calculator
 
-A calculator tool for GregTech: New Horizons mod recipes and production chains.
+[![Tests](https://github.com/ShadowTheAge/gtnh/actions/workflows/deploy.yml/badge.svg)](https://github.com/ShadowTheAge/GtnhCalc/actions/workflows/deploy.yml)
+
+A calculator for GregTech: New Horizons recipes and production chains.
 Large parts of this project were written using AI assistance, so code style and quality are all over the place.
 I just wanted to quickly put together something I can use to calculate GTNH chains. After this goal is done, it won't be an actively maintained project.
 
