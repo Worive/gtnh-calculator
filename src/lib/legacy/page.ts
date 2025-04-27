@@ -1,8 +1,8 @@
-import { Goods, Item, Recipe, RecipeObject } from "./repository.js";
-import { SolvePage } from "./solver.js";
-import { showConfirmDialog } from './dialogues.js';
-import { Machine, singleBlockMachine } from "./machines.js";
-import { Choice } from "./machines.js";
+import { Goods, Item, Recipe, RecipeObject } from "$lib/legacy/repository.js";
+import { SolvePage } from "$lib/legacy/solver.js";
+import { showConfirmDialog } from '$lib/legacy/dialogues.js';
+import {type Machine, singleBlockMachine } from "$lib/legacy/machines.js";
+import type {Choice} from "$lib/legacy/machines.js";
 
 let nextIid = 0;
 

@@ -1,6 +1,6 @@
-import { RecipeModel } from "./page.js";
-import { Goods, Item, Recipe, Repository } from "./repository.js";
-import { TIER_LV, TIER_UEV } from "./utils.js";
+import { RecipeModel } from "$lib/legacy/page.js";
+import { Goods, Item, Recipe, Repository } from "$lib/legacy/repository.js";
+import { TIER_LV, TIER_UEV } from "$lib/legacy/utils.js";
 
 export type MachineCoefficient = number | ((recipe:RecipeModel, choices:{[key:string]:number}) => number);
 

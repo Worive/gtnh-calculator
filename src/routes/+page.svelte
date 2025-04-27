@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTNH Calculator</title>
-    <link rel="stylesheet" href="assets/styles/general.css">
-    <link rel="stylesheet" href="assets/styles/nei.css">
-    <link rel="stylesheet" href="assets/styles/tabs.css">
-    <link rel="stylesheet" href="assets/styles/tooltip.css">
-    <link rel="stylesheet" href="assets/styles/recipe-list.css">
-    <link rel="stylesheet" href="assets/styles/menu.css">
-    <link rel="stylesheet" href="assets/styles/format.css">
-    <link rel="icon" href="assets/images/favicon.png" type="image/png">
-    <style id="item-icon-highlight-style"></style>
-</head>
-<body>
-    <script src="https://unpkg.com/javascript-lp-solver/prod/solver.js"></script>
-    <script type="module" src="index.js"></script>
+<script lang="ts">
+    import {onMount} from "svelte";
 
+    onMount(async () => {
+        await import('$lib/legacy/index.ts');
+    });
+</script>
+
+<div style="height: 100%">
     <button class="menu-toggle">☰</button>
 
     <div id="main">
@@ -101,5 +90,4 @@
     <div id="dropdown">
 
     </div>
-</body>
-</html>
+</div>

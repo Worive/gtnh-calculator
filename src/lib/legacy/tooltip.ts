@@ -1,5 +1,5 @@
-import { GetSingleRecipeDom } from "./nei.js";
-import { Goods, Recipe } from "./repository.js";
+import { GetSingleRecipeDom } from "$lib/legacy/nei.js";
+import { Goods, Recipe } from "$lib/legacy/repository.js";
 
 export var currentTooltipElement:HTMLElement | undefined;
 const tooltip = document.getElementById("tooltip")!;

@@ -1,6 +1,6 @@
-import { Repository, Goods, Item, Fluid, OreDict, RecipeObject } from "./repository.js";
-import { NeiSelect, ShowNei, ShowNeiContext, ShowNeiMode } from "./nei.js";
-import { ShowTooltip, HideTooltip, IsHovered } from "./tooltip.js";
+import { Repository, Goods, Item, Fluid, OreDict, RecipeObject } from "$lib/legacy/repository.js";
+import { NeiSelect, ShowNei, ShowNeiContext, ShowNeiMode } from "$lib/legacy/nei.js";
+import { ShowTooltip, HideTooltip, IsHovered } from "$lib/legacy/tooltip.js";
 
 // Global cycling state
 let globalIndex = 0;

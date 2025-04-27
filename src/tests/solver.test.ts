@@ -1,8 +1,9 @@
-import { PageModel, RecipeGroupModel, RecipeModel } from '../page';
-import { SolvePage } from '../solver';
+import { PageModel, RecipeGroupModel, RecipeModel } from '$lib/legacy/page';
+import { SolvePage } from '$lib/legacy/solver';
 import * as fs from 'fs';
 import * as path from 'path';
 import { setupRepository } from './setup';
+import {beforeAll, describe, expect, it} from "vitest";
 
 function loadTestFiles(): string[] {
     const testDir = path.join(__dirname, '..', '..', 'tests');

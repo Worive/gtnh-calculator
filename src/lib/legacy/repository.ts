@@ -1,4 +1,4 @@
-import { SearchQuery } from "./searchQuery.js";
+import { SearchQuery } from "$lib/legacy/searchQuery.js";
 
 const charCodeItem = "i".charCodeAt(0);
 const charCodeFluid = "f".charCodeAt(0);

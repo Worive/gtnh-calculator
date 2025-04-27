@@ -1,8 +1,9 @@
-import { Model, Solution } from "./types/javascript-lp-solver.js";
-import { PageModel, RecipeGroupModel, RecipeModel, ProductModel, FlowInformation, LinkAlgorithm } from './page.js';
-import { Goods, Item, OreDict, Recipe, RecipeIoType, RecipeObject, Repository } from "./repository.js";
-import { singleBlockMachine, MachineCoefficient, machines, notImplementedMachine } from "./machines.js";
-import { voltageTier } from "./utils.js";
+import { PageModel, RecipeGroupModel, RecipeModel, ProductModel, FlowInformation, LinkAlgorithm } from '$lib/legacy/page.js';
+import { Goods, Item, OreDict, Recipe, RecipeIoType, RecipeObject, Repository } from "$lib/legacy/repository.js";
+import { singleBlockMachine, type MachineCoefficient, machines, notImplementedMachine } from "$lib/legacy/machines.js";
+import { voltageTier } from "$lib/legacy/utils.js";
+import {type Model, type Solution} from "javascript-lp-solver";
+import solver from "javascript-lp-solver";
 
 class LinkCollection {
     output: {[key:string]:{[key:string]:number}} = {};
@@ -287,7 +288,7 @@ export function SolvePage(page:PageModel):void
         CreateAndMatchLinks(page.rootGroup, model, collection);
         console.log("Solve model",model);
 
-        let solution = window.solver.Solve(model);
+        let solution = solver.Solve(model);
         console.log("Solve solution",solution);
         page.status = solution.feasible ? solution.bounded ? "solved" : "unbounded" : "infeasible";
         ApplySolutionGroup(page.rootGroup, solution, model, solution.feasible);

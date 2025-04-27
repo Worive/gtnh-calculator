@@ -1,30 +1,38 @@
-# GTNH Calculator
+# sv
 
-[![Tests](https://github.com/ShadowTheAge/gtnh/actions/workflows/deploy.yml/badge.svg)](https://github.com/ShadowTheAge/gtnh/actions/workflows/deploy.yml)
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-A calculator for GregTech: New Horizons recipes and production chains.
-Large parts of this project were written using AI assistance, so code style and quality are all over the place.
-I just wanted to quickly put together something I can use to calculate GTNH chains. After this goal is done, it won't be an actively maintained project.
+## Creating a project
 
-Data building is done using the NESQL Exporter mod and a C# processing tool. See [export/README.md](export/README.md) for detailed instructions.
+If you're seeing this, you've probably already done this step. Congrats!
 
-## Development
-
-To run this project locally:
-
-1. Clone the repository
-2. Install dependencies:
 ```bash
-npm install
-```
-3. Start the development server:
-```bash
-npm start
+# create a new project in the current directory
+npx sv create
+
+# create a new project in my-app
+npx sv create my-app
 ```
 
-## License
+## Developing
 
-The code is under the MIT License - see the [LICENSE](LICENSE) file for details.
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-However, the project contains some assets from Minecraft (Mojang trademark and copyright), the GTNH development team, and respective mod authors. These assets are used under fair use.
-Font used: [F77 Minecraft by 123467](https://www.fontspace.com/f77-minecraft-font-f30628)
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

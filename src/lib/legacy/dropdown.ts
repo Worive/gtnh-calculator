@@ -1,5 +1,5 @@
-import { Goods, Repository, Item } from "./repository.js";
-import { addProjectChangeListener } from "./page.js";
+import { Goods, Repository, Item } from "$lib/legacy/repository.js";
+import { addProjectChangeListener } from "$lib/legacy/page.js";
 
 export class Dropdown {
     private static instance: Dropdown;

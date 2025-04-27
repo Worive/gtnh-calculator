@@ -1,7 +1,8 @@
-import { GetScrollbarWidth, voltageTier, formatAmount } from "./utils.js";
-import { Goods, Fluid, Item, Repository, IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, RecipeInOut, RecipeObject, OreDict } from "./repository.js";
-import { SearchQuery } from "./searchQuery.js";
-import { ShowTooltip, HideTooltip } from "./tooltip.js";
+import { GetScrollbarWidth, voltageTier, formatAmount } from "$lib/legacy/utils.js";
+import { Goods, Fluid, Item, Repository,
+    type IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, type RecipeInOut, RecipeObject, OreDict } from "$lib/legacy/repository.js";
+import { SearchQuery } from "$lib/legacy/searchQuery.js";
+import { ShowTooltip, HideTooltip } from "$lib/legacy/tooltip.js";
 
 const repository = Repository.current;
 const nei = document.getElementById("nei")!;

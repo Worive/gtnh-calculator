@@ -29,35 +29,32 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
-      
-      - name: Create dist directory
-        run: mkdir -p dist
 
       - name: Run tests
-        run: npm test -- --ci
+        run: npm run test
       
       - name: Build TypeScript
         run: npm run build
         
       # Add these new steps
       - name: Create .nojekyll
-        run: touch dist/.nojekyll
+        run: touch build/.nojekyll
         
       - name: Create _config.yml
         run: |
-          echo "include:" > dist/_config.yml
-          echo "  - '*.js'" >> dist/_config.yml
+          echo "include:" > build/_config.yml
+          echo "  - '*.js'" >> build/_config.yml
         
       - name: List dist contents
         run: |
-          echo "Root dist directory:"
-          ls -la dist/
+          echo "Root build directory:"
+          ls -la build/
           echo "Data directory:"
-          ls -la dist/data/
+          ls -la build/data/
       
       - name: Verify data.bin
         run: |
-          if [ ! -f dist/data/data.bin ]; then
+          if [ ! -f build/data/data.bin ]; then
             echo "Error: data.bin is missing!"
             exit 1
           fi
@@ -68,7 +65,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './build'
 
   deploy:
     environment:
