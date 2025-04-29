@@ -30,7 +30,6 @@ export {};
         /* ---------- 3. lazy-load the rest of the UI modules ---------- */
         await Promise.all([
             import("./itemIcon.js"),
-            import("./tooltip.js"),
             import("./nei.js"),
             import("./menu.js"),
             import("./recipeList.js")

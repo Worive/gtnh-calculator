@@ -1,6 +1,6 @@
 import { Repository, Goods, Item, Fluid, OreDict, RecipeObject } from "$lib/legacy/repository.js";
 import { NeiSelect, ShowNei, ShowNeiContext, ShowNeiMode } from "$lib/legacy/nei.js";
-import { ShowTooltip, HideTooltip, IsHovered } from "$lib/legacy/tooltip.js";
+import {TooltipService} from "$lib/services/tooltip.service";
 
 // Global cycling state
 let globalIndex = 0;
@@ -37,10 +37,11 @@ export class IconBox extends HTMLElement
             if (obj) {
                 const actionType = this.getAttribute('data-action');
                 const actionText = actionType ? actions[actionType] : undefined;
-                ShowTooltip(this, {
+
+                TooltipService.show(this, {
                     goods: obj,
                     action: actionText ?? "Left/Right click to view Production/Consumption for this item"
-                });
+                })
                 
                 this.UpdateHighlightStyle();
             }
@@ -95,8 +96,8 @@ export class IconBox extends HTMLElement
             this.style.setProperty('--pos-y', `${iy * -32}px`);
             
             // Update tooltip if this element is currently being hovered
-            if (IsHovered(this)) {
-                ShowTooltip(this, { goods: obj });
+            if (TooltipService.isHovered(this)) {
+                TooltipService.show(this, { goods: obj });
                 this.UpdateHighlightStyle();
             }
         }
@@ -134,8 +135,8 @@ export class IconBox extends HTMLElement
     disconnectedCallback()
     {
         this.StopOredictCycle();
-        HideTooltip(this);
-        if (IsHovered(this)) {
+        if (TooltipService.isHovered(this)) {
+            TooltipService.hide();
             highlightStyle.textContent = '';
         }
     }

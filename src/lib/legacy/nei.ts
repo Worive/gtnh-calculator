@@ -2,7 +2,7 @@ import { GetScrollbarWidth, voltageTier, formatAmount } from "$lib/legacy/utils.
 import { Goods, Fluid, Item, Repository,
     type IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, type RecipeInOut, RecipeObject, OreDict } from "$lib/legacy/repository.js";
 import { SearchQuery } from "$lib/legacy/searchQuery.js";
-import { ShowTooltip, HideTooltip } from "$lib/legacy/tooltip.js";
+import {TooltipService} from "$lib/services/tooltip.service";
 import {get} from "svelte/store";
 import {neiStore} from "$lib/stores/nei.store";
 import type {NeiRecipeTypeInfo} from "$lib/core/NeiRecipeTypeInfo";
@@ -146,7 +146,7 @@ export type NeiRecipeMap = {[type:string]: NeiRecipeTypeInfo};
 let filler:NeiFiller = FillNeiAllItems;
 let search:SearchQuery | null = null;
 
-type NeiHistory = {
+export type NeiHistory = {
     goods:RecipeObject | null;
     mode:ShowNeiMode;
     tabIndex:number;
@@ -479,7 +479,7 @@ function createTabs() {
         const iy = Math.floor(iconId / 256);
         tabElement.innerHTML = `<icon class="icon" style="--pos-x:${ix * -32}px; --pos-y:${iy * -32}px"></icon>`;
         tabElement.addEventListener('click', () => switchTab(index));
-        tabElement.addEventListener('mouseenter', () => ShowTooltip(tabElement, { header: tab.name }));
+        tabElement.addEventListener('mouseenter', () => TooltipService.show(tabElement, { header: tab.name }));
         neiTabs.appendChild(tabElement);
     });
     // Set initial active tab

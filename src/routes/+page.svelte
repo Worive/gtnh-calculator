@@ -1,5 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte";
+    import Tooltip from "$lib/components/Tooltip.svelte";
 
     onMount(async () => {
         await import('$lib/legacy/index.ts');
@@ -78,14 +79,7 @@
         <div id="loading" class="panel"><h1>LOADING...</h1>First time loading may take a while.<br>(Downloading 30MB of data)</div>
     </div>
 
-    <div id="tooltip">
-        <p id="tooltip-header">Header</p>
-        <p id="tooltip-debug">Debug</p>
-        <p id="tooltip-text">Text</p>
-        <p id="tooltip-action">Action</p>
-        <p id="tooltip-mod">Mod</p>
-        <div id="tooltip-recipe"></div>
-    </div>
+    <Tooltip/>
 
     <div id="dropdown">
 

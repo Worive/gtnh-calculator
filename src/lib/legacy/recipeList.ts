@@ -2,10 +2,10 @@ import { ShowNei, ShowNeiMode } from "$lib/legacy/nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "$lib/legacy/repository.js";
 import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, CopyCurrentPageUrl, DownloadCurrentPage } from "$lib/legacy/page.js";
 import { voltageTier, type GtVoltageTier, formatAmount } from "$lib/legacy/utils.js";
-import { ShowTooltip } from "$lib/legacy/tooltip.js";
 import { IconBox } from "$lib/legacy/itemIcon.js";
 import { ShowDropdown, HideDropdown } from "$lib/legacy/dropdown.js";
 import { machines, notImplementedMachine, singleBlockMachine } from "$lib/legacy/machines.js";
+import {TooltipService} from "$lib/services/tooltip.service";
 import type {ShowNeiCallback} from "$lib/types/show-nei-callback";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
@@ -322,7 +322,7 @@ export class RecipeList {
                                        text + `\n${formatAmount(obj.overclockFactor)}x machine speed\n` +
                                        `${formatAmount(obj.powerFactor)}x eu per recipe`;
                             }
-                            ShowTooltip(element as HTMLElement, {
+                            TooltipService.show(element as HTMLElement, {
                                 header: recipe?.recipeType.name + " recipe",
                                 text: text,
                                 recipe: recipe
@@ -330,7 +330,7 @@ export class RecipeList {
                         }
                         break;
                     case "link":
-                        ShowTooltip(element as HTMLElement, {
+                        TooltipService.show(element as HTMLElement, {
                             header: "Links",
                             text: "When some item has both production and consumption (or it is a required product), a link is created.\n\n\
     By default, the link will attempt to match production and consumption exactly.\n\n\
