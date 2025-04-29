@@ -1,0 +1,26 @@
+import {RecipeType} from "$lib/legacy/repository";
+import {elementSize} from "$lib/constants/nei.consts";
+import type {NeiRowAllocator} from "$lib/types/nei-row-allocator.interface";
+
+export class RecipeTypeAllocator implements NeiRowAllocator<RecipeType>
+{
+    CalculateWidth(): number { return -1; }
+    CalculateHeight(obj: RecipeType): number { return 1; }
+
+    BuildRowDom(elements:RecipeType[], elementWidth:number, elementHeight:number, rowY:number):string
+    {
+        let single = elements[0];
+        let dom:string[] = [];
+        dom.push(`<div class="nei-recipe-type" style="top:${rowY*elementSize}px; width:${elementWidth*elementSize}px">`);
+        for (let block of single.singleblocks) {
+            if (block)
+                dom.push(`<item-icon data-id="${block.id}"></item-icon>`);
+        }
+        for (let block of single.multiblocks) {
+            dom.push(`<item-icon data-id="${block.id}"></item-icon>`);
+        }
+        dom.push(`<span class="nei-recipe-type-name">${single.name}</span>`);
+        dom.push(`</div>`);
+        return dom.join("");
+    }
+}

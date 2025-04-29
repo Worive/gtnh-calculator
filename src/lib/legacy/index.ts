@@ -1,4 +1,6 @@
 // keep the file a module even though everything is now inside a function
+import {NeiService} from "$lib/services/nei.service";
+
 export {};
 
 // run everything inside a self-executing async function
@@ -24,6 +26,7 @@ export {};
         repositoryModule.Repository.load(buffer);
         console.log("Repository loaded", repositoryModule.Repository.current);
 
+        NeiService.initialize();
         /* ---------- 3. lazy-load the rest of the UI modules ---------- */
         await Promise.all([
             import("./itemIcon.js"),

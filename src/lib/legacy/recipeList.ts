@@ -1,4 +1,4 @@
-import { ShowNei, ShowNeiMode, type ShowNeiCallback } from "$lib/legacy/nei.js";
+import { ShowNei, ShowNeiMode } from "$lib/legacy/nei.js";
 import { Goods, Repository, Item, Fluid, Recipe } from "$lib/legacy/repository.js";
 import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, CopyCurrentPageUrl, DownloadCurrentPage } from "$lib/legacy/page.js";
 import { voltageTier, type GtVoltageTier, formatAmount } from "$lib/legacy/utils.js";
@@ -6,6 +6,7 @@ import { ShowTooltip } from "$lib/legacy/tooltip.js";
 import { IconBox } from "$lib/legacy/itemIcon.js";
 import { ShowDropdown, HideDropdown } from "$lib/legacy/dropdown.js";
 import { machines, notImplementedMachine, singleBlockMachine } from "$lib/legacy/machines.js";
+import type {ShowNeiCallback} from "$lib/types/show-nei-callback";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
     [LinkAlgorithm.Match]: "",
