@@ -1,6 +1,6 @@
 import { PageModel, serializer, SetCurrentPage, addProjectChangeListener, page, UpdateProject } from '$lib/legacy/page.js';
-import { showConfirmDialog } from '$lib/legacy/dialogues.js';
 import { ShowNei, ShowNeiMode } from "$lib/legacy/nei.js";
+import {showConfirmDialog} from "$lib/stores/dialog.store";
 
 export class PageManager {
     private pages: string[] = [];

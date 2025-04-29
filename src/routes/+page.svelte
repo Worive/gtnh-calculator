@@ -1,6 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte";
     import Tooltip from "$lib/components/Tooltip.svelte";
+    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
 
     onMount(async () => {
         await import('$lib/legacy/index.ts');
@@ -67,14 +68,7 @@
             </div>
         </div>
 
-        <div id="confirm-dialog" class="hidden panel">
-            <p id="confirm-text" style="text-align: center; flex-grow: 1; max-width: 550px;"></p>
-            <div class="hgroup" style="justify-content: center; gap: 10px;">
-                <button id="confirm-yes">Yes</button>
-                <button id="confirm-no">No</button>
-                <button id="confirm-cancel">Cancel</button>
-            </div>
-        </div>
+        <ConfirmDialog/>
 
         <div id="loading" class="panel"><h1>LOADING...</h1>First time loading may take a while.<br>(Downloading 30MB of data)</div>
     </div>
