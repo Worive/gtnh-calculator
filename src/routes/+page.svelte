@@ -4,7 +4,7 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
 
     onMount(async () => {
-        await import('$lib/legacy/index.ts');
+        await import('$lib/legacy/index');
     });
 </script>
 
