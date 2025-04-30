@@ -63,9 +63,9 @@
 		{/if}
 
 		{#if $tooltipStore.content?.recipe}
-			<p id="tooltip-recipe">
+			<div id="tooltip-recipe">
 				{@html NeiService.getSingleRecipeDOM($tooltipStore.content.recipe)}
-			</p>
+			</div>
 		{/if}
 	</div>
 {/if}
@@ -116,9 +116,5 @@
 	#tooltip-mod {
 		color: #5457fa;
 		line-height: 1;
-	}
-
-	#tooltip-recipe .nei-recipe-box {
-		position: relative;
 	}
 </style>
