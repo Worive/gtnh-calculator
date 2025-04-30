@@ -26,6 +26,7 @@ export {};
 		NeiService.initialize();
 		/* ---------- 3. lazy-load the rest of the UI modules ---------- */
 		await Promise.all([
+			import('./machines.js'),
 			import('./itemIcon.js'),
 			import('./nei.js'),
 			import('./menu.js'),
