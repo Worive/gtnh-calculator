@@ -1,9 +1,3 @@
-import {
-	singleBlockMachine,
-	type MachineCoefficient,
-	machines,
-	notImplementedMachine
-} from '$lib/legacy/machines.js';
 import { voltageTier } from '$lib/legacy/utils.js';
 import { type Model, type Solution } from 'javascript-lp-solver';
 import solver from 'javascript-lp-solver';
@@ -19,6 +13,8 @@ import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import type { OreDict } from '$lib/core/data/models/OreDict';
 import { FlowInformation } from '$lib/core/data/models/FlowInformation';
 import type { PageModel } from '$lib/core/data/models/PageModel';
+import {machines, notImplementedMachine, singleBlockMachine} from "$lib/types/constants/machines.const";
+import type {MachineCoefficient} from "$lib/types/models/Machine";
 
 class LinkCollection {
 	output: { [key: string]: { [key: string]: number } } = {};

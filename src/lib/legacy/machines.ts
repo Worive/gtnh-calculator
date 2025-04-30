@@ -1,73 +1,18 @@
 import { TIER_LV, TIER_UEV } from '$lib/legacy/utils.js';
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import type { RecipeModel } from '$lib/core/data/models/RecipeModel';
-
-export type MachineCoefficient =
-	| number
-	| ((recipe: RecipeModel, choices: { [key: string]: number }) => number);
-
-const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
-
-export type Machine = {
-	choices?: { [key: string]: Choice };
-	perfectOverclock: MachineCoefficient;
-	speed: MachineCoefficient;
-	power: MachineCoefficient;
-	parallels: MachineCoefficient;
-	info?: string;
-};
-
-export type Choice = {
-	description: string;
-	choices?: string[];
-	min?: number;
-	max?: number;
-};
-
-let CoilTierChoice: Choice = {
-	description: 'Coils',
-	choices: [
-		'T1: Cupronickel',
-		'T2: Kanthal',
-		'T3: Nichrome',
-		'T4: TPV',
-		'T5: HSS-G',
-		'T6: HSS-S',
-		'T7: Naquadah',
-		'T8: Naquadah Alloy',
-		'T9: Trinium',
-		'T10: Electrum Flux',
-		'T11: Awakened Draconium',
-		'T12: Infinity',
-		'T13: Hypogen',
-		'T14: Eternal'
-	]
-};
-
-type MachineList = {
-	[key: string]: Machine;
-};
-
-export const machines: MachineList = {};
-
-export const singleBlockMachine: Machine = {
-	perfectOverclock: 0,
-	speed: 1,
-	power: 1,
-	parallels: 1
-};
+import type { MachineCoefficient } from '$lib/types/models/Machine';
+import {
+	CoilTierChoice,
+	machines,
+	MAX_OVERCLOCK,
+	notImplementedMachine,
+	PipeCasingTierChoice
+} from '$lib/types/constants/machines.const';
 
 function IsRecipeType(recipe: RecipeModel, type: string): boolean {
 	return recipe.recipe ? recipe.recipe.recipeType.name == type : false;
 }
-
-export const notImplementedMachine: Machine = {
-	perfectOverclock: 0,
-	speed: 1,
-	power: 1,
-	parallels: 1,
-	info: 'Machine not implemented (Calculated as a singleblock)'
-};
 
 machines['Steam Compressor'] =
 	machines['Steam Alloy Smelter'] =
@@ -259,20 +204,6 @@ machines['Large Scale Auto-Assembler v1.01'] = {
 	speed: 3,
 	power: 1,
 	parallels: (recipe) => (recipe.voltageTier + 1) * 2
-};
-
-let PipeCasingTierChoice: Choice = {
-	description: 'Pipe Casing Tier',
-	choices: [
-		'T1: Tin',
-		'T2: Brass',
-		'T3: Electrum',
-		'T4: Platinum',
-		'T5: Osmium',
-		'T6: Quantium',
-		'T7: Fluxed Electrum',
-		'T8: Black Plutonium'
-	]
 };
 
 machines['Industrial Autoclave'] = {

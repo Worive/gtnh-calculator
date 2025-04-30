@@ -22,6 +22,20 @@ export let CoilTierChoice: Choice = {
 	]
 };
 
+export const PipeCasingTierChoice: Choice = {
+	description: 'Pipe Casing Tier',
+	choices: [
+		'T1: Tin',
+		'T2: Brass',
+		'T3: Electrum',
+		'T4: Platinum',
+		'T5: Osmium',
+		'T6: Quantium',
+		'T7: Fluxed Electrum',
+		'T8: Black Plutonium'
+	]
+};
+
 export const machines: Record<string, Machine> = {};
 
 export const singleBlockMachine: Machine = {
