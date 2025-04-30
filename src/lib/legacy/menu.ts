@@ -1,6 +1,7 @@
-import { PageModel, serializer, SetCurrentPage, addProjectChangeListener, page, UpdateProject } from '$lib/legacy/page.js';
+import { serializer, SetCurrentPage, addProjectChangeListener, page, UpdateProject } from '$lib/legacy/page.js';
 import { ShowNei, ShowNeiMode } from "$lib/legacy/nei.js";
 import {showConfirmDialog} from "$lib/stores/dialog.store";
+import {PageModel} from "$lib/core/data/models/PageModel";
 
 export class PageManager {
     private pages: string[] = [];

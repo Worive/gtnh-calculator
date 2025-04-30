@@ -1,13 +1,20 @@
 import { GetScrollbarWidth, voltageTier, formatAmount } from "$lib/legacy/utils.js";
-import { Goods, Fluid, Item, Repository,
-    type IMemMappedObjectPrototype, Recipe, RecipeType, RecipeIoType, type RecipeInOut, RecipeObject, OreDict } from "$lib/legacy/repository.js";
-import { SearchQuery } from "$lib/legacy/searchQuery.js";
 import {TooltipService} from "$lib/services/tooltip.service";
 import {get} from "svelte/store";
 import {neiStore} from "$lib/stores/nei.store";
 import type {NeiRecipeTypeInfo} from "$lib/core/NeiRecipeTypeInfo";
 import type {NeiRowAllocator} from "$lib/types/nei-row-allocator.interface";
 import type {ShowNeiCallback} from "$lib/types/show-nei-callback";
+import {Repository} from "$lib/core/data/Repository";
+import type {RecipeObject} from "$lib/core/data/models/RecipeObject";
+import {Goods} from "$lib/core/data/models/Goods";
+import {Fluid} from "$lib/core/data/models/Fluid";
+import {Item} from "$lib/core/data/models/Item";
+import type {IMemMappedObjectPrototype} from "$lib/types/core/MemMappedObject.interface";
+import type {RecipeType} from "$lib/core/data/models/RecipeType";
+import {Recipe} from "$lib/core/data/models/Recipe";
+import {OreDict} from "$lib/core/data/models/OreDict";
+import {SearchQuery} from "$lib/core/data/models/SearchQuery";
 
 const repository = Repository.current;
 const nei = document.getElementById("nei")!;

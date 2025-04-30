@@ -1,12 +1,22 @@
 import { ShowNei, ShowNeiMode } from "$lib/legacy/nei.js";
-import { Goods, Repository, Item, Fluid, Recipe } from "$lib/legacy/repository.js";
-import { UpdateProject, addProjectChangeListener, GetByIid, RecipeModel, RecipeGroupModel, ProductModel, ModelObject, PageModel, DragAndDrop, page, FlowInformation, LinkAlgorithm, CopyCurrentPageUrl, DownloadCurrentPage } from "$lib/legacy/page.js";
+import { UpdateProject, addProjectChangeListener, GetByIid, DragAndDrop, page, CopyCurrentPageUrl, DownloadCurrentPage } from "$lib/legacy/page.js";
 import { voltageTier, type GtVoltageTier, formatAmount } from "$lib/legacy/utils.js";
 import { IconBox } from "$lib/legacy/itemIcon.js";
 import { ShowDropdown, HideDropdown } from "$lib/legacy/dropdown.js";
-import { machines, notImplementedMachine, singleBlockMachine } from "$lib/legacy/machines.js";
 import {TooltipService} from "$lib/services/tooltip.service";
 import type {ShowNeiCallback} from "$lib/types/show-nei-callback";
+import {LinkAlgorithm} from "$lib/types/enums/LinkAlgorithm";
+import type {ModelObject} from "$lib/core/data/models/ModelObject";
+import {ProductModel} from "$lib/core/data/models/ProductModel";
+import {PageModel} from "$lib/core/data/models/PageModel";
+import {RecipeGroupModel} from "$lib/core/data/models/RecipeGroupModel";
+import {RecipeModel} from "$lib/core/data/models/RecipeModel";
+import type {Recipe} from "$lib/core/data/models/Recipe";
+import {Goods} from "$lib/core/data/models/Goods";
+import {Repository} from "$lib/core/data/Repository";
+import type {Item} from "$lib/core/data/models/Item";
+import {Fluid} from "$lib/core/data/models/Fluid";
+import type {FlowInformation} from "$lib/core/data/models/FlowInformation";
 
 const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
     [LinkAlgorithm.Match]: "",

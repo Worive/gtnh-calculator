@@ -1,9 +1,19 @@
-import { PageModel, RecipeGroupModel, RecipeModel, ProductModel, FlowInformation, LinkAlgorithm } from '$lib/legacy/page.js';
-import { Goods, Item, OreDict, Recipe, RecipeIoType, RecipeObject, Repository } from "$lib/legacy/repository.js";
 import { singleBlockMachine, type MachineCoefficient, machines, notImplementedMachine } from "$lib/legacy/machines.js";
 import { voltageTier } from "$lib/legacy/utils.js";
 import {type Model, type Solution} from "javascript-lp-solver";
 import solver from "javascript-lp-solver";
+import type {RecipeObject} from "$lib/core/data/models/RecipeObject";
+import {RecipeModel} from "$lib/core/data/models/RecipeModel";
+import {LinkAlgorithm} from "$lib/types/enums/LinkAlgorithm";
+import type {RecipeGroupEntry} from "$lib/core/data/models/RecipeGroupEntry";
+import {RecipeGroupModel} from "$lib/core/data/models/RecipeGroupModel";
+import {Repository} from "$lib/core/data/Repository";
+import type {Recipe} from "$lib/core/data/models/Recipe";
+import {Item} from "$lib/core/data/models/Item";
+import {RecipeIoType} from "$lib/types/enums/RecipeIoType";
+import type {OreDict} from "$lib/core/data/models/OreDict";
+import {FlowInformation} from "$lib/core/data/models/FlowInformation";
+import type {PageModel} from "$lib/core/data/models/PageModel";
 
 class LinkCollection {
     output: {[key:string]:{[key:string]:number}} = {};

@@ -1,7 +1,8 @@
 import { tooltipStore } from '$lib/stores/tooltip.store';
-import type { Goods, Recipe } from '$lib/legacy/repository';
 import type { TooltipContent } from '$lib/types/tooltip';
 import {get} from "svelte/store";
+import type {Goods} from "$lib/core/data/models/Goods";
+import type {Recipe} from "$lib/core/data/models/Recipe";
 
 export class TooltipService {
     static show(target: HTMLElement, data: {

@@ -1,5 +1,7 @@
 // keep the file a module even though everything is now inside a function
 import {NeiService} from "$lib/services/nei.service";
+import {Repository} from "$lib/core/data/Repository";
+import {DataLoader} from "$lib/core/DataLoader";
 
 export {};
 
@@ -9,22 +11,18 @@ export {};
 
     try {
         /* ---------- 1. load the atlas image ---------- */
-        const atlas = new Image();
-        atlas.src = "/data/atlas.webp";
-        // optional: wait until it is decoded so subsequent code can use it safely
-        await atlas.decode();
+        await DataLoader.loadAtlas();
 
         /* ---------- 2. load repository + binary data in parallel ---------- */
-        const [repositoryModule, response] = await Promise.all([
-            import("./repository.js"),
+        const [response] = await Promise.all([
             fetch(new URL("/data/data.bin", import.meta.url)) // avoids resolve() in older bundlers
         ]);
 
         const stream = response.body!
             .pipeThrough(new DecompressionStream("gzip"));
         const buffer = await new Response(stream).arrayBuffer();
-        repositoryModule.Repository.load(buffer);
-        console.log("Repository loaded", repositoryModule.Repository.current);
+        Repository.load(buffer);
+        console.log("Repository loaded", Repository.current);
 
         NeiService.initialize();
         /* ---------- 3. lazy-load the rest of the UI modules ---------- */

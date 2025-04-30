@@ -1,6 +1,8 @@
-import { Repository, Item, Fluid, Recipe, OreDict } from '$lib/legacy/repository';
 import { setupRepository } from './setup';
 import {beforeAll, describe, expect, it} from "vitest";
+import {Repository} from "$lib/core/data/Repository";
+import type {Item} from "$lib/core/data/models/Item";
+import type {Fluid} from "$lib/core/data/models/Fluid";
 
 describe('Repository', () => {
     beforeAll(async () => {

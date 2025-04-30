@@ -1,6 +1,9 @@
-import { Repository, Goods, Item, Fluid, OreDict, RecipeObject } from "$lib/legacy/repository.js";
 import { NeiSelect, ShowNei, ShowNeiContext, ShowNeiMode } from "$lib/legacy/nei.js";
 import {TooltipService} from "$lib/services/tooltip.service";
+import type {RecipeObject} from "$lib/core/data/models/RecipeObject";
+import {OreDict} from "$lib/core/data/models/OreDict";
+import {Repository} from "$lib/core/data/Repository";
+import {Goods} from "$lib/core/data/models/Goods";
 
 // Global cycling state
 let globalIndex = 0;

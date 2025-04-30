@@ -1,4 +1,3 @@
-import { Goods, Repository, Item } from "$lib/legacy/repository.js";
 import { addProjectChangeListener } from "$lib/legacy/page.js";
 
 export class Dropdown {

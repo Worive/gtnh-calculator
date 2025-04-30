@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import type {NeiRecipeMap} from "$lib/legacy/nei";
-import type {RecipeType} from "$lib/legacy/repository";
 import type {ShowNeiCallback} from "$lib/types/show-nei-callback";
+import type {RecipeType} from "$lib/core/data/models/RecipeType";
 
 
 type NeiStore = {

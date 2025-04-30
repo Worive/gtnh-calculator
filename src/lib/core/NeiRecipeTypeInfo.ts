@@ -1,10 +1,15 @@
-import {Fluid, Goods, Recipe, type RecipeInOut, RecipeIoType, RecipeType} from "$lib/legacy/repository";
 import {formatAmount, voltageTier} from "$lib/legacy/utils";
 import {RecipeTypeAllocator} from "$lib/core/RecipeTypeAllocator";
-import {elementSize} from "$lib/constants/nei.consts";
+import {elementSize} from "$lib/types/constants/nei.consts";
 import {get} from "svelte/store";
 import {neiStore} from "$lib/stores/nei.store";
 import type {NeiRowAllocator} from "$lib/types/nei-row-allocator.interface";
+import type {RecipeType} from "$lib/core/data/models/RecipeType";
+import type {Recipe} from "$lib/core/data/models/Recipe";
+import type {RecipeInOut} from "$lib/types/models/Recipe";
+import {RecipeIoType} from "$lib/types/enums/RecipeIoType";
+import {Fluid} from "$lib/core/data/models/Fluid";
+import {Goods} from "$lib/core/data/models/Goods";
 
 export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe>
 {

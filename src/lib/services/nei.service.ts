@@ -1,7 +1,9 @@
 import {neiStore} from "../stores/nei.store";
-import {Recipe, RecipeType, Repository} from "$lib/legacy/repository";
 import {get} from "svelte/store";
 import {NeiRecipeTypeInfo} from "$lib/core/NeiRecipeTypeInfo";
+import {Repository} from "$lib/core/data/Repository";
+import {RecipeType} from "$lib/core/data/models/RecipeType";
+import type {Recipe} from "$lib/core/data/models/Recipe";
 
 export class NeiService {
     static initialize() {

@@ -1,7 +1,7 @@
-import { Repository } from '$lib/legacy/repository';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as zlib from 'zlib';
+import {Repository} from "$lib/core/data/Repository";
 
 export async function setupRepository() {
     const dataPath = path.join(process.cwd(), 'static', 'data', 'data.bin');
