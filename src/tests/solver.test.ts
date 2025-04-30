@@ -8,7 +8,7 @@ import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
 
 function loadTestFiles(): string[] {
-	const testDir = path.join(__dirname, '..', '..', 'tests');
+	const testDir = path.resolve('tests');
 	const files = fs.readdirSync(testDir);
 	return files.filter((file) => file.endsWith('.gtnh'));
 }
