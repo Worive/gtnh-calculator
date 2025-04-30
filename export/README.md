@@ -21,10 +21,13 @@ This document explains how to export and process data for the GTNH Calculator.
 
 1. Navigate to the export project directory
 2. Run the C# project:
+
    ```bash
    dotnet run <path to nesql export directory> [--output <path>]
    ```
+
    Arguments:
+
    - `<path to nesql export directory>`: Required. Path to the directory containing the NESQL export
    - `--output <path>`: Path to the data directory (if skipped, generated files will be put in the current directory)
 

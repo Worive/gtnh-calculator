@@ -1,6 +1,6 @@
 export enum LinkAlgorithm {
-    Match,
-    Ignore,
-    //AtLeast,
-    //AtMost,
+	Match,
+	Ignore
+	//AtLeast,
+	//AtMost,
 }

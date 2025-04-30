@@ -1,83 +1,84 @@
 .fmt-0 {
-    color: #000000;
+	color: #000000;
 }
 
 .fmt-1 {
-    color: #0000AA;
+	color: #0000aa;
 }
 
 .fmt-2 {
-    color: #00AA00;
+	color: #00aa00;
 }
 
 .fmt-3 {
-    color: #00AAAA;
+	color: #00aaaa;
 }
 
 .fmt-4 {
-    color: #AA0000;
+	color: #aa0000;
 }
 
 .fmt-5 {
-    color: #AA00AA;
+	color: #aa00aa;
 }
 
 .fmt-6 {
-    color: #FFAA00;
+	color: #ffaa00;
 }
 
 .fmt-7 {
-    color: #AAAAAA;
+	color: #aaaaaa;
 }
 
 .fmt-8 {
-    color: #555555;
+	color: #555555;
 }
 
 .fmt-9 {
-    color: #5555FF;
+	color: #5555ff;
 }
 
 .fmt-a {
-    color: #55FF55;
+	color: #55ff55;
 }
 
 .fmt-b {
-    color: #55FFFF;
+	color: #55ffff;
 }
 
 .fmt-c {
-    color: #FF5555;
+	color: #ff5555;
 }
 
 .fmt-d {
-    color: #FF55FF;
+	color: #ff55ff;
 }
 
 .fmt-e {
-    color: #FFFF55;
+	color: #ffff55;
 }
 
 .fmt-f {
-    color: #FFFFFF;
+	color: #ffffff;
 }
 
-.fmt-k {}
+.fmt-k {
+}
 
 .fmt-l {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .fmt-m {
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
+	text-decoration: line-through;
+	text-decoration-thickness: 2px;
 }
 
 .fmt-n {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
 }
 
 .fmt-o {
-    font-style: italic;
+	font-style: italic;
 }
