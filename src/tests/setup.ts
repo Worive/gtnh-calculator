@@ -4,6 +4,8 @@ import * as zlib from 'zlib';
 import { Repository } from '$lib/core/data/Repository';
 
 export async function setupRepository() {
+	await import('$lib/legacy/machines');
+
 	const dataPath = path.join(process.cwd(), 'static', 'data', 'data.bin');
 	const compressedData = await fs.readFile(dataPath);
 	const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
