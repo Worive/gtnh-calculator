@@ -24,8 +24,9 @@ import { formatAmount } from '$lib/legacy/utils';
 import { TooltipService } from '$lib/services/tooltip.service';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import type { FlowInformation } from '$lib/core/data/models/FlowInformation';
-import { type ActionHandler, linkAlgorithmNames } from '$lib/legacy/recipeList';
+import { type ActionHandler } from '$lib/legacy/recipeList';
 import {type GtVoltageTier, voltageTier} from "$lib/types/constants/voltageTiers.const";
+import {linkAlgorithmNames} from "$lib/types/constants/solver.const";
 
 export class RecipeList {
 	private productItemsContainer: HTMLElement;
