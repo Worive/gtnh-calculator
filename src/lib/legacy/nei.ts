@@ -1,4 +1,4 @@
-import { GetScrollbarWidth, voltageTier, formatAmount } from '$lib/legacy/utils.js';
+import { GetScrollbarWidth, formatAmount } from '$lib/legacy/utils.js';
 import { TooltipService } from '$lib/services/tooltip.service';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';

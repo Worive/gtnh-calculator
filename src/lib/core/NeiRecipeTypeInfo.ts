@@ -1,4 +1,4 @@
-import { formatAmount, voltageTier } from '$lib/legacy/utils';
+import { formatAmount } from '$lib/legacy/utils';
 import { RecipeTypeAllocator } from '$lib/core/RecipeTypeAllocator';
 import { elementSize } from '$lib/types/constants/nei.consts';
 import { get } from 'svelte/store';
@@ -10,6 +10,7 @@ import type { RecipeInOut } from '$lib/types/models/Recipe';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import { Goods } from '$lib/core/data/models/Goods';
+import {voltageTier} from "$lib/types/constants/voltageTiers.const";
 
 export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> {
 	type: RecipeType;

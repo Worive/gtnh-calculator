@@ -20,11 +20,12 @@ import { RecipeModel } from '$lib/core/data/models/RecipeModel';
 import { Repository } from '$lib/core/data/Repository';
 import type { Item } from '$lib/core/data/models/Item';
 import { HideDropdown, ShowDropdown } from '$lib/legacy/dropdown';
-import { formatAmount, type GtVoltageTier, voltageTier } from '$lib/legacy/utils';
+import { formatAmount } from '$lib/legacy/utils';
 import { TooltipService } from '$lib/services/tooltip.service';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import type { FlowInformation } from '$lib/core/data/models/FlowInformation';
 import { type ActionHandler, linkAlgorithmNames } from '$lib/legacy/recipeList';
+import {type GtVoltageTier, voltageTier} from "$lib/types/constants/voltageTiers.const";
 
 export class RecipeList {
 	private productItemsContainer: HTMLElement;
