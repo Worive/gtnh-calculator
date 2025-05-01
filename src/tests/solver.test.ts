@@ -1,4 +1,3 @@
-import { SolvePage } from '$lib/legacy/solver';
 import * as fs from 'fs';
 import * as path from 'path';
 import { setupRepository } from './setup';
@@ -6,6 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { RecipeModel } from '$lib/core/data/models/RecipeModel';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
+import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 
 function loadTestFiles(): string[] {
 	const testDir = path.resolve('tests');
@@ -57,7 +57,7 @@ describe('Solver', () => {
 				const pageData = JSON.parse(fileContent);
 
 				const page = new PageModel(pageData);
-				SolvePage(page);
+				CalculatorEngine.solvePage(page);
 
 				// Get expectations for all recipes and create a snapshot
 				const expectations = processRecipeGroup(page.rootGroup);

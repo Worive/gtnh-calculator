@@ -3,7 +3,7 @@ import { ProductModel } from '$lib/core/data/models/ProductModel';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
 import type { Settings } from '$lib/types/models/Settings';
-import { SolvePage } from '$lib/legacy/solver';
+import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 
 export class PageModel extends ModelObject {
 	name: string = 'New Page';
@@ -57,7 +57,7 @@ export class PageModel extends ModelObject {
 			const previousState = this.history[this.history.length - 1];
 			try {
 				this.loadFromObject(JSON.parse(previousState));
-				SolvePage(this);
+				CalculatorEngine.solvePage(this);
 				return true;
 			} catch (e) {
 				console.error('Failed to undo:', e);

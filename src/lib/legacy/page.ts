@@ -1,10 +1,10 @@
-import { SolvePage } from '$lib/legacy/solver.js';
 import { ModelObjectSerializer } from '$lib/core/data/models/ModelObjectSerializer';
 import { ModelObjectIidScanner } from '$lib/core/data/models/ModelObjectIidScanner';
 import type { iidScanResult } from '$lib/types/iidScanResult';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
 import type { PageModel } from '$lib/core/data/models/PageModel';
+import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 
 let nextIid = 0;
 
@@ -88,7 +88,7 @@ export function SetCurrentPage(newPage: PageModel) {
 }
 
 export function UpdateProject(visualOnly: boolean = false) {
-	if (!visualOnly) SolvePage(page);
+	if (!visualOnly) CalculatorEngine.solvePage(page);
 	notifyListeners();
 }
 
