@@ -27,7 +27,7 @@ import { type GtVoltageTier, voltageTier } from '$lib/types/constants/voltageTie
 import { linkAlgorithmNames } from '$lib/types/constants/solver.const';
 import type { ActionHandler } from '$lib/types/ui/action-handler';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-import {formatAmount} from "$lib/utils/Formatting";
+import { formatAmount } from '$lib/utils/Formatting';
 
 export class RecipeList {
 	private productItemsContainer: HTMLElement;
