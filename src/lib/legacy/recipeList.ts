@@ -1,6 +1,6 @@
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 import type { ModelObject } from '$lib/core/data/models/ModelObject';
-import {RecipeList} from "$lib/core/data/models/RecipeList";
+import { RecipeList } from '$lib/core/data/models/RecipeList';
 
 export const linkAlgorithmNames: { [key in LinkAlgorithm]: string } = {
 	[LinkAlgorithm.Match]: '',
