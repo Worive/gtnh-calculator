@@ -20,7 +20,6 @@ import { RecipeModel } from '$lib/core/data/models/RecipeModel';
 import { Repository } from '$lib/core/data/Repository';
 import type { Item } from '$lib/core/data/models/Item';
 import { HideDropdown, ShowDropdown } from '$lib/legacy/dropdown';
-import { formatAmount } from '$lib/legacy/utils';
 import { TooltipService } from '$lib/services/tooltip.service';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import type { FlowInformation } from '$lib/core/data/models/FlowInformation';
@@ -28,6 +27,7 @@ import { type GtVoltageTier, voltageTier } from '$lib/types/constants/voltageTie
 import { linkAlgorithmNames } from '$lib/types/constants/solver.const';
 import type { ActionHandler } from '$lib/types/ui/action-handler';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import {formatAmount} from "$lib/utils/Formatting";
 
 export class RecipeList {
 	private productItemsContainer: HTMLElement;

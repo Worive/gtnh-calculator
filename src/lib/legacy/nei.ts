@@ -1,4 +1,3 @@
-import { GetScrollbarWidth, formatAmount } from '$lib/legacy/utils.js';
 import { TooltipService } from '$lib/services/tooltip.service';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
@@ -65,6 +64,25 @@ searchBox.addEventListener('input', SearchChanged);
 neiScrollBox.addEventListener('scroll', UpdateVisibleItems);
 neiBack.addEventListener('click', Back);
 neiClose.addEventListener('click', HideNei);
+
+var scrollbarWidth: number | undefined;
+
+function GetScrollbarWidth() {
+	if (scrollbarWidth === undefined) {
+		// Create the measurement node
+		var scrollDiv = document.createElement('div');
+		scrollDiv.className = 'scrollbar-measure';
+		document.body.appendChild(scrollDiv);
+
+		// Get the scrollbar width
+		scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+		// Delete the DIV
+		document.body.removeChild(scrollDiv);
+		console.log('Scrollbar width: ' + scrollbarWidth);
+	}
+	return scrollbarWidth;
+}
 
 let unitWidth = 0,
 	unitHeight = 0;
