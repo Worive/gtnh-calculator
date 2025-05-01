@@ -5,9 +5,10 @@ import {
 	page,
 	UpdateProject
 } from '$lib/legacy/page.js';
-import { ShowNei, ShowNeiMode } from '$lib/legacy/nei.js';
+import { ShowNei } from '$lib/legacy/nei.js';
 import { showConfirmDialog } from '$lib/stores/dialog.store';
 import { PageModel } from '$lib/core/data/models/PageModel';
+import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 
 export class PageManager {
 	private pages: string[] = [];

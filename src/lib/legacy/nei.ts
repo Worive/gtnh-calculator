@@ -15,6 +15,7 @@ import type { RecipeType } from '$lib/core/data/models/RecipeType';
 import { Recipe } from '$lib/core/data/models/Recipe';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
+import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 
 const repository = Repository.current;
 const nei = document.getElementById('nei')!;
@@ -171,19 +172,6 @@ export type NeiRecipeMap = { [type: string]: NeiRecipeTypeInfo };
 let filler: NeiFiller = FillNeiAllItems;
 let search: SearchQuery | null = null;
 
-export type NeiHistory = {
-	goods: RecipeObject | null;
-	mode: ShowNeiMode;
-	tabIndex: number;
-};
-
-let neiHistory: NeiHistory[] = [];
-
-export enum ShowNeiMode {
-	Production,
-	Consumption
-}
-
 let currentMode: ShowNeiMode = ShowNeiMode.Production;
 
 export enum ShowNeiContext {
@@ -234,8 +222,19 @@ function GetAllFluidRecipes(set: Set<Recipe>, goods: Fluid, mode: ShowNeiMode): 
 }
 
 function Back() {
-	const last = neiHistory.pop();
-	if (last) ShowNeiInternal(last.goods, last.mode, last.tabIndex);
+	neiStore.update((state) => {
+		const last = state.history[state.history.length - 1];
+		const newHistory = state.history.slice(0, state.history.length - 1);
+
+		if (last) {
+			ShowNeiInternal(last.goods, last.mode, last.tabIndex);
+		}
+
+		return {
+			...state,
+			history: newHistory
+		};
+	});
 }
 
 export function ShowNei(
@@ -243,16 +242,34 @@ export function ShowNei(
 	mode: ShowNeiMode,
 	callback: ShowNeiCallback | null = null
 ) {
-	console.log('ShowNei', goods, mode, callback);
+	console.debug('ShowNei', goods, mode, callback);
+
 	if (callback != null) {
-		neiStore.update((state) => {
-			state.showNeiCallback = callback;
-			return state;
-		});
-		neiHistory.length = 0;
+		neiStore.update((state) => ({
+			...state,
+			showNeiCallback: callback
+		}));
+
+		neiStore.update((state) => ({
+			...state,
+			history: []
+		}));
 	} else {
-		if (!nei.classList.contains('hidden'))
-			neiHistory.push({ goods: currentGoods, mode: currentMode, tabIndex: activeTabIndex });
+		if (!nei.classList.contains('hidden')) {
+			neiStore.update((state) => {
+				return {
+					...state,
+					history: [
+						...state.history,
+						{
+							goods: currentGoods,
+							mode: currentMode,
+							tabIndex: activeTabIndex
+						}
+					]
+				};
+			});
+		}
 	}
 	nei.classList.remove('hidden');
 	ShowNeiInternal(goods, mode);
@@ -293,7 +310,9 @@ function ShowNeiInternal(goods: RecipeObject | null, mode: ShowNeiMode, tabIndex
 	// Update tab visibility
 	updateTabVisibility();
 
-	neiBack.style.display = neiHistory.length > 0 ? '' : 'none';
+	const neiHistoryLength = get(neiStore).history.length;
+
+	neiBack.style.display = neiHistoryLength > 0 ? '' : 'none';
 	const newTabIndex = tabIndex === -1 ? (goods === null ? 0 : 1) : tabIndex;
 	switchTab(newTabIndex);
 

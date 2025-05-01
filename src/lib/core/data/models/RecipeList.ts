@@ -11,7 +11,7 @@ import { ProductModel } from '$lib/core/data/models/ProductModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
 import { IconBox } from '$lib/legacy/itemIcon';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import { ShowNei, ShowNeiMode } from '$lib/legacy/nei';
+import { ShowNei } from '$lib/legacy/nei';
 import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import { Goods } from '$lib/core/data/models/Goods';
@@ -24,9 +24,10 @@ import { formatAmount } from '$lib/legacy/utils';
 import { TooltipService } from '$lib/services/tooltip.service';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import type { FlowInformation } from '$lib/core/data/models/FlowInformation';
-import { type ActionHandler } from '$lib/legacy/recipeList';
-import {type GtVoltageTier, voltageTier} from "$lib/types/constants/voltageTiers.const";
-import {linkAlgorithmNames} from "$lib/types/constants/solver.const";
+import { type GtVoltageTier, voltageTier } from '$lib/types/constants/voltageTiers.const';
+import { linkAlgorithmNames } from '$lib/types/constants/solver.const';
+import type { ActionHandler } from '$lib/types/ui/action-handler';
+import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 
 export class RecipeList {
 	private productItemsContainer: HTMLElement;

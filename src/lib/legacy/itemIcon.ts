@@ -1,9 +1,10 @@
-import { NeiSelect, ShowNei, ShowNeiContext, ShowNeiMode } from '$lib/legacy/nei.js';
+import { NeiSelect, ShowNei, ShowNeiContext } from '$lib/legacy/nei.js';
 import { TooltipService } from '$lib/services/tooltip.service';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import { Repository } from '$lib/core/data/Repository';
 import { Goods } from '$lib/core/data/models/Goods';
+import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 
 // Global cycling state
 let globalIndex = 0;
