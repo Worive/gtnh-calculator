@@ -27,9 +27,9 @@ import { linkAlgorithmNames } from '$lib/types/constants/solver.const';
 import type { ActionHandler } from '$lib/types/ui/action-handler';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { formatAmount } from '$lib/utils/Formatting';
-import {get} from "svelte/store";
+import { get } from 'svelte/store';
 import { currentPageStore } from '$lib/stores/currentPage.store';
-import {repositoryStore} from "$lib/stores/repository.store";
+import { repositoryStore } from '$lib/stores/repository.store';
 
 export class RecipeList {
 	static current: RecipeList;
@@ -475,7 +475,7 @@ export class RecipeList {
 	}
 
 	private addProduct(goods: Goods, amount: number) {
-		currentPageStore.update(page => {
+		currentPageStore.update((page) => {
 			page.products.push(
 				new ProductModel({
 					goodsId: goods.id,
@@ -504,7 +504,6 @@ export class RecipeList {
 
 	private renderIoInfo(flow: FlowInformation, group: RecipeGroupModel): string {
 		const renderFlowItems = (items: { [key: string]: number }, group: RecipeGroupModel) => {
-
 			const page = get(currentPageStore);
 			const sortedFlow = Object.entries(items).sort(([, a], [, b]) => Math.abs(b) - Math.abs(a));
 			return sortedFlow

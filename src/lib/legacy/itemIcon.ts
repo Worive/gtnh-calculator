@@ -4,8 +4,8 @@ import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import { Goods } from '$lib/core/data/models/Goods';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-import {get} from "svelte/store";
-import {repositoryStore} from "$lib/stores/repository.store";
+import { get } from 'svelte/store';
+import { repositoryStore } from '$lib/stores/repository.store';
 
 // Global cycling state
 let globalIndex = 0;

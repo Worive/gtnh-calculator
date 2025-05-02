@@ -19,10 +19,10 @@ import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 import solver from 'javascript-lp-solver';
 import { FlowInformation } from '$lib/core/data/models/FlowInformation';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
-import {currentPageStore} from "$lib/stores/currentPage.store";
-import {get} from "svelte/store";
-import {repositoryStore} from "$lib/stores/repository.store";
-import type {SearchableObject} from "$lib/core/data/models/SearchableObject";
+import { currentPageStore } from '$lib/stores/currentPage.store';
+import { get } from 'svelte/store';
+import { repositoryStore } from '$lib/stores/repository.store';
+import type { SearchableObject } from '$lib/core/data/models/SearchableObject';
 
 export class CalculatorEngine {
 	private static createAndMatchLinks(
@@ -136,7 +136,7 @@ export class CalculatorEngine {
 		let gtRecipe = recipe.gtRecipe;
 		if (gtRecipe && gtRecipe.durationTicks > 0) {
 			let crafter = recipeModel.crafter
-				? currentRepository?.GetById<Item>(recipeModel.crafter) ?? null
+				? (currentRepository?.GetById<Item>(recipeModel.crafter) ?? null)
 				: null;
 			if (crafter != null && !recipe.recipeType.multiblocks.includes(crafter)) crafter = null;
 			if (crafter === null && recipe.recipeType.singleblocks.length == 0)

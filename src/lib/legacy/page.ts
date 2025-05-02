@@ -5,8 +5,8 @@ import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
 import type { PageModel } from '$lib/core/data/models/PageModel';
 import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
-import {currentPageStore} from "$lib/stores/currentPage.store";
-import {get} from "svelte/store";
+import { currentPageStore } from '$lib/stores/currentPage.store';
+import { get } from 'svelte/store';
 
 let nextIid = 0;
 

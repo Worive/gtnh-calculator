@@ -2,8 +2,8 @@ import { setupRepository } from './setup';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Item } from '$lib/core/data/models/Item';
 import type { Fluid } from '$lib/core/data/models/Fluid';
-import {get} from "svelte/store";
-import {repositoryStore} from "$lib/stores/repository.store";
+import { get } from 'svelte/store';
+import { repositoryStore } from '$lib/stores/repository.store';
 
 describe('Repository', () => {
 	beforeAll(async () => {

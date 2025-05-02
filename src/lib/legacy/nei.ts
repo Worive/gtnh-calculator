@@ -14,7 +14,7 @@ import { Recipe } from '$lib/core/data/models/Recipe';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-import { repositoryStore } from "$lib/stores/repository.store";
+import { repositoryStore } from '$lib/stores/repository.store';
 
 const repository = get(repositoryStore);
 const nei = document.getElementById('nei')!;
