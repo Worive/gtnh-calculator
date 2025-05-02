@@ -1,3 +1,4 @@
 import { RecipeList } from '$lib/core/data/models/RecipeList';
 
-new RecipeList();
+const recipeList = new RecipeList();
+RecipeList.current = recipeList;

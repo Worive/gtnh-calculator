@@ -2,9 +2,10 @@ import { NeiSelect, ShowNei, ShowNeiContext } from '$lib/legacy/nei.js';
 import { TooltipService } from '$lib/services/tooltip.service';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { OreDict } from '$lib/core/data/models/OreDict';
-import { Repository } from '$lib/core/data/Repository';
 import { Goods } from '$lib/core/data/models/Goods';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import {get} from "svelte/store";
+import {repositoryStore} from "$lib/stores/repository.store";
 
 // Global cycling state
 let globalIndex = 0;
@@ -114,7 +115,9 @@ export class IconBox extends HTMLElement {
 	attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 		if (name === 'data-id') {
 			this.StopOredictCycle();
-			this.obj = Repository.current.GetById<RecipeObject>(newValue);
+
+			const currentRepository = get(repositoryStore);
+			this.obj = currentRepository!.GetById<RecipeObject>(newValue);
 			if (this.obj instanceof OreDict) {
 				this.StartOredictCycle(this.obj);
 			} else {

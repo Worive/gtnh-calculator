@@ -2,6 +2,8 @@
 import { NeiService } from '$lib/services/nei.service';
 import { Repository } from '$lib/core/data/Repository';
 import { DataLoader } from '$lib/core/DataLoader';
+import {get} from "svelte/store";
+import {repositoryStore} from "$lib/stores/repository.store";
 
 export {};
 
@@ -21,7 +23,7 @@ export {};
 		const stream = response.body!.pipeThrough(new DecompressionStream('gzip'));
 		const buffer = await new Response(stream).arrayBuffer();
 		Repository.load(buffer);
-		console.log('Repository loaded', Repository.current);
+		console.log('Repository loaded', get(repositoryStore));
 
 		NeiService.initialize();
 		/* ---------- 3. lazy-load the rest of the UI modules ---------- */

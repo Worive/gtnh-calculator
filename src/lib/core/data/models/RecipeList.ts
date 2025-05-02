@@ -4,7 +4,6 @@ import {
 	DownloadCurrentPage,
 	DragAndDrop,
 	GetByIid,
-	page,
 	UpdateProject
 } from '$lib/legacy/page';
 import { ProductModel } from '$lib/core/data/models/ProductModel';
@@ -28,8 +27,13 @@ import { linkAlgorithmNames } from '$lib/types/constants/solver.const';
 import type { ActionHandler } from '$lib/types/ui/action-handler';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { formatAmount } from '$lib/utils/Formatting';
+import {get} from "svelte/store";
+import { currentPageStore } from '$lib/stores/currentPage.store';
+import {repositoryStore} from "$lib/stores/repository.store";
 
 export class RecipeList {
+	static current: RecipeList;
+
 	private productItemsContainer: HTMLElement;
 	private recipeItemsContainer: HTMLElement;
 	private statusMessageElement: HTMLElement;
@@ -106,7 +110,8 @@ export class RecipeList {
 		this.actionHandlers.set('crafter_click', (obj, event, parent) => {
 			if (obj instanceof RecipeModel && event.type === 'click') {
 				let options = [];
-				let recipe = Repository.current.GetById<Recipe>(obj.recipeId);
+				const currentRepository = get(repositoryStore);
+				let recipe = currentRepository!.GetById<Recipe>(obj.recipeId);
 				if (!recipe) return;
 				let recipeType = recipe.recipeType;
 				if (recipeType.singleblocks.length > 0)
@@ -172,6 +177,8 @@ export class RecipeList {
 
 		this.actionHandlers.set('update_amount', (obj, event) => {
 			if (obj instanceof ProductModel && event.type === 'change') {
+				const page = get(currentPageStore);
+
 				obj.amount = parseFloat((event.target as HTMLInputElement).value) * page.timeScale;
 				UpdateProject();
 			}
@@ -283,8 +290,9 @@ export class RecipeList {
 				const target = event.target as HTMLElement;
 				const item = target.closest('.dropdown-item');
 				if (item) {
+					const currentRepository = get(repositoryStore);
 					const goodsId = item.getAttribute('data-id')!;
-					const crafter = Repository.current.GetById<Item>(goodsId);
+					const crafter = currentRepository!.GetById<Item>(goodsId);
 					if (crafter && obj.recipe?.recipeType.multiblocks.includes(crafter))
 						obj.crafter = crafter.id;
 					else obj.crafter = undefined;
@@ -320,6 +328,8 @@ export class RecipeList {
 			if (e.type === 'contextmenu' && e instanceof MouseEvent && (e.ctrlKey || e.metaKey)) return;
 			const element = (e.target as HTMLElement).closest('[data-action]') as HTMLElement;
 			if (element) {
+				const page = get(currentPageStore);
+
 				const iid = parseInt(element.getAttribute('data-iid')!) || page.iid;
 				const action = element.getAttribute('data-action')!;
 				const result = GetByIid(iid);
@@ -349,7 +359,9 @@ export class RecipeList {
 							let obj = GetByIid(parseInt(element.getAttribute('data-iid')!))
 								?.current as RecipeModel;
 							if (obj) {
-								let recipe = Repository.current.GetById<Recipe>(obj.recipeId);
+								const currentRepository = get(repositoryStore);
+								const page = get(currentPageStore);
+								let recipe = currentRepository!.GetById<Recipe>(obj.recipeId);
 								let text = `${formatAmount(obj.recipesPerMinute / page.timeScale)} recipes/${page.settings.timeUnit}`;
 								if (recipe?.gtRecipe) {
 									let initialTier = recipe.gtRecipe.voltageTier;
@@ -463,16 +475,21 @@ export class RecipeList {
 	}
 
 	private addProduct(goods: Goods, amount: number) {
-		page.products.push(
-			new ProductModel({
-				goodsId: goods.id,
-				amount: goods instanceof Fluid ? 1000 : 1
-			})
-		);
+		currentPageStore.update(page => {
+			page.products.push(
+				new ProductModel({
+					goodsId: goods.id,
+					amount: goods instanceof Fluid ? 1000 : 1
+				})
+			);
+			return page;
+		});
 		UpdateProject();
 	}
 
-	private addRecipe(recipe: Recipe, targetGroup: RecipeGroupModel) {
+	addRecipe(recipe: Recipe, targetGroup: RecipeGroupModel) {
+		const page = get(currentPageStore);
+
 		const minVoltage = page.settings.minVoltage ?? 0;
 		const recipeVoltage = recipe.gtRecipe?.voltageTier ?? 0;
 		const voltageTier = Math.max(recipeVoltage, minVoltage);
@@ -487,6 +504,8 @@ export class RecipeList {
 
 	private renderIoInfo(flow: FlowInformation, group: RecipeGroupModel): string {
 		const renderFlowItems = (items: { [key: string]: number }, group: RecipeGroupModel) => {
+
+			const page = get(currentPageStore);
 			const sortedFlow = Object.entries(items).sort(([, a], [, b]) => Math.abs(b) - Math.abs(a));
 			return sortedFlow
 				.map(([goodsId, amount]) => {
@@ -653,7 +672,8 @@ export class RecipeList {
 		group: RecipeGroupModel,
 		level: number = 0
 	): string {
-		let recipe = Repository.current.GetById<Recipe>(recipeModel.recipeId);
+		const currentRepository = get(repositoryStore);
+		let recipe = currentRepository!.GetById<Recipe>(recipeModel.recipeId);
 		return `
             <tr class="recipe-item" data-iid="${recipeModel.iid}" draggable="true">
                 ${this.renderRecipeShortInfo(recipe, recipeModel, group)}
@@ -695,6 +715,7 @@ export class RecipeList {
 	}
 
 	private renderExpandedGroup(group: RecipeGroupModel, level: number = 0): string {
+		const page = get(currentPageStore);
 		return `
             <tr class="recipe-group expanded" data-iid="${group.iid}">
                 <td colspan="6" class="expanded-group-cell nested-level-${level % 2}">
@@ -746,6 +767,8 @@ export class RecipeList {
 	}
 
 	private renderSettings(): string {
+		const page = get(currentPageStore);
+
 		const minVoltageOptions = voltageTier
 			.map(
 				(tier, index) =>
@@ -780,6 +803,7 @@ export class RecipeList {
 	}
 
 	private renderRootGroup(group: RecipeGroupModel): string {
+		const page = get(currentPageStore);
 		return `
             <table class="recipe-table root-group" data-iid="${group.iid}">
                 <thead>
@@ -823,6 +847,8 @@ export class RecipeList {
 		let goodsIds = Object.keys(links).sort();
 		if (goodsIds.length === 0) return '';
 
+		const currentRepository = get(repositoryStore);
+
 		return `
             <tr class="group-links">
                 <td colspan="6">
@@ -832,7 +858,7 @@ export class RecipeList {
                     <div class="links-grid">
                         ${goodsIds
 													.map((goodsId) => {
-														const goods = Repository.current.GetById<Goods>(goodsId);
+														const goods = currentRepository!.GetById<Goods>(goodsId);
 														const algorithm = links[goodsId];
 														let overText =
 															algorithm === LinkAlgorithm.Match
@@ -866,6 +892,7 @@ export class RecipeList {
 	private renderStatus() {
 		let statusMessage = '';
 		let statusClass = '';
+		const page = get(currentPageStore);
 		if (page.status === 'infeasible') {
 			statusMessage = 'Infeasible - There is no solution - You probably need to ignore some links';
 		} else if (page.status === 'unbounded') {
@@ -886,15 +913,18 @@ export class RecipeList {
 	}
 
 	private renderProductList() {
+		const page = get(currentPageStore);
 		const products = page.products
 			.filter((product) => product instanceof ProductModel && product.amount !== 0)
 			.sort((a, b) => (b as ProductModel).amount - (a as ProductModel).amount);
+
+		const currentRepository = get(repositoryStore);
 
 		this.productItemsContainer.innerHTML = `
             ${products
 							.map((product) => {
 								if (!(product instanceof ProductModel)) return '';
-								const goods = Repository.current.GetById<Goods>(product.goodsId);
+								const goods = currentRepository!.GetById<Goods>(product.goodsId);
 								return `
                     <div class="product-item">
                         <item-icon data-id="${goods?.id}" data-action="item_icon_click" data-iid="${page.rootGroup.iid}"></item-icon>
@@ -911,6 +941,7 @@ export class RecipeList {
 	}
 
 	private updateRecipeList() {
+		const page = get(currentPageStore);
 		this.recipeItemsContainer.innerHTML = this.renderRootGroup(page.rootGroup);
 	}
 }

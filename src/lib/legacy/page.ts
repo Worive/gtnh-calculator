@@ -5,6 +5,8 @@ import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
 import type { PageModel } from '$lib/core/data/models/PageModel';
 import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
+import {currentPageStore} from "$lib/stores/currentPage.store";
+import {get} from "svelte/store";
 
 let nextIid = 0;
 
@@ -13,6 +15,8 @@ export { serializer };
 let iidScanner = new ModelObjectIidScanner();
 
 export function GetByIid(iid: number): iidScanResult {
+	const page = get(currentPageStore);
+
 	return iidScanner.Scan(page, page, iid);
 }
 
@@ -61,7 +65,6 @@ export function DragAndDrop(sourceIid: number, targetIid: number) {
 }
 
 const changeListeners: ProjectChangeListener[] = [];
-export let page: PageModel;
 
 // Event system
 type ProjectChangeListener = () => void;
@@ -83,12 +86,14 @@ function notifyListeners() {
 
 export function SetCurrentPage(newPage: PageModel) {
 	console.log('SetCurrentPage', newPage);
-	page = newPage;
+	currentPageStore.set(newPage);
 	UpdateProject();
 }
 
 export function UpdateProject(visualOnly: boolean = false) {
-	if (!visualOnly) CalculatorEngine.solvePage(page);
+	if (!visualOnly) {
+		CalculatorEngine.solvePage(get(currentPageStore));
+	}
 	notifyListeners();
 }
 
@@ -106,7 +111,7 @@ async function GetUrlHashFromJson(json: string): Promise<string> {
 }
 
 export async function CopyCurrentPageUrl() {
-	const serialized = serializer.Serialize(page);
+	const serialized = serializer.Serialize(get(currentPageStore));
 	const jsonString = JSON.stringify(serialized);
 	const hash = await GetUrlHashFromJson(jsonString);
 	const url = `${window.location.origin}${window.location.pathname}#${hash}`;
@@ -114,13 +119,13 @@ export async function CopyCurrentPageUrl() {
 }
 
 export function DownloadCurrentPage() {
-	const serialized = serializer.Serialize(page);
+	const serialized = serializer.Serialize(get(currentPageStore));
 	const prettyJson = JSON.stringify(serialized, null, 2);
 	const blob = new Blob([prettyJson], { type: 'application/json' });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement('a');
 	a.href = url;
-	a.download = `${page.name}.gtnh`;
+	a.download = `${get(currentPageStore).name}.gtnh`;
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);

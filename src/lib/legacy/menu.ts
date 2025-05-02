@@ -2,13 +2,14 @@ import {
 	serializer,
 	SetCurrentPage,
 	addProjectChangeListener,
-	page,
 	UpdateProject
 } from '$lib/legacy/page.js';
 import { ShowNei } from '$lib/legacy/nei.js';
 import { showConfirmDialog } from '$lib/stores/dialog.store';
 import { PageModel } from '$lib/core/data/models/PageModel';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import {get} from "svelte/store";
+import {currentPageStore} from "$lib/stores/currentPage.store";
 
 export class PageManager {
 	private pages: string[] = [];
@@ -40,6 +41,8 @@ export class PageManager {
 
 	private setupPageChangeListener() {
 		addProjectChangeListener(() => {
+			const page = get(currentPageStore);
+
 			if (this.currentPage && page) {
 				const serialized = JSON.stringify(serializer.Serialize(page));
 				localStorage.setItem(`p:${this.currentPage}`, serialized);
@@ -207,6 +210,8 @@ export class PageManager {
 	}
 
 	private undo() {
+		const page = get(currentPageStore);
+
 		if (page && page.undo()) {
 			this.undoInProgress = true;
 			// After undo, update the cache and localStorage

@@ -4,7 +4,6 @@ import { neiStore } from '$lib/stores/nei.store';
 import type { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
 import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
 import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
-import { Repository } from '$lib/core/data/Repository';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { Goods } from '$lib/core/data/models/Goods';
 import { Fluid } from '$lib/core/data/models/Fluid';
@@ -15,8 +14,9 @@ import { Recipe } from '$lib/core/data/models/Recipe';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import { repositoryStore } from "$lib/stores/repository.store";
 
-const repository = Repository.current;
+const repository = get(repositoryStore);
 const nei = document.getElementById('nei')!;
 const neiScrollBox = nei.querySelector('#nei-scroll') as HTMLElement;
 const neiContent = nei.querySelector('#nei-content') as HTMLElement;
@@ -128,8 +128,11 @@ class ItemAllocator implements NeiRowAllocator<Goods> {
 let itemAllocator = new ItemAllocator();
 var FillNeiAllItems: NeiFiller = function (grid: NeiGrid, search: SearchQuery | null) {
 	var allocator = grid.BeginAllocation(itemAllocator);
-	FillNeiItemsWith(allocator, search, Repository.current.fluids, Fluid);
-	FillNeiItemsWith(allocator, search, Repository.current.items, Item);
+
+	const currentRepository = get(repositoryStore);
+
+	FillNeiItemsWith(allocator, search, currentRepository!.fluids, Fluid);
+	FillNeiItemsWith(allocator, search, currentRepository!.items, Item);
 };
 
 function FillNeiItemsWith<T extends Goods>(
@@ -140,7 +143,7 @@ function FillNeiItemsWith<T extends Goods>(
 ): void {
 	var len = arr.length;
 	for (var i = 0; i < len; i++) {
-		var element = repository.GetObjectIfMatchingSearch(search, arr[i], proto);
+		var element = repository!.GetObjectIfMatchingSearch(search, arr[i], proto);
 		if (element !== null) grid.Add(element);
 	}
 }
@@ -161,7 +164,7 @@ var FillNeiAllRecipes: NeiFiller = function (
 			{
 				let allocator = grid.BeginAllocation(list);
 				for (let i = 0; i < list.length; i++) {
-					if (search == null || repository.IsObjectMatchingSearch(list[i], search))
+					if (search == null || repository!.IsObjectMatchingSearch(list[i], search))
 						allocator.Add(list[i]);
 				}
 			}
@@ -174,7 +177,7 @@ function FillNeiSpecificRecipes(recipeType: RecipeType): NeiFiller {
 		var list = recipes[recipeType.name];
 		let allocator = grid.BeginAllocation(list);
 		for (let i = 0; i < list.length; i++)
-			if (search == null || repository.IsObjectMatchingSearch(list[i], search))
+			if (search == null || repository!.IsObjectMatchingSearch(list[i], search))
 				allocator.Add(list[i]);
 	};
 }
@@ -221,7 +224,7 @@ export function NeiSelect(goods: Goods) {
 
 function AddToSet(set: Set<Recipe>, goods: Goods, mode: ShowNeiMode) {
 	let list = mode == ShowNeiMode.Production ? goods.production : goods.consumption;
-	for (var i = 0; i < list.length; i++) set.add(repository.GetObject(list[i], Recipe));
+	for (var i = 0; i < list.length; i++) set.add(repository!.GetObject(list[i], Recipe));
 }
 
 function GetAllOreDictRecipes(set: Set<Recipe>, goods: OreDict, mode: ShowNeiMode): void {
@@ -234,7 +237,7 @@ function GetAllFluidRecipes(set: Set<Recipe>, goods: Fluid, mode: ShowNeiMode): 
 	AddToSet(set, goods, mode);
 	let containers = goods.containers;
 	for (var i = 0; i < containers.length; i++) {
-		var container = repository.GetObject(repository.items[containers[i]], Item);
+		var container = repository!.GetObject(repository!.items[containers[i]], Item);
 		AddToSet(set, container, mode);
 	}
 }
@@ -479,13 +482,13 @@ const tabs: NeiTab[] = [
 	{
 		name: 'All Items',
 		filler: FillNeiAllItems,
-		iconId: repository.GetObject(repository.service[0], Item).iconId,
+		iconId: repository!.GetObject(repository!.service[0], Item).iconId,
 		isVisible: () => true // Always visible
 	},
 	{
 		name: 'All Recipes',
 		filler: FillNeiAllRecipes,
-		iconId: repository.GetObject(repository.service[1], Item).iconId,
+		iconId: repository!.GetObject(repository!.service[1], Item).iconId,
 		isVisible: () => currentGoods !== null // Visible only when viewing recipes
 	}
 ];
@@ -554,7 +557,7 @@ neiContent.addEventListener('click', (event) => {
 
 	if (selectButton && showNeiCallback?.onSelectRecipe) {
 		const recipeOffset = parseInt(selectButton.getAttribute('data-recipe') || '0');
-		const recipe = repository.GetObject(recipeOffset, Recipe);
+		const recipe = repository!.GetObject(recipeOffset, Recipe);
 		console.log('ShowNei result (Recipe): ', recipe.id, recipe);
 		showNeiCallback.onSelectRecipe(recipe);
 		HideNei();

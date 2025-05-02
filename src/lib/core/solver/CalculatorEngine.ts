@@ -19,6 +19,10 @@ import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 import solver from 'javascript-lp-solver';
 import { FlowInformation } from '$lib/core/data/models/FlowInformation';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import {currentPageStore} from "$lib/stores/currentPage.store";
+import {get} from "svelte/store";
+import {repositoryStore} from "$lib/stores/repository.store";
+import type {SearchableObject} from "$lib/core/data/models/SearchableObject";
 
 export class CalculatorEngine {
 	private static createAndMatchLinks(
@@ -42,7 +46,9 @@ export class CalculatorEngine {
 		group.actualLinks = { ...group.links };
 
 		for (const key of Object.keys(collection.inputOreDict)) {
-			var oreDict = Repository.current.GetById<OreDict>(key)!;
+			const currentRepository = get(repositoryStore);
+
+			var oreDict = currentRepository?.GetById<OreDict>(key)!;
 			for (const item of oreDict.items) {
 				let algorithm = group.links[item.id] || LinkAlgorithm.Match;
 				if (collection.output[item.id] === undefined) continue;
@@ -95,7 +101,8 @@ export class CalculatorEngine {
 		model: Model,
 		collection: LinkCollection
 	) {
-		let recipe = Repository.current.GetById<Recipe>(recipeModel.recipeId);
+		const currentRepository = get(repositoryStore);
+		let recipe = currentRepository?.GetById<Recipe>(recipeModel.recipeId);
 		if (!recipe) return;
 		recipeModel.recipe = recipe;
 		let varName = `recipe_${recipeModel.iid}`;
@@ -129,7 +136,7 @@ export class CalculatorEngine {
 		let gtRecipe = recipe.gtRecipe;
 		if (gtRecipe && gtRecipe.durationTicks > 0) {
 			let crafter = recipeModel.crafter
-				? Repository.current.GetById<Item>(recipeModel.crafter)
+				? currentRepository?.GetById<Item>(recipeModel.crafter) ?? null
 				: null;
 			if (crafter != null && !recipe.recipeType.multiblocks.includes(crafter)) crafter = null;
 			if (crafter === null && recipe.recipeType.singleblocks.length == 0)
@@ -317,6 +324,10 @@ export class CalculatorEngine {
 			console.log('Solve solution', solution);
 			page.status = solution.feasible ? (solution.bounded ? 'solved' : 'unbounded') : 'infeasible';
 			this.applySolutionGroup(page.rootGroup, solution, model, solution.feasible);
+
+			currentPageStore.set(page);
+
+			console.log('Page solved', get(currentPageStore));
 		} catch (error) {
 			console.error('Error solving page', error);
 		}

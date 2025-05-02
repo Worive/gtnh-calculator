@@ -6,6 +6,7 @@ import { Recipe } from '$lib/core/data/models/Recipe';
 import type { SearchQuery } from '$lib/core/data/models/SearchQuery';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject.interface';
+import {repositoryStore} from "$lib/stores/repository.store";
 
 const charCodeItem = 'i'.charCodeAt(0);
 const charCodeFluid = 'f'.charCodeAt(0);
@@ -14,8 +15,6 @@ const charCodeRecipe = 'r'.charCodeAt(0);
 const DATA_VERSION = 3;
 
 export class Repository {
-	static current: Repository;
-
 	elements: Int32Array;
 	bytes: Uint8Array;
 	textReader: TextDecoder;
@@ -142,7 +141,7 @@ export class Repository {
 
 	static load(data: ArrayBuffer): Repository {
 		const repository = new Repository(data);
-		Repository.current = repository;
+		repositoryStore.set(repository);
 		return repository;
 	}
 }
