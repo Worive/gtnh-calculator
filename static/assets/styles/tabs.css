@@ -7,6 +7,7 @@
 }
 
 .panel-tab-container {
+	width: 80%;
 	display: flex;
 	position: absolute;
 	flex-direction: column;
@@ -20,6 +21,7 @@
 .panel-tab-container .panel {
 	position: relative;
 	z-index: -1;
+	width: 100%;
 }
 
 .panel-tabs {

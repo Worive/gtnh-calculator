@@ -10,13 +10,11 @@ import { ProductModel } from '$lib/core/data/models/ProductModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
 import { IconBox } from '$lib/legacy/itemIcon';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import { ShowNei } from '$lib/legacy/nei';
 import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import { Goods } from '$lib/core/data/models/Goods';
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 import { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import { Repository } from '$lib/core/data/Repository';
 import type { Item } from '$lib/core/data/models/Item';
 import { HideDropdown, ShowDropdown } from '$lib/legacy/dropdown';
 import { TooltipService } from '$lib/services/tooltip.service';
@@ -30,6 +28,7 @@ import { formatAmount } from '$lib/utils/Formatting';
 import { get } from 'svelte/store';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { repositoryStore } from '$lib/stores/repository.store';
+import {NeiService} from "$lib/services/nei.service";
 
 export class RecipeList {
 	static current: RecipeList;
@@ -83,7 +82,7 @@ export class RecipeList {
 					}
 				};
 
-				ShowNei(goods, mode, callback);
+				NeiService.show(goods, mode, callback);
 			}
 		});
 
@@ -461,7 +460,7 @@ export class RecipeList {
 			}
 		};
 
-		ShowNei(null, ShowNeiMode.Production, callback);
+		NeiService.show(null, ShowNeiMode.Production, callback);
 	}
 
 	private showNeiForRecipeSelection(targetGroup: RecipeGroupModel) {
@@ -471,7 +470,7 @@ export class RecipeList {
 			}
 		};
 
-		ShowNei(null, ShowNeiMode.Production, callback);
+		NeiService.show(null, ShowNeiMode.Production, callback);
 	}
 
 	private addProduct(goods: Goods, amount: number) {

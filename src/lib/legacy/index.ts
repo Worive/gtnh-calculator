@@ -30,7 +30,6 @@ export {};
 		await Promise.all([
 			import('./machines.js'),
 			import('./itemIcon.js'),
-			import('./nei.js'),
 			import('./menu.js'),
 			import('./recipeList.js')
 		]);

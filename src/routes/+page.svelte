@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import Tooltip from '$lib/components/Tooltip.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
-	import NeiModal from "$lib/components/NeiModal.svelte";
+	import NeiModal from '$lib/components/NeiModal.svelte';
 
 	onMount(async () => {
 		await import('$lib/legacy/index');
@@ -68,7 +68,7 @@
 	</div>
 
 	<div id="panels">
-		<NeiModal/>
+		<NeiModal />
 
 		<ConfirmDialog />
 

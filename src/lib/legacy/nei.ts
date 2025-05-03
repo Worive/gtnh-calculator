@@ -1,7 +1,6 @@
 import { TooltipService } from '$lib/services/tooltip.service';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
-import type { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
 import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
 import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
@@ -15,6 +14,7 @@ import { OreDict } from '$lib/core/data/models/OreDict';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { repositoryStore } from '$lib/stores/repository.store';
+import type { NeiRecipeMap } from '$lib/types/nei-recipe-map';
 
 const repository = get(repositoryStore);
 const nei = document.getElementById('nei')!;
@@ -26,10 +26,8 @@ const neiBack = nei.querySelector('#nei-back') as HTMLButtonElement;
 const neiClose = nei.querySelector('#nei-close') as HTMLButtonElement;
 const elementSize = 36;
 
-let currentGoods: RecipeObject | null = null;
-
 document.addEventListener('keydown', (event) => {
-	if (nei.classList.contains('hidden')) return;
+	if (!get(neiStore).visible) return;
 	// Handle Escape key
 	if (event.key === 'Escape') {
 		if (searchBox.value == '') {
@@ -188,12 +186,8 @@ function SearchChanged() {
 	RefreshNeiContents();
 }
 
-export type NeiRecipeMap = { [type: string]: NeiRecipeTypeInfo };
-
 let filler: NeiFiller = FillNeiAllItems;
 let search: SearchQuery | null = null;
-
-let currentMode: ShowNeiMode = ShowNeiMode.Production;
 
 export enum ShowNeiContext {
 	None,
@@ -203,12 +197,12 @@ export enum ShowNeiContext {
 }
 
 export function HideNei() {
-	nei.classList.add('hidden');
 	neiStore.update((state) => {
+		state.visible = false;
 		state.showNeiCallback = null;
+		state.currentGoods = null;
 		return state;
 	});
-	currentGoods = null;
 }
 
 export function NeiSelect(goods: Goods) {
@@ -276,29 +270,38 @@ export function ShowNei(
 			history: []
 		}));
 	} else {
-		if (!nei.classList.contains('hidden')) {
+		if (get(neiStore).visible) {
 			neiStore.update((state) => {
 				return {
 					...state,
 					history: [
 						...state.history,
 						{
-							goods: currentGoods,
-							mode: currentMode,
-							tabIndex: activeTabIndex
+							goods: state.currentGoods,
+							mode: state.currentMode,
+							tabIndex: state.activeTabIndex
 						}
 					]
 				};
 			});
 		}
 	}
-	nei.classList.remove('hidden');
+
+	neiStore.update((state) => ({
+		...state,
+		visible: true
+	}));
+
 	ShowNeiInternal(goods, mode);
 }
 
 function ShowNeiInternal(goods: RecipeObject | null, mode: ShowNeiMode, tabIndex: number = -1) {
-	currentGoods = goods;
-	currentMode = mode;
+	neiStore.update((state) => ({
+		...state,
+		currentMode: mode,
+		currentGoods: goods,
+	}))
+
 	let recipes: Set<Recipe> = new Set();
 	if (goods instanceof OreDict) {
 		GetAllOreDictRecipes(recipes, goods, mode);
@@ -489,7 +492,7 @@ const tabs: NeiTab[] = [
 		name: 'All Recipes',
 		filler: FillNeiAllRecipes,
 		iconId: repository!.GetObject(repository!.service[1], Item).iconId,
-		isVisible: () => currentGoods !== null // Visible only when viewing recipes
+		isVisible: () => get(neiStore).currentGoods !== null // Visible only when viewing recipes
 	}
 ];
 
@@ -502,8 +505,6 @@ get(neiStore).allRecipeTypes.forEach((recipeType) => {
 		isVisible: () => get(neiStore).mapRecipeTypeToRecipeList[recipeType.name].length > 0
 	});
 });
-
-let activeTabIndex = 0;
 
 function createTabs() {
 	neiTabs.innerHTML = '';
@@ -534,12 +535,18 @@ function updateTabVisibility() {
 }
 
 function switchTab(index: number) {
+	const activeTabIndex = get(neiStore).activeTabIndex;
+
 	if (index === activeTabIndex) return;
 
 	// Update active state
 	neiTabs.children[activeTabIndex]?.classList.remove('active');
 	neiTabs.children[index]?.classList.add('active');
-	activeTabIndex = index;
+
+	neiStore.update((state) => ({
+		...state,
+		activeTabIndex: index
+	}));
 
 	// Update filler and refresh content
 	filler = tabs[index].filler;

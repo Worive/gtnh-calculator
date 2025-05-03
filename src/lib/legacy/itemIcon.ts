@@ -1,4 +1,3 @@
-import { NeiSelect, ShowNei, ShowNeiContext } from '$lib/legacy/nei.js';
 import { TooltipService } from '$lib/services/tooltip.service';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { OreDict } from '$lib/core/data/models/OreDict';
@@ -6,6 +5,7 @@ import { Goods } from '$lib/core/data/models/Goods';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { get } from 'svelte/store';
 import { repositoryStore } from '$lib/stores/repository.store';
+import {NeiService} from "$lib/services/nei.service";
 
 // Global cycling state
 let globalIndex = 0;
@@ -154,14 +154,17 @@ export class IconBox extends HTMLElement {
 		if (this.CustomAction()) return;
 		if (event.ctrlKey || event.metaKey) return;
 		event.preventDefault();
-		ShowNei(this.obj, ShowNeiMode.Consumption, null);
+		NeiService.show(this.obj, ShowNeiMode.Consumption, null);
 	}
 
 	LeftClick() {
 		let action = this.CustomAction();
-		if (action === 'select') NeiSelect(this.GetDisplayObject() as Goods);
+		if (action === 'select') {
+
+			NeiService.select(this.GetDisplayObject() as Goods);
+		}
 		if (action) return;
-		ShowNei(this.obj, ShowNeiMode.Production, null);
+		NeiService.show(this.obj, ShowNeiMode.Production, null);
 	}
 }
 
