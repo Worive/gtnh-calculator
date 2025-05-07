@@ -158,7 +158,7 @@ export class CalculatorEngine {
 				Math.floor(Math.log2(maxParallels / parallels) / 2)
 			);
 			let overclockSpeed = 1;
-			let overclockPower = 1;
+			let overclockPower = gtRecipe.amperage;
 			const perfectOverclocks = Math.min(
 				this.getParameter(machineInfo.perfectOverclock, recipeModel),
 				overclockTiers
