@@ -117,7 +117,7 @@ function PreProcessRecipe(recipeModel:RecipeModel, model:Model, collection:LinkC
         let parallels = Math.min(maxParallels, machineParallels);
         let overclockTiers = Math.min(recipeModel.voltageTier - gtRecipe.voltageTier, Math.floor(Math.log2(maxParallels / parallels) / 2));
         let overclockSpeed = 1;
-        let overclockPower = 1;
+        let overclockPower = gtRecipe.amperage;
         let perfectOverclocks = Math.min(GetParameter(machineInfo.perfectOverclock, recipeModel), overclockTiers);
         let normalOverclocks = overclockTiers - perfectOverclocks;
         if (perfectOverclocks > 0) {

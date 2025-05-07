@@ -20,10 +20,9 @@ try {
         import("./tooltip.js"),
         import("./nei.js"),
         import("./menu.js"),
-        import("./recipeList.js")
+        import("./recipeList.js"),
+        import("./page.js")
     ]);
-    let page = await import("./page.js");
-    page.UpdateProject();
     loading.remove();
 } catch (error:any) {
     loading.innerHTML = "An error occurred on loading:<br>" + error.message;

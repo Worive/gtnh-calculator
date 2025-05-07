@@ -27,4 +27,5 @@ npm start
 The code is under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 However, the project contains some assets from Minecraft (Mojang trademark and copyright), the GTNH development team, and respective mod authors. These assets are used under fair use.
+
 Font used: [F77 Minecraft by 123467](https://www.fontspace.com/f77-minecraft-font-f30628)
