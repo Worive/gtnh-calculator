@@ -4,6 +4,8 @@
     export let items: any[] = [];
     export let itemSize: number;
 
+    export let containerElement: HTMLDivElement | null = null;
+
     let containerWidth = 0;
     let containerHeight = 0;
     let scrollTop = 0;
@@ -55,7 +57,7 @@
      bind:clientHeight={containerHeight}
      on:scroll={handleScroll}
 >
-    <div class="scroll-content" style="height: {totalHeight}px;">
+    <div class="scroll-content" style="height: {totalHeight}px;" bind:this={containerElement}>
         {#each visibleItems as item, localIndex (item.id)}
             <div
                     class="virtual-item"
@@ -82,6 +84,13 @@
     .scroll-content {
         position: relative;
         width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 36px);
+        background-size: 36px;
+        background-image: url("/assets/images/Slot.png");
+        height: 41154px;
+        background-repeat: repeat;
+        image-rendering: pixelated;
     }
 
     .virtual-item {

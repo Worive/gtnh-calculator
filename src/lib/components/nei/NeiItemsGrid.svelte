@@ -7,6 +7,8 @@
     import {Item} from "$lib/core/data/models/Item";
     import VirtualScroll from "$lib/components/nei/VirtualScroll.svelte";
 
+    export let containerElement: HTMLDivElement | null = null;
+
     export let search: string;
     $: repository = $repositoryStore;
 
@@ -37,11 +39,9 @@
 </script>
 
 <div style="width: 100%; height: 80vh;">
-    <VirtualScroll items={goods} itemSize={38}>
-        <div slot="item" let:item>
-            <div class="icon-grid" style="--grid-pixel-width: 36px; --grid-pixel-height: 36px;">
-                <ItemIcon goodId="{item.id}"/>
-            </div>
+    <VirtualScroll items={goods} itemSize={36} bind:containerElement={containerElement}>
+        <div slot="item" let:item style="padding: 2px">
+            <ItemIcon dataId="{item.id}"/>
         </div>
     </VirtualScroll>
 </div>

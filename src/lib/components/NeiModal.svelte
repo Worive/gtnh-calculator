@@ -11,10 +11,47 @@
 	import {TooltipService} from "$lib/services/tooltip.service";
 	import {NeiService} from "$lib/services/nei.service";
 	import NeiItemsGrid from "$lib/components/nei/NeiItemsGrid.svelte";
+	import {afterUpdate, onDestroy, onMount, type SvelteComponent} from "svelte";
 
 	$: show = $neiStore.visible;
 
 	$: repository = $repositoryStore;
+
+	let panelContainer: HTMLDivElement;
+	let gridElement: HTMLDivElement;
+	const unit = 36;
+
+
+	$: if (gridElement) {
+		console.log('Actual DOM node:', gridElement); // This should log: <div class="scroll-content">...</div>
+	}
+
+	function snapWidth() {
+		if (!panelContainer) return;
+
+		const maxAllowedWidth = Math.floor(window.innerWidth * 0.9);
+
+		// Does the grid content overflow vertically? If yes, there's a scrollbar
+		const scrollbarWidth = gridElement.scrollHeight > gridElement.clientHeight
+				? window.innerWidth - document.documentElement.clientWidth
+				: 0;
+
+		const usableWidth = maxAllowedWidth - scrollbarWidth;
+
+		const snappedWidth = Math.floor(usableWidth / unit) * unit;
+		panelContainer.style.width = `${snappedWidth}px`;
+	}
+
+	afterUpdate(snapWidth)
+
+	onMount(() => {
+		snapWidth();
+		window.addEventListener('resize', snapWidth);
+	});
+
+	onDestroy(() => {
+		window.removeEventListener('resize', snapWidth);
+	});
 
 	var FillNeiAllRecipes: NeiFiller = function (
 			grid: NeiGrid,
@@ -89,7 +126,7 @@
 </script>
 
 {#if show}
-	<div id="nei" class="panel-tab-container">
+	<div id="nei" class="panel-tab-container" bind:this={panelContainer}>
 		<div class="panel-tab-bar">
 			<div id="nei-tabs" class="panel-tabs">
 				{#each tabs as tab, index}
@@ -114,7 +151,7 @@
 			</div>
 
 			{#if $neiStore.activeTabIndex === 0}
-				<NeiItemsGrid search={searchText}/>
+				<NeiItemsGrid search={searchText} bind:containerElement={gridElement}/>
 			{/if}
 
 		</div>
