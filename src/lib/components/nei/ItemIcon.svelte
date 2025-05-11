@@ -10,9 +10,11 @@
     import { globalCycle } from '$lib/stores/globalCycle';
     import { highlightedId } from '$lib/stores/highlightedId';
 
-    const { dataId, action } = $props<{
+    const { dataId, action, probability, amount } = $props<{
         dataId: string;
         action?: keyof typeof actions;
+        probability?: number | null;
+        amount?: number | null;
     }>();
 
     const actions = {
@@ -109,7 +111,16 @@
      on:click={handleLeftClick}
      class:item-icon-grid={!displayedGoods?.id}
      class:highlighted={$highlightedId === displayedGoods?.id}
-/>
+>
+    {#if probability}
+        <span class="item-probability">{Math.round(probability*100)}%</span>
+    {/if}
+
+    {#if amount !== null && amount !== 1}
+        <span class="item-amount">{amount}</span>
+    {/if}
+
+</div>
 
 <style>
     .item-icon {
@@ -126,5 +137,26 @@
     .highlighted {
         box-shadow: 0 0 0 2px #4CAF50;
         background-color: #4CAF5020;
+    }
+
+    .item-amount {
+        position: absolute;
+        bottom: -6px;
+        right: 1px;
+        font-size: 8px;
+        text-shadow: 1px 1px #342c34;
+        color: white;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    .item-probability {
+        position: absolute;
+        top: -5px;
+        right: 1px;
+        font-size: 8px;
+        color: #ffd700;
+        text-shadow: 1px 1px #342c34;
+        pointer-events: none;
     }
 </style>
