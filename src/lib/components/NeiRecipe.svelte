@@ -7,6 +7,7 @@
 	import type { RecipeInOut } from '$lib/types/models/Recipe';
 	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
 	import { formatAmount } from '$lib/utils/Formatting';
+	import McButton from "$lib/components/McButton.svelte";
 
 	export let recipe: Recipe;
 
@@ -43,7 +44,7 @@
 			<div class="arrow"></div>
 
 			{#if canSelectRecipe}
-				<button class="mc-button select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>
+				<McButton>+</McButton>
 			{/if}
 		</div>
 
@@ -90,8 +91,7 @@
 
 <style>
 	.nei-recipe-box {
-		left: 0;
-		top: 0;
 		padding: 5px;
+		position: unset;
 	}
 </style>

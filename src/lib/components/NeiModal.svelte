@@ -12,6 +12,9 @@
 	import { NeiService } from '$lib/services/nei.service';
 	import NeiItemsGrid from '$lib/components/nei/NeiItemsGrid.svelte';
 	import { afterUpdate, onDestroy, onMount, type SvelteComponent } from 'svelte';
+	import {Goods} from "$lib/core/data/models/Goods";
+	import NeiRecipe from "$lib/components/NeiRecipe.svelte";
+	import {Recipe} from "$lib/core/data/models/Recipe";
 
 	$: show = $neiStore.visible;
 
@@ -158,7 +161,32 @@
 
 			{#if $neiStore.activeTabIndex === 0}
 				<NeiItemsGrid search={searchText} bind:containerElement={gridElement} />
+
+			{:else if $neiStore.activeTabIndex === 1}
+
+				<div class="recipe-list">
+					{#if $neiStore.currentGoods instanceof Goods}
+						{#each Array.from($neiStore.currentGoods.production)
+								.map((pointer) => $repositoryStore?.GetObject(pointer, Recipe))
+								as recipe}
+							{#if recipe}
+								<NeiRecipe recipe={recipe}/>
+							{/if}
+						{/each}
+					{/if}
+				</div>
+
 			{/if}
+
+
 		</div>
 	</div>
 {/if}
+
+<style>
+	.recipe-list {
+		display:flex;
+		flex-wrap: wrap;
+		overflow-y: scroll;
+	}
+</style>
