@@ -299,8 +299,8 @@ function ShowNeiInternal(goods: RecipeObject | null, mode: ShowNeiMode, tabIndex
 	neiStore.update((state) => ({
 		...state,
 		currentMode: mode,
-		currentGoods: goods,
-	}))
+		currentGoods: goods
+	}));
 
 	let recipes: Set<Recipe> = new Set();
 	if (goods instanceof OreDict) {

@@ -1,11 +1,11 @@
-import {writable} from 'svelte/store';
-import type {ShowNeiCallback} from '$lib/types/show-nei-callback';
-import type {RecipeType} from '$lib/core/data/models/RecipeType';
-import type {NeiHistory} from '$lib/types/nei-history';
-import type {NeiRecipeMap} from '$lib/types/nei-recipe-map';
-import type {RecipeObject} from "$lib/core/data/models/RecipeObject";
-import {ShowNeiMode} from "$lib/types/enums/ShowNeiMode";
-import type {NeiGrid} from "$lib/core/data/models/NeiGrid";
+import { writable } from 'svelte/store';
+import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
+import type { RecipeType } from '$lib/core/data/models/RecipeType';
+import type { NeiHistory } from '$lib/types/nei-history';
+import type { NeiRecipeMap } from '$lib/types/nei-recipe-map';
+import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import type { NeiGrid } from '$lib/core/data/models/NeiGrid';
 
 type NeiStore = {
 	mapRecipeTypeToRecipeList: NeiRecipeMap;
@@ -30,5 +30,5 @@ export const neiStore = writable<NeiStore>({
 	currentMode: ShowNeiMode.Production,
 	activeTabIndex: 0,
 	search: null,
-	currentGrid: null,
+	currentGrid: null
 });

@@ -28,7 +28,7 @@ import { formatAmount } from '$lib/utils/Formatting';
 import { get } from 'svelte/store';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { repositoryStore } from '$lib/stores/repository.store';
-import {NeiService} from "$lib/services/nei.service";
+import { NeiService } from '$lib/services/nei.service';
 
 export class RecipeList {
 	static current: RecipeList;

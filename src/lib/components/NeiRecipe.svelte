@@ -1,89 +1,97 @@
 <script lang="ts">
-    import type {Recipe} from "$lib/core/data/models/Recipe";
-    import {get} from "svelte/store";
-    import {neiStore} from "$lib/stores/nei.store";
-    import NeiRecipeItemGrid from "$lib/components/nei/NeiRecipeItemGrid.svelte";
-    import {RecipeIoType} from "$lib/types/enums/RecipeIoType";
-    import type {RecipeInOut} from "$lib/types/models/Recipe";
-    import {voltageTier} from "$lib/types/constants/voltageTiers.const";
-    import {formatAmount} from "$lib/utils/Formatting";
+	import type { Recipe } from '$lib/core/data/models/Recipe';
+	import { get } from 'svelte/store';
+	import { neiStore } from '$lib/stores/nei.store';
+	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';
+	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
+	import type { RecipeInOut } from '$lib/types/models/Recipe';
+	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
+	import { formatAmount } from '$lib/utils/Formatting';
 
-    export let recipe: Recipe;
+	export let recipe: Recipe;
 
-    const recipeType = recipe.recipeType;
-    const builder = get(neiStore).mapRecipeTypeToRecipeList[recipeType.name];
+	const recipeType = recipe.recipeType;
+	const builder = get(neiStore).mapRecipeTypeToRecipeList[recipeType.name];
 
-    const showNeiCallback = get(neiStore).showNeiCallback;
-    const canSelectRecipe = showNeiCallback?.onSelectRecipe != null;
+	const showNeiCallback = get(neiStore).showNeiCallback;
+	const canSelectRecipe = showNeiCallback?.onSelectRecipe != null;
 
-    function itemsFilteredByType(items: RecipeInOut[], types: RecipeIoType[]): RecipeInOut[] {
-        return items.filter((item) => types.includes(item.type));
-    }
+	function itemsFilteredByType(items: RecipeInOut[], types: RecipeIoType[]): RecipeInOut[] {
+		return items.filter((item) => types.includes(item.type));
+	}
 </script>
 
 <div class="nei-recipe-box">
-    <div class="nei-recipe-io">
-        <div class="nei-recipe-items">
-            <NeiRecipeItemGrid
-                    items={itemsFilteredByType(recipe.items, [RecipeIoType.OreDictInput, RecipeIoType.ItemInput])}
-                    recipeTypeInfo={builder}
-            />
+	<div class="nei-recipe-io">
+		<div class="nei-recipe-items">
+			<NeiRecipeItemGrid
+				items={itemsFilteredByType(recipe.items, [
+					RecipeIoType.OreDictInput,
+					RecipeIoType.ItemInput
+				])}
+				recipeTypeInfo={builder}
+			/>
 
-            <NeiRecipeItemGrid
-                    items={itemsFilteredByType(recipe.items, [RecipeIoType.FluidInput])}
-                    recipeTypeInfo={builder}
-                    dimensionOffset={2}
-            />
-        </div>
+			<NeiRecipeItemGrid
+				items={itemsFilteredByType(recipe.items, [RecipeIoType.FluidInput])}
+				recipeTypeInfo={builder}
+				dimensionOffset={2}
+			/>
+		</div>
 
-        <div class="arrow-container">
-            <div class="arrow"></div>
+		<div class="arrow-container">
+			<div class="arrow"></div>
 
-            {#if canSelectRecipe}
-                <button class="mc-button select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>
-            {/if}
-        </div>
+			{#if canSelectRecipe}
+				<button class="mc-button select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>
+			{/if}
+		</div>
 
-        <div class="nei-recipe-items">
-            <NeiRecipeItemGrid
-                    items={itemsFilteredByType(recipe.items, [RecipeIoType.ItemOutput])}
-                    recipeTypeInfo={builder}
-                    dimensionOffset={4}
-            />
-            <NeiRecipeItemGrid
-                    items={itemsFilteredByType(recipe.items, [RecipeIoType.FluidOutput])}
-                    recipeTypeInfo={builder}
-                    dimensionOffset={6}
-            />
-        </div>
-    </div>
+		<div class="nei-recipe-items">
+			<NeiRecipeItemGrid
+				items={itemsFilteredByType(recipe.items, [RecipeIoType.ItemOutput])}
+				recipeTypeInfo={builder}
+				dimensionOffset={4}
+			/>
+			<NeiRecipeItemGrid
+				items={itemsFilteredByType(recipe.items, [RecipeIoType.FluidOutput])}
+				recipeTypeInfo={builder}
+				dimensionOffset={6}
+			/>
+		</div>
+	</div>
 
-    {#if recipe.gtRecipe}
-            <span>
-                {voltageTier[recipe.gtRecipe.voltageTier].name}
-                • {recipe.gtRecipe.durationSeconds}s
-                {#if recipe.gtRecipe.cleanRoom} • Cleanroom{/if}
-                {#if recipe.gtRecipe.lowGravity} • Low gravity{/if}
-                {#if recipe.gtRecipe.amperage !== 1} • {recipe.gtRecipe.amperage}A{/if}
-            </span>
+	{#if recipe.gtRecipe}
+		<span>
+			{voltageTier[recipe.gtRecipe.voltageTier].name}
+			• {recipe.gtRecipe.durationSeconds}s
+			{#if recipe.gtRecipe.cleanRoom}
+				• Cleanroom{/if}
+			{#if recipe.gtRecipe.lowGravity}
+				• Low gravity{/if}
+			{#if recipe.gtRecipe.amperage !== 1}
+				• {recipe.gtRecipe.amperage}A{/if}
+		</span>
 
-        <span class="text-small">
-                {formatAmount(recipe.gtRecipe.voltage)}v •
-            {formatAmount(recipe.gtRecipe.voltage * recipe.gtRecipe.amperage * recipe.gtRecipe.durationTicks)}eu
-            </span>
+		<span class="text-small">
+			{formatAmount(recipe.gtRecipe.voltage)}v •
+			{formatAmount(
+				recipe.gtRecipe.voltage * recipe.gtRecipe.amperage * recipe.gtRecipe.durationTicks
+			)}eu
+		</span>
 
-        {#if recipe.gtRecipe.additionalInfo}
-                <span class="text-small">
-                  {recipe.gtRecipe.additionalInfo}
-                </span>
-        {/if}
-    {/if}
+		{#if recipe.gtRecipe.additionalInfo}
+			<span class="text-small">
+				{recipe.gtRecipe.additionalInfo}
+			</span>
+		{/if}
+	{/if}
 </div>
 
 <style>
-    .nei-recipe-box {
-        left: 0;
-        top: 0;
-        padding: 5px;
-    }
+	.nei-recipe-box {
+		left: 0;
+		top: 0;
+		padding: 5px;
+	}
 </style>

@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { neiStore } from '$lib/stores/nei.store';
-	import type {NeiTab} from "$lib/types/nei-tab";
-	import {Item} from "$lib/core/data/models/Item";
-	import {get} from "svelte/store";
-	import {repositoryStore} from "$lib/stores/repository.store";
-	import {SearchQuery} from "$lib/core/data/models/SearchQuery";
-	import type {NeiFiller} from "$lib/types/nei-filler";
-	import {NeiGrid} from "$lib/core/data/models/NeiGrid";
-	import type {NeiRecipeMap} from "$lib/types/nei-recipe-map";
-	import {TooltipService} from "$lib/services/tooltip.service";
-	import {NeiService} from "$lib/services/nei.service";
-	import NeiItemsGrid from "$lib/components/nei/NeiItemsGrid.svelte";
-	import {afterUpdate, onDestroy, onMount, type SvelteComponent} from "svelte";
+	import type { NeiTab } from '$lib/types/nei-tab';
+	import { Item } from '$lib/core/data/models/Item';
+	import { get } from 'svelte/store';
+	import { repositoryStore } from '$lib/stores/repository.store';
+	import { SearchQuery } from '$lib/core/data/models/SearchQuery';
+	import type { NeiFiller } from '$lib/types/nei-filler';
+	import { NeiGrid } from '$lib/core/data/models/NeiGrid';
+	import type { NeiRecipeMap } from '$lib/types/nei-recipe-map';
+	import { TooltipService } from '$lib/services/tooltip.service';
+	import { NeiService } from '$lib/services/nei.service';
+	import NeiItemsGrid from '$lib/components/nei/NeiItemsGrid.svelte';
+	import { afterUpdate, onDestroy, onMount, type SvelteComponent } from 'svelte';
 
 	$: show = $neiStore.visible;
 
@@ -20,7 +20,6 @@
 	let panelContainer: HTMLDivElement;
 	let gridElement: HTMLDivElement;
 	const unit = 36;
-
 
 	$: if (gridElement) {
 		console.log('Actual DOM node:', gridElement); // This should log: <div class="scroll-content">...</div>
@@ -32,7 +31,8 @@
 		const maxAllowedWidth = Math.floor(window.innerWidth * 0.9);
 
 		// Does the grid content overflow vertically? If yes, there's a scrollbar
-		const scrollbarWidth = gridElement.scrollHeight > gridElement.clientHeight
+		const scrollbarWidth =
+			gridElement.scrollHeight > gridElement.clientHeight
 				? window.innerWidth - document.documentElement.clientWidth
 				: 0;
 
@@ -42,7 +42,7 @@
 		panelContainer.style.width = `${snappedWidth}px`;
 	}
 
-	afterUpdate(snapWidth)
+	afterUpdate(snapWidth);
 
 	onMount(() => {
 		snapWidth();
@@ -54,9 +54,9 @@
 	});
 
 	var FillNeiAllRecipes: NeiFiller = function (
-			grid: NeiGrid,
-			search: SearchQuery | null,
-			recipes: NeiRecipeMap
+		grid: NeiGrid,
+		search: SearchQuery | null,
+		recipes: NeiRecipeMap
 	) {
 		for (const recipeType of get(neiStore).allRecipeTypes) {
 			var list = recipes[recipeType.name];
@@ -91,18 +91,18 @@
 					filler: null,
 					iconId: value!.GetObject(value!.service[0], Item).iconId,
 					isVisible: () => true,
-					dom: null,
+					dom: null
 				},
 				{
 					name: 'All Recipes',
 					filler: FillNeiAllRecipes,
 					iconId: value!.GetObject(value!.service[1], Item).iconId,
 					isVisible: () => get(neiStore).currentGoods !== null,
-					dom: null,
+					dom: null
 				}
-			]
+			];
 		}
-	})
+	});
 
 	function switchTab(index: number): void {
 		const activeTabIndex = get(neiStore).activeTabIndex;
@@ -122,7 +122,7 @@
 		return activeTabIndex === index;
 	}
 
-	let searchText = "";
+	let searchText = '';
 </script>
 
 {#if show}
@@ -130,11 +130,17 @@
 		<div class="panel-tab-bar">
 			<div id="nei-tabs" class="panel-tabs">
 				{#each tabs as tab, index}
-					<div class="panel-tab {isTabActive(index) ? 'active' : ''}"
-						 bind:this={tab.dom}
-						 on:click={() => switchTab(index)}
-						 on:mouseenter={() => TooltipService.show(tab.dom, { header: tab.name})}>
-						<icon class="icon" style="--pos-x:{tab.iconId%256*-32}px; --pos-y:{Math.floor(tab.iconId / 256)*-32}px"></icon>
+					<div
+						class="panel-tab {isTabActive(index) ? 'active' : ''}"
+						bind:this={tab.dom}
+						on:click={() => switchTab(index)}
+						on:mouseenter={() => TooltipService.show(tab.dom, { header: tab.name })}
+					>
+						<icon
+							class="icon"
+							style="--pos-x:{(tab.iconId % 256) * -32}px; --pos-y:{Math.floor(tab.iconId / 256) *
+								-32}px"
+						></icon>
 					</div>
 				{/each}
 			</div>
@@ -151,9 +157,8 @@
 			</div>
 
 			{#if $neiStore.activeTabIndex === 0}
-				<NeiItemsGrid search={searchText} bind:containerElement={gridElement}/>
+				<NeiItemsGrid search={searchText} bind:containerElement={gridElement} />
 			{/if}
-
 		</div>
 	</div>
 {/if}

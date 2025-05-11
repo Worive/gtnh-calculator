@@ -4,13 +4,13 @@ import { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
 import { RecipeType } from '$lib/core/data/models/RecipeType';
 import { Recipe } from '$lib/core/data/models/Recipe';
 import { repositoryStore } from '$lib/stores/repository.store';
-import type {RecipeObject} from "$lib/core/data/models/RecipeObject";
-import {ShowNeiMode} from "$lib/types/enums/ShowNeiMode";
-import type {ShowNeiCallback} from "$lib/types/show-nei-callback";
-import {OreDict} from "$lib/core/data/models/OreDict";
-import {Fluid} from "$lib/core/data/models/Fluid";
-import {Item} from "$lib/core/data/models/Item";
-import {Goods} from "$lib/core/data/models/Goods";
+import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
+import { OreDict } from '$lib/core/data/models/OreDict';
+import { Fluid } from '$lib/core/data/models/Fluid';
+import { Item } from '$lib/core/data/models/Item';
+import { Goods } from '$lib/core/data/models/Goods';
 
 export class NeiService {
 	static initialize() {
@@ -40,9 +40,11 @@ export class NeiService {
 		return builder.BuildRowDom([recipe], width, height, 0);
 	}
 
-	static show(goods: RecipeObject | null,
-				mode: ShowNeiMode,
-				callback: ShowNeiCallback | null = null): void {
+	static show(
+		goods: RecipeObject | null,
+		mode: ShowNeiMode,
+		callback: ShowNeiCallback | null = null
+	): void {
 		console.debug('ShowNei', goods, mode, callback);
 
 		if (callback != null) {
@@ -81,12 +83,16 @@ export class NeiService {
 		this.showNeiInternal(goods, mode);
 	}
 
-	private static showNeiInternal(goods: RecipeObject | null, mode: ShowNeiMode, tabIndex: number = -1): void {
+	private static showNeiInternal(
+		goods: RecipeObject | null,
+		mode: ShowNeiMode,
+		tabIndex: number = -1
+	): void {
 		neiStore.update((state) => ({
 			...state,
 			currentMode: mode,
-			currentGoods: goods,
-		}))
+			currentGoods: goods
+		}));
 
 		let recipes: Set<Recipe> = new Set();
 		if (goods instanceof OreDict) {
@@ -116,15 +122,15 @@ export class NeiService {
 
 		neiStore.update((state) => ({
 			...state,
-			search: null,
+			search: null
 		}));
 
 		const newTabIndex = tabIndex === -1 ? (goods === null ? 0 : 1) : tabIndex;
 
 		neiStore.update((state) => ({
 			...state,
-			activeTabIndex: newTabIndex,
-		}))
+			activeTabIndex: newTabIndex
+		}));
 	}
 
 	private static getAllOreDictRecipes(set: Set<Recipe>, goods: OreDict, mode: ShowNeiMode): void {

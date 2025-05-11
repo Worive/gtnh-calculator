@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { tooltipStore } from '../stores/tooltip.store';
 	import { NeiService } from '$lib/services/nei.service';
-	import NeiRecipe from "$lib/components/NeiRecipe.svelte";
+	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
 
 	let tooltipElement: HTMLElement;
 	let position = { left: 0, top: 0 };
@@ -66,7 +66,7 @@
 		{#if $tooltipStore.content?.recipe}
 			<div id="tooltip-recipe">
 				{#if $tooltipStore.content !== null}
-					<NeiRecipe recipe={$tooltipStore.content.recipe}/>
+					<NeiRecipe recipe={$tooltipStore.content.recipe} />
 				{/if}
 			</div>
 		{/if}

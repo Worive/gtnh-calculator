@@ -1,5 +1,5 @@
-import type {NeiGridContents} from "$lib/types/nei-grid-contents";
+import type { NeiGridContents } from '$lib/types/nei-grid-contents';
 
 export interface NeiGridAllocator<T extends NeiGridContents> {
-    Add(element: T): void;
+	Add(element: T): void;
 }

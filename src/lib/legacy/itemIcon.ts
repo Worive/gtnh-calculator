@@ -5,7 +5,7 @@ import { Goods } from '$lib/core/data/models/Goods';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { get } from 'svelte/store';
 import { repositoryStore } from '$lib/stores/repository.store';
-import {NeiService} from "$lib/services/nei.service";
+import { NeiService } from '$lib/services/nei.service';
 
 // Global cycling state
 let globalIndex = 0;
@@ -160,7 +160,6 @@ export class IconBox extends HTMLElement {
 	LeftClick() {
 		let action = this.CustomAction();
 		if (action === 'select') {
-
 			NeiService.select(this.GetDisplayObject() as Goods);
 		}
 		if (action) return;

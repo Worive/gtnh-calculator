@@ -1,3 +1,3 @@
 import { writable } from 'svelte/store';
 
-export const highlightedId = writable<string|null>(null);
+export const highlightedId = writable<string | null>(null);
