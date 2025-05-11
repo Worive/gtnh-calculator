@@ -59,5 +59,26 @@
             />
         </div>
     </div>
+
+    {#if recipe.gtRecipe}
+            <span>
+                {voltageTier[recipe.gtRecipe.voltageTier].name}
+                • {recipe.gtRecipe.durationSeconds}s
+                {#if recipe.gtRecipe.cleanRoom} • Cleanroom{/if}
+                {#if recipe.gtRecipe.lowGravity} • Low gravity{/if}
+                {#if recipe.gtRecipe.amperage !== 1} • {recipe.gtRecipe.amperage}A{/if}
+            </span>
+
+        <span class="text-small">
+                {formatAmount(recipe.gtRecipe.voltage)}v •
+            {formatAmount(recipe.gtRecipe.voltage * recipe.gtRecipe.amperage * recipe.gtRecipe.durationTicks)}eu
+            </span>
+
+        {#if recipe.gtRecipe.additionalInfo}
+                <span class="text-small">
+                  {recipe.gtRecipe.additionalInfo}
+                </span>
+        {/if}
+    {/if}
 </div>
 {@html builder.BuildRowDom([recipe], width, height, 0)}
