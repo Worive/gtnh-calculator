@@ -105,10 +105,10 @@
 <div class="item-icon"
      bind:this={node}
      style="--pos-x: {posX}px; --pos-y: {posY}px;"
-     on:mouseenter={handleMouseEnter}
-     on:mouseleave={handleMouseLeave}
-     on:contextmenu={handleRightClick}
-     on:click={handleLeftClick}
+     onmouseenter={handleMouseEnter}
+     onmouseleave={handleMouseLeave}
+     oncontextmenu={handleRightClick}
+     onclick={handleLeftClick}
      class:item-icon-grid={!displayedGoods?.id}
      class:highlighted={$highlightedId === displayedGoods?.id}
 >
@@ -124,6 +124,7 @@
 
 <style>
     .item-icon {
+        all: unset;
         display: inline-block;
         width: 32px;
         height: 32px;
