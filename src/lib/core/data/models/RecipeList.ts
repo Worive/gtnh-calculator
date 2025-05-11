@@ -678,7 +678,7 @@ export class RecipeList {
                 ${this.renderIoInfo(recipeModel.flow, group)}
                 <td>
                     <div class="icon-container">
-                        <button class="delete-btn" data-iid="${recipeModel.iid}" data-action="delete_recipe">x</button>
+                        <button class="mc-button delete-btn" data-iid="${recipeModel.iid}" data-action="delete_recipe">x</button>
                     </div>
                 </td>
             </tr>
@@ -694,7 +694,7 @@ export class RecipeList {
             <tr class="recipe-group collapsed" data-iid="${group.iid}" draggable="true">
                 <td>
                     <div class="icon-container">
-                        <button class="expand-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
+                        <button class="mc-button expand-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
                     </div>
                 </td>
                 <td>
@@ -705,7 +705,7 @@ export class RecipeList {
                 ${this.renderIoInfo(group.flow, parentGroup)}
                 <td>
                     <div class="icon-container">
-                        <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group">x</button>
+                        <button class="mc-button delete-btn" data-iid="${group.iid}" data-action="delete_group">x</button>
                     </div>
                 </td>
             </tr>
@@ -721,7 +721,7 @@ export class RecipeList {
                         <tr>
                             <th class="icon-cell">
                                 <div class="icon-container">
-                                    <button class="collapse-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
+                                    <button class="mc-button collapse-btn icon-button" data-iid="${group.iid}" data-action="toggle_collapse"></button>
                                 </div>
                             </th>
                             <th class="short-info-cell">
@@ -734,7 +734,7 @@ export class RecipeList {
                             <th class="outputs-cell">OUTPUTS/${page.settings.timeUnit}</th>
                             <th class="action-cell">
                                 <div class="icon-container">
-                                    <button class="delete-btn" data-iid="${group.iid}" data-action="delete_group">x</button>
+                                    <button class="mc-button delete-btn" data-iid="${group.iid}" data-action="delete_group">x</button>
                                 </div>
                             </th>
                         </tr>
@@ -929,12 +929,12 @@ export class RecipeList {
                         <input type="number" class="amount" value="${product.amount / page.timeScale}" step="0" data-iid="${product.iid}" data-action="update_amount">
                         <span class="amount-unit">/${page.settings.timeUnit}</span>
                         ${goods?.name ?? 'Unknown product: ' + product.goodsId}
-                        <button class="delete-btn" data-iid="${product.iid}" data-action="delete_product">x</button>
+                        <button class="mc-button delete-btn" data-iid="${product.iid}" data-action="delete_product">x</button>
                     </div>
                 `;
 							})
 							.join('')}
-            <button class="add-product-btn" data-action="add_product" data-iid="0">Add Product</button>
+            <button class="mc-button add-product-btn" data-action="add_product" data-iid="0">Add Product</button>
         `;
 	}
 

@@ -129,12 +129,12 @@ export class PageManager {
                                value="${pageName}"
                                data-action="rename-page"
                                data-page-name="${pageName}">
-                        <button class="delete-btn" data-action="delete-page" data-page-name="${pageName}">x</button>
+                        <button class="mc-button delete-btn" data-action="delete-page" data-page-name="${pageName}">x</button>
                     </div>
                 `;
 				} else {
 					return `
-                    <button class="page-button"
+                    <button class="mc-button page-button"
                             data-action="switch-page"
                             data-page-name="${pageName}">
                         ${pageName}

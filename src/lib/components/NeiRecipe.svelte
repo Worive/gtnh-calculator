@@ -29,7 +29,7 @@
             <div class="arrow"></div>
 
             {#if canSelectRecipe}
-                <button class="select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>
+                <button class="mc-button select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>
             {/if}
         </div>
     </div>

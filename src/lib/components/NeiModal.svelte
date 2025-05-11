@@ -144,10 +144,10 @@
 				Search:
 				<input id="nei-search" placeholder="Start typing for search" bind:value={searchText} />
 				{#if $neiStore.history.length > 0}
-					<button id="nei-back">←</button>
+					<button class="mc-button" id="nei-back">←</button>
 				{/if}
 
-				<button id="nei-close" on:click={() => NeiService.hide()}>x</button>
+				<button class="mc-button" id="nei-close" on:click={() => NeiService.hide()}>x</button>
 			</div>
 
 			{#if $neiStore.activeTabIndex === 0}

@@ -10,7 +10,7 @@
 </script>
 
 <div style="height: 100%">
-	<button class="menu-toggle">☰</button>
+	<button class="mc-button menu-toggle">☰</button>
 
 	<div id="main">
 		<div id="menu" class="menu-container visible">
@@ -41,7 +41,7 @@
 				<h2>New Page</h2>
 				<div class="new-page-form">
 					<input type="text" data-action="page-name-input" placeholder="Page name" />
-					<button data-action="create-page">Create</button>
+					<button class="mc-button" data-action="create-page">Create</button>
 				</div>
 			</div>
 		</div>

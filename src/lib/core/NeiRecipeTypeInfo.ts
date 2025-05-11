@@ -125,7 +125,7 @@ export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> 
 			dom.push(`<div class="arrow"></div>`);
 			if (canSelectRecipe) {
 				dom.push(
-					`<button class="select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>`
+					`<button class="mc-button" class="select-recipe-btn" data-recipe="${recipe.objectOffset}">+</button>`
 				);
 			}
 			dom.push(`</div>`);

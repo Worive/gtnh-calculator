@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { dialogStore } from '../stores/dialog.store';
+	import McButton from "$lib/components/McButton.svelte";
 
 	function handleClick(result: 'option1' | 'option2' | 'cancel') {
 		$dialogStore.resolver?.(result);
@@ -12,19 +13,19 @@
 		<p id="confirm-text">{$dialogStore.options.text}</p>
 		<div class="hgroup">
 			{#if $dialogStore.options.option1}
-				<button id="confirm-yes" on:click={() => handleClick('option1')}>
+				<McButton id="confirm-yes" on:click={() => handleClick('option1')}>
 					{$dialogStore.options.option1}
-				</button>
+				</McButton>
 			{/if}
 			{#if $dialogStore.options.option2}
-				<button id="confirm-no" on:click={() => handleClick('option2')}>
+				<McButton id="confirm-no" on:click={() => handleClick('option2')}>
 					{$dialogStore.options.option2}
-				</button>
+				</McButton>
 			{/if}
 			{#if $dialogStore.options.cancel}
-				<button id="confirm-cancel" on:click={() => handleClick('cancel')}>
+				<McButton id="confirm-cancel" on:click={() => handleClick('cancel')}>
 					{$dialogStore.options.cancel}
-				</button>
+				</McButton>
 			{/if}
 		</div>
 	</div>
