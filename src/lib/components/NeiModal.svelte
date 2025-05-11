@@ -24,10 +24,6 @@
 	let gridElement: HTMLDivElement;
 	const unit = 36;
 
-	$: if (gridElement) {
-		console.log('Actual DOM node:', gridElement); // This should log: <div class="scroll-content">...</div>
-	}
-
 	function snapWidth() {
 		if (!panelContainer) return;
 

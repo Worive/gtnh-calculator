@@ -107,7 +107,6 @@
 <button
 	class="item-icon"
 	bind:this={node}
-	style="--pos-x: {posX}px; --pos-y: {posY}px;"
 	onmouseenter={handleMouseEnter}
 	onmouseleave={handleMouseLeave}
 	oncontextmenu={handleRightClick}
