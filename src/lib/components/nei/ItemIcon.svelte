@@ -102,7 +102,7 @@
     }
 </script>
 
-<div class="item-icon"
+<button class="item-icon"
      bind:this={node}
      style="--pos-x: {posX}px; --pos-y: {posY}px;"
      onmouseenter={handleMouseEnter}
@@ -120,7 +120,7 @@
         <span class="item-amount">{amount}</span>
     {/if}
 
-</div>
+</button>
 
 <style>
     .item-icon {
