@@ -133,6 +133,7 @@
         cursor: pointer;
         image-rendering: crisp-edges;
         contain: strict;
+        margin:auto;
     }
 
     .highlighted {
