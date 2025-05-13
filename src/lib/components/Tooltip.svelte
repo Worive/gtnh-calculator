@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { tooltipStore } from '../stores/tooltip.store';
-	import { NeiService } from '$lib/services/nei.service';
 	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
 
 	let tooltipElement: HTMLElement;
@@ -83,7 +82,7 @@
 		border-width: 2px;
 		text-shadow: 2px 2px #342c34;
 		display: table;
-		padding: 2px 10px 0;
+		padding: 5px 10px;
 		position: absolute;
 		box-shadow: inset 0 0 0 2px #4300d650;
 	}
