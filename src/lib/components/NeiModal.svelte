@@ -15,6 +15,7 @@
 	import {Goods} from "$lib/core/data/models/Goods";
 	import NeiRecipe from "$lib/components/NeiRecipe.svelte";
 	import {Recipe} from "$lib/core/data/models/Recipe";
+	import NeiRecipeTab from "$lib/components/nei/NeiRecipeTab.svelte";
 
 	$: show = $neiStore.visible;
 
@@ -120,8 +121,6 @@
 
 		return activeTabIndex === index;
 	}
-
-	let searchText = '';
 </script>
 
 {#if show}
@@ -147,7 +146,7 @@
 		<div class="panel">
 			<div class="hgroup">
 				Search:
-				<input id="nei-search" placeholder="Start typing for search" bind:value={searchText} />
+				<input id="nei-search" placeholder="Start typing for search" bind:value={$neiStore.search} />
 				{#if $neiStore.history.length > 0}
 					<button class="mc-button" id="nei-back">←</button>
 				{/if}
@@ -156,7 +155,7 @@
 			</div>
 
 			{#if $neiStore.activeTabIndex === 0}
-				<NeiItemsTab search={searchText} bind:containerElement={gridElement} />
+				<NeiItemsTab bind:containerElement={gridElement} />
 
 			{:else if $neiStore.activeTabIndex === 1}
 
@@ -178,11 +177,3 @@
 		</div>
 	</div>
 {/if}
-
-<style>
-	.recipe-list {
-		display:flex;
-		flex-wrap: wrap;
-		overflow-y: scroll;
-	}
-</style>
