@@ -9,13 +9,11 @@
 	import type { GroupedRecipe } from '$lib/types/grouped-recipe';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 
-	$: search = $neiStore.search;
-
 	$: mode = $neiStore.currentMode;
 
-	$: groupedRecipes = getGroupedRecipes();
+	$: groupedRecipes = getGroupedRecipes($neiStore.search);
 
-	function getGroupedRecipes(): GroupedRecipe {
+	function getGroupedRecipes(search: string | null): GroupedRecipe {
 		if ($neiStore.currentGoods instanceof Goods) {
 			let goods: Int32Array;
 
