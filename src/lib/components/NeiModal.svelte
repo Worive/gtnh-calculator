@@ -153,7 +153,7 @@
 					<McButton on:click={() => NeiService.back()}>←</McButton>
 				{/if}
 
-				<button class="mc-button" id="nei-close" on:click={() => NeiService.hide()}>x</button>
+				<McButton on:click={() => NeiService.hide()}>x</McButton>
 			</div>
 
 			{#if $neiStore.activeTabIndex === 0}
