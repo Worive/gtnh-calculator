@@ -6,14 +6,16 @@
 	import { repositoryStore } from '$lib/stores/repository.store.js';
 	import { SearchQuery } from '$lib/core/data/models/SearchQuery.js';
 	import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+	import type { GroupedRecipe } from '$lib/types/grouped-recipe';
+	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 
 	$: search = $neiStore.search;
 
 	$: mode = $neiStore.currentMode;
 
-	$: recipes = getRecipes();
+	$: groupedRecipes = getGroupedRecipes();
 
-	function getRecipes() {
+	function getGroupedRecipes(): GroupedRecipe {
 		if ($neiStore.currentGoods instanceof Goods) {
 			let goods: Int32Array;
 
@@ -27,27 +29,75 @@
 
 			return Array.from(goods)
 				.map((pointer) => $repositoryStore?.GetObject(pointer, Recipe))
-				.filter((recipe) => recipe !== undefined)
-				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true));
+				.filter((recipe): recipe is Recipe => recipe !== undefined)
+				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true))
+				.reduce((result: GroupedRecipe, recipe: Recipe) => {
+					const key = recipe.recipeType.name;
+
+					if (!result[key]) {
+						result[key] = {
+							type: recipe.recipeType,
+							recipes: []
+						};
+					}
+
+					result[key].recipes.push(recipe);
+					return result;
+				}, {} as GroupedRecipe);
 		}
 
-		return [];
+		return {};
 	}
 </script>
 
 <div class="recipe-list">
-	{#each recipes as recipe}
-		{#if recipe}
-			<NeiRecipe {recipe} />
-		{/if}
+	{#each Object.entries(groupedRecipes) as [recipeTypeName, groupedRecipe]}
+		<div class="recipe-group">
+			<div class="header">
+				<div class="recipe-group-machines">
+					{#each groupedRecipe.type.singleblocks as block}
+						<ItemIcon dataId={block.id} />
+					{/each}
+
+					{#each groupedRecipe.type.multiblocks as block}
+						<ItemIcon dataId={block.id} />
+					{/each}
+				</div>
+				<p>{recipeTypeName}</p>
+			</div>
+
+			<div class="recipe-group-recipes">
+				{#each groupedRecipe.recipes as recipe}
+					{#if recipe}
+						<NeiRecipe {recipe} />
+					{/if}
+				{/each}
+			</div>
+		</div>
 	{/each}
 </div>
 
 <style>
 	.recipe-list {
-		display: flex;
 		max-height: 80vh;
-		flex-wrap: wrap;
 		overflow-y: scroll;
+	}
+
+	.header {
+		display: inline-flex;
+	}
+
+	.recipe-group-recipes {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+
+	.recipe-group-machines {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px;
+		margin: 0 5px;
+		width: fit-content;
 	}
 </style>
