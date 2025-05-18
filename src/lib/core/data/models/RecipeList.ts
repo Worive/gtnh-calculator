@@ -350,6 +350,8 @@ export class RecipeList {
 		document.addEventListener(
 			'mouseenter',
 			(e) => {
+				if (!(e.target instanceof HTMLElement)) return;
+
 				const element = (e.target as HTMLElement).closest('[data-tooltip]');
 				if (element) {
 					const tooltip = element.getAttribute('data-tooltip');
