@@ -158,19 +158,7 @@
 				<NeiItemsTab bind:containerElement={gridElement} />
 
 			{:else if $neiStore.activeTabIndex === 1}
-
-				<div class="recipe-list">
-					{#if $neiStore.currentGoods instanceof Goods}
-						{#each Array.from($neiStore.currentGoods.production)
-								.map((pointer) => $repositoryStore?.GetObject(pointer, Recipe))
-								as recipe}
-							{#if recipe}
-								<NeiRecipe recipe={recipe}/>
-							{/if}
-						{/each}
-					{/if}
-				</div>
-
+				<NeiRecipeTab/>
 			{/if}
 
 
