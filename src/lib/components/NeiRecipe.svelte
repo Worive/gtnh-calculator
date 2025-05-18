@@ -7,7 +7,7 @@
 	import type { RecipeInOut } from '$lib/types/models/Recipe';
 	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
 	import { formatAmount } from '$lib/utils/Formatting';
-	import McButton from "$lib/components/McButton.svelte";
+	import McButton from '$lib/components/McButton.svelte';
 
 	export let recipe: Recipe;
 

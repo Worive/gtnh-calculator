@@ -6,7 +6,7 @@
 	import type { Goods } from '$lib/core/data/models/Goods';
 	import { Item } from '$lib/core/data/models/Item';
 	import VirtualScroll from '$lib/components/nei/VirtualScroll.svelte';
-	import {neiStore} from "$lib/stores/nei.store";
+	import { neiStore } from '$lib/stores/nei.store';
 
 	export let containerElement: HTMLDivElement | null = null;
 

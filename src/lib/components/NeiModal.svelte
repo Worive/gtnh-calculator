@@ -12,10 +12,10 @@
 	import { NeiService } from '$lib/services/nei.service';
 	import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 	import { afterUpdate, onDestroy, onMount, type SvelteComponent } from 'svelte';
-	import {Goods} from "$lib/core/data/models/Goods";
-	import NeiRecipe from "$lib/components/NeiRecipe.svelte";
-	import {Recipe} from "$lib/core/data/models/Recipe";
-	import NeiRecipeTab from "$lib/components/nei/NeiRecipeTab.svelte";
+	import { Goods } from '$lib/core/data/models/Goods';
+	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
+	import { Recipe } from '$lib/core/data/models/Recipe';
+	import NeiRecipeTab from '$lib/components/nei/NeiRecipeTab.svelte';
 
 	$: show = $neiStore.visible;
 
@@ -146,7 +146,11 @@
 		<div class="panel">
 			<div class="hgroup">
 				Search:
-				<input id="nei-search" placeholder="Start typing for search" bind:value={$neiStore.search} />
+				<input
+					id="nei-search"
+					placeholder="Start typing for search"
+					bind:value={$neiStore.search}
+				/>
 				{#if $neiStore.history.length > 0}
 					<button class="mc-button" id="nei-back">←</button>
 				{/if}
@@ -156,12 +160,9 @@
 
 			{#if $neiStore.activeTabIndex === 0}
 				<NeiItemsTab bind:containerElement={gridElement} />
-
 			{:else if $neiStore.activeTabIndex === 1}
-				<NeiRecipeTab/>
+				<NeiRecipeTab />
 			{/if}
-
-
 		</div>
 	</div>
 {/if}
