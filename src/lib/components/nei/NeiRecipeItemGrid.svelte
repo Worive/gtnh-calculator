@@ -34,28 +34,26 @@
 	}
 </script>
 
-{#if items.length > 0}
-	<div
-		class="icon-grid"
-		style:grid-template-columns={`repeat(${dimX}, ${elementSize}px)`}
-		style:grid-template-rows={`repeat(${dimY}, ${elementSize}px)`}
-		data-debug-column={dimX}
-		data-debug-row={dimY}
-	>
-		{#each items as item}
-			<div
-				class="center"
-				style:grid-column={`${getItemGridX(item)}`}
-				style:grid-row={`${getItemGridY(item)}`}
-				data-debug-column={getItemGridX(item)}
-				data-debug-row={getItemGridY(item)}
-				data-debug-slot={item.slot}
-			>
-				<ItemIcon dataId={item.goods.id} amount={item.amount} probability={getProbability(item)} />
-			</div>
-		{/each}
-	</div>
-{/if}
+<div
+	class="icon-grid"
+	style:grid-template-columns={`repeat(${dimX}, ${elementSize}px)`}
+	style:grid-template-rows={`repeat(${dimY}, ${elementSize}px)`}
+	data-debug-column={dimX}
+	data-debug-row={dimY}
+>
+	{#each items as item}
+		<div
+			class="center"
+			style:grid-column={`${getItemGridX(item)}`}
+			style:grid-row={`${getItemGridY(item)}`}
+			data-debug-column={getItemGridX(item)}
+			data-debug-row={getItemGridY(item)}
+			data-debug-slot={item.slot}
+		>
+			<ItemIcon dataId={item.goods.id} amount={item.amount} probability={getProbability(item)} />
+		</div>
+	{/each}
+</div>
 
 <style>
 	.icon-grid {
