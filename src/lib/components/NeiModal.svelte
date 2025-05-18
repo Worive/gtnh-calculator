@@ -10,7 +10,7 @@
 	import type { NeiRecipeMap } from '$lib/types/nei-recipe-map';
 	import { TooltipService } from '$lib/services/tooltip.service';
 	import { NeiService } from '$lib/services/nei.service';
-	import NeiItemsGrid from '$lib/components/nei/NeiItemsGrid.svelte';
+	import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 	import { afterUpdate, onDestroy, onMount, type SvelteComponent } from 'svelte';
 	import {Goods} from "$lib/core/data/models/Goods";
 	import NeiRecipe from "$lib/components/NeiRecipe.svelte";
@@ -156,7 +156,7 @@
 			</div>
 
 			{#if $neiStore.activeTabIndex === 0}
-				<NeiItemsGrid search={searchText} bind:containerElement={gridElement} />
+				<NeiItemsTab search={searchText} bind:containerElement={gridElement} />
 
 			{:else if $neiStore.activeTabIndex === 1}
 
