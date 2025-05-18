@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { Goods } from '$lib/core/data/models/Goods.js';
 	import { Recipe } from '$lib/core/data/models/Recipe.js';
-	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
 	import { neiStore } from '$lib/stores/nei.store.js';
 	import { repositoryStore } from '$lib/stores/repository.store.js';
 	import { SearchQuery } from '$lib/core/data/models/SearchQuery.js';
 	import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 	import type { GroupedRecipe } from '$lib/types/grouped-recipe';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
+	import NeiRecipeGroup from '$lib/components/nei/NeiRecipeGroup.svelte';
 
 	$: mode = $neiStore.currentMode;
 
@@ -65,13 +65,7 @@
 				<p>{recipeTypeName}</p>
 			</div>
 
-			<div class="recipe-group-recipes">
-				{#each groupedRecipe.recipes as recipe}
-					{#if recipe}
-						<NeiRecipe {recipe} />
-					{/if}
-				{/each}
-			</div>
+			<NeiRecipeGroup recipes={groupedRecipe.recipes} />
 		</div>
 	{/each}
 </div>
@@ -84,12 +78,6 @@
 
 	.header {
 		display: inline-flex;
-	}
-
-	.recipe-group-recipes {
-		display: flex;
-		flex-wrap: wrap;
-		width: 100%;
 	}
 
 	.recipe-group-machines {
