@@ -13,6 +13,7 @@
 	import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
+	import McButton from '$lib/components/McButton.svelte';
 
 	$: show = $neiStore.visible;
 
@@ -149,7 +150,7 @@
 					bind:value={$neiStore.search}
 				/>
 				{#if $neiStore.history.length > 0}
-					<button class="mc-button" id="nei-back">←</button>
+					<McButton on:click={() => NeiService.back()}>←</McButton>
 				{/if}
 
 				<button class="mc-button" id="nei-close" on:click={() => NeiService.hide()}>x</button>

@@ -182,13 +182,12 @@ export class NeiService {
 			const last = state.history[state.history.length - 1];
 			const newHistory = state.history.slice(0, state.history.length - 1);
 
-			if (last) {
-				this.showNeiInternal(last.goods, last.mode, last.tabIndex);
-			}
-
 			return {
 				...state,
-				history: newHistory
+				history: newHistory,
+				currentGoods: last.goods,
+				currentMode: last.mode,
+				activeTabIndex: last.tabIndex
 			};
 		});
 	}
