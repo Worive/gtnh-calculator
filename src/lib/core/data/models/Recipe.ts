@@ -61,4 +61,18 @@ export class Recipe extends SearchableObject {
 		}
 		return false;
 	}
+
+	static sortByNei(a: Recipe, b: Recipe): number {
+		if (!a.gtRecipe && b.gtRecipe) return 1;
+		if (a.gtRecipe && !b.gtRecipe) return -1;
+		if (!a.gtRecipe && !b.gtRecipe) return 0;
+
+		if (a.gtRecipe.voltageTier < b.gtRecipe.voltageTier) return -1;
+		if (a.gtRecipe.voltageTier > b.gtRecipe.voltageTier) return 1;
+
+		if (a.gtRecipe.durationTicks < b.gtRecipe.durationTicks) return -1;
+		if (a.gtRecipe.durationTicks > b.gtRecipe.durationTicks) return 1;
+
+		return 0;
+	}
 }

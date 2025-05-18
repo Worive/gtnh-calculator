@@ -31,6 +31,7 @@
 				.map((pointer) => $repositoryStore?.GetObject(pointer, Recipe))
 				.filter((recipe): recipe is Recipe => recipe !== undefined)
 				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true))
+				.sort(Recipe.sortByNei)
 				.reduce((result: GroupedRecipe, recipe: Recipe) => {
 					const key = recipe.recipeType.name;
 
