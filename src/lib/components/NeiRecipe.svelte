@@ -8,6 +8,9 @@
 	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import McButton from '$lib/components/McButton.svelte';
+	import { currentPageStore } from '$lib/stores/currentPage.store';
+	import { repositoryStore } from '$lib/stores/repository.store';
+	import { NeiService } from '$lib/services/nei.service';
 
 	export let recipe: Recipe;
 
@@ -19,6 +22,13 @@
 
 	function itemsFilteredByType(items: RecipeInOut[], types: RecipeIoType[]): RecipeInOut[] {
 		return items.filter((item) => types.includes(item.type));
+	}
+
+	function onSelectRecipe() {
+		if (canSelectRecipe && showNeiCallback && showNeiCallback.onSelectRecipe) {
+			showNeiCallback.onSelectRecipe(recipe);
+			NeiService.hide();
+		}
 	}
 </script>
 
@@ -44,7 +54,7 @@
 			<div class="arrow"></div>
 
 			{#if canSelectRecipe}
-				<McButton>+</McButton>
+				<McButton on:click={onSelectRecipe}>+</McButton>
 			{/if}
 		</div>
 
