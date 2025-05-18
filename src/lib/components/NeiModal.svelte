@@ -32,7 +32,7 @@
 
 		// Does the grid content overflow vertically? If yes, there's a scrollbar
 		const scrollbarWidth =
-			gridElement.scrollHeight > gridElement.clientHeight
+			gridElement?.scrollHeight > gridElement?.clientHeight
 				? window.innerWidth - document.documentElement.clientWidth
 				: 0;
 
