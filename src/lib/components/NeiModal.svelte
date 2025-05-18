@@ -12,7 +12,7 @@
 	import { NeiService } from '$lib/services/nei.service';
 	import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import NeiRecipeTab from '$lib/components/nei/NeiRecipeTab.svelte';
+	import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
 
 	$: show = $neiStore.visible;
 
@@ -158,7 +158,7 @@
 			{#if $neiStore.activeTabIndex === 0}
 				<NeiItemsTab bind:containerElement={gridElement} />
 			{:else if $neiStore.activeTabIndex === 1}
-				<NeiRecipeTab />
+				<NeiAllRecipesTab />
 			{/if}
 		</div>
 	</div>
