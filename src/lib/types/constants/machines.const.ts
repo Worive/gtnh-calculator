@@ -2,7 +2,7 @@ import type { Choice, Machine } from '$lib/types/models/Machine';
 
 export const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
 
-export let CoilTierChoice: Choice = {
+export const CoilTierChoice: Choice = {
 	description: 'Coils',
 	choices: [
 		'T1: Cupronickel',

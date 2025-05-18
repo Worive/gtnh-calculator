@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { TooltipState, TooltipContent } from '../types/tooltip';
+import type { TooltipState } from '../types/tooltip';
 
 const initialState: TooltipState = {
 	visible: false,

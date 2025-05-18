@@ -24,14 +24,14 @@ export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> 
 	}
 
 	CalculateWidth(): number {
-		var dims = this.dimensions;
+		const dims = this.dimensions;
 		return Math.max(dims[0], dims[2]) + Math.max(dims[4], dims[6]) + 3;
 	}
 
 	CalculateHeight(recipe: Recipe): number {
-		var dims = this.dimensions;
-		var h = Math.max(dims[1] + dims[3], dims[5] + dims[7], 2) + 1;
-		var gtRecipe = recipe.gtRecipe;
+		const dims = this.dimensions;
+		let h = Math.max(dims[1] + dims[3], dims[5] + dims[7], 2) + 1;
+		const gtRecipe = recipe.gtRecipe;
 		if (gtRecipe != null) {
 			h++;
 			if (gtRecipe.additionalInfo !== null) h++;
@@ -46,27 +46,27 @@ export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> 
 		type: RecipeIoType,
 		dimensionOffset: number
 	): number {
-		var dimX = this.dimensions[dimensionOffset];
+		const dimX = this.dimensions[dimensionOffset];
 		if (dimX == 0) return index;
-		var dimY = this.dimensions[dimensionOffset + 1];
-		var count = dimX * dimY;
+		const dimY = this.dimensions[dimensionOffset + 1];
+		const count = dimX * dimY;
 		const gridWidth = dimX * 36;
 		const gridHeight = dimY * 36;
 		dom.push(
 			`<div class="icon-grid" style="--grid-pixel-width:${gridWidth}px; --grid-pixel-height:${gridHeight}px">`
 		);
 		for (; index < items.length; index++) {
-			var item = items[index];
+			const item = items[index];
 			if (item.type > type) break;
 			if (item.slot >= count) continue;
-			var goods = item.goods;
+			const goods = item.goods;
 			const gridX = (item.slot % dimX) * 36 + 2;
 			const gridY = Math.floor(item.slot / dimX) * 36 + 2;
-			var iconAttrs = `class="item-icon-grid" style="--grid-x:${gridX}px; --grid-y:${gridY}px" data-id="${goods.id}"`;
-			var amountText = formatAmount(item.amount);
+			let iconAttrs = `class="item-icon-grid" style="--grid-x:${gridX}px; --grid-y:${gridY}px" data-id="${goods.id}"`;
+			const amountText = formatAmount(item.amount);
 
-			var isFluid = goods instanceof Fluid;
-			var isGoods = goods instanceof Goods;
+			const isFluid = goods instanceof Fluid;
+			const isGoods = goods instanceof Goods;
 			if (isFluid || item.amount != 1) iconAttrs += ` data-amount="${amountText}"`;
 			dom.push(`<item-icon ${iconAttrs}>`);
 			if (
@@ -101,19 +101,19 @@ export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> 
 		elementHeight: number,
 		rowY: number
 	): string {
-		let dom: string[] = [];
+		const dom: string[] = [];
 
 		const showNeiCallback = get(neiStore).showNeiCallback;
 		const canSelectRecipe = showNeiCallback?.onSelectRecipe != null;
 
 		for (let i = 0; i < elements.length; i++) {
-			let recipe = elements[i];
-			let recipeItems = recipe.items;
+			const recipe = elements[i];
+			const recipeItems = recipe.items;
 			dom.push(
 				`<div class="nei-recipe-box" style="left:${Math.round(i * elementWidth * elementSize)}px; top:${rowY * elementSize}px; width:${Math.round(elementWidth * elementSize)}px; height:${elementHeight * elementSize}px">`
 			);
 			dom.push(`<div class="nei-recipe-io">`);
-			let index = this.BuildRecipeIoDom(
+			const index = this.BuildRecipeIoDom(
 				dom,
 				recipeItems,
 				0,

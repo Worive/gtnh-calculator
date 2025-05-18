@@ -41,7 +41,7 @@ export class NeiGrid implements NeiGridAllocator<any> {
 
 	private NextRow(): NeiGridRow {
 		this.FinishRow();
-		var row = this.rows[this.rowCount];
+		let row = this.rows[this.rowCount];
 		if (row === undefined) this.rows[this.rowCount] = row = new NeiGridRow();
 		row.Clear(this.height, this.allocator, this.elementWidth);
 		this.currentRow = row;
@@ -50,9 +50,9 @@ export class NeiGrid implements NeiGridAllocator<any> {
 	}
 
 	Add<T extends NeiGridContents>(element: T) {
-		var row = this.currentRow;
+		let row = this.currentRow;
 		if (row === null || row.elements.length >= this.elementsPerRow) row = this.NextRow();
-		var height = this.allocator?.CalculateHeight(element) ?? 1;
+		const height = this.allocator?.CalculateHeight(element) ?? 1;
 		if (row.height < height) row.height = height;
 		row.elements.push(element);
 	}

@@ -13,8 +13,8 @@ export class Item extends Goods {
 	}
 
 	get tooltipDebugInfo(): string {
-		var baseInfo = `${this.mod}:${this.internalName} (${this.numericId}:${this.damage})`;
-		var nbt = this.nbt;
+		let baseInfo = `${this.mod}:${this.internalName} (${this.numericId}:${this.damage})`;
+		const nbt = this.nbt;
 		if (nbt != null) baseInfo += '\n' + nbt;
 		return baseInfo;
 	}

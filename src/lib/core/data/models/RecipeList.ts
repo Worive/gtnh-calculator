@@ -108,11 +108,11 @@ export class RecipeList {
 
 		this.actionHandlers.set('crafter_click', (obj, event, parent) => {
 			if (obj instanceof RecipeModel && event.type === 'click') {
-				let options = [];
+				const options = [];
 				const currentRepository = get(repositoryStore);
-				let recipe = currentRepository!.GetById<Recipe>(obj.recipeId);
+				const recipe = currentRepository!.GetById<Recipe>(obj.recipeId);
 				if (!recipe) return;
-				let recipeType = recipe.recipeType;
+				const recipeType = recipe.recipeType;
 				if (recipeType.singleblocks.length > 0)
 					options.push(recipeType.singleblocks[obj.voltageTier] ?? recipeType.defaultCrafter);
 				options.push(...recipeType.multiblocks);
@@ -323,7 +323,7 @@ export class RecipeList {
 	}
 
 	private setupGlobalEventListeners() {
-		let commonHandler = (e: Event) => {
+		const commonHandler = (e: Event) => {
 			if (e.type === 'contextmenu' && e instanceof MouseEvent && (e.ctrlKey || e.metaKey)) return;
 			const element = (e.target as HTMLElement).closest('[data-action]') as HTMLElement;
 			if (element) {
@@ -355,19 +355,19 @@ export class RecipeList {
 					const tooltip = element.getAttribute('data-tooltip');
 					switch (tooltip) {
 						case 'recipe':
-							let obj = GetByIid(parseInt(element.getAttribute('data-iid')!))
+							const obj = GetByIid(parseInt(element.getAttribute('data-iid')!))
 								?.current as RecipeModel;
 							if (obj) {
 								const currentRepository = get(repositoryStore);
 								const page = get(currentPageStore);
-								let recipe = currentRepository!.GetById<Recipe>(obj.recipeId);
+								const recipe = currentRepository!.GetById<Recipe>(obj.recipeId);
 								let text = `${formatAmount(obj.recipesPerMinute / page.timeScale)} recipes/${page.settings.timeUnit}`;
 								if (recipe?.gtRecipe) {
-									let initialTier = recipe.gtRecipe.voltageTier;
-									let finalTier = initialTier + obj.overclockTiers;
-									let initialTierName = voltageTier[initialTier].name;
-									let finalTierName = voltageTier[finalTier].name;
-									let overclocksText =
+									const initialTier = recipe.gtRecipe.voltageTier;
+									const finalTier = initialTier + obj.overclockTiers;
+									const initialTierName = voltageTier[initialTier].name;
+									const finalTierName = voltageTier[finalTier].name;
+									const overclocksText =
 										obj.perfectOverclocks == 0
 											? `${obj.overclockTiers} overclocks`
 											: obj.perfectOverclocks == obj.overclockTiers
@@ -560,13 +560,13 @@ export class RecipeList {
                 <td colspan="2">Unknown recipe</td>
             `;
 		}
-		let crafter =
+		const crafter =
 			recipeModel.multiblockCrafter ??
 			recipe.recipeType.singleblocks[recipeModel.voltageTier] ??
 			recipe.recipeType.defaultCrafter;
-		let machineInfo = recipeModel.machineInfo;
+		const machineInfo = recipeModel.machineInfo;
 
-		let gtRecipe = recipe.gtRecipe;
+		const gtRecipe = recipe.gtRecipe;
 		let shortInfoContent = `<span data-tooltip="recipe" data-iid="${recipeModel.iid}">${crafter?.name ?? recipe.recipeType.name}</span>`;
 		let machineCountsText = '';
 		if (gtRecipe && gtRecipe.durationTicks > 0) {
@@ -579,11 +579,11 @@ export class RecipeList {
 						`<option value="${minTier + index}" ${minTier + index === recipeModel.voltageTier ? 'selected' : ''}>${tier.name}</option>`
 				)
 				.join('');
-			let machineCounts = recipeModel.crafterCount;
+			const machineCounts = recipeModel.crafterCount;
 			machineCountsText = formatAmount(machineCounts);
 
 			if (recipeModel.parallels > 1 || recipeModel.overclockTiers > 0) {
-				let info = [];
+				const info = [];
 				if (recipeModel.parallels > 1) info.push(`${recipeModel.parallels} parallels`);
 				if (recipeModel.overclockTiers > 0)
 					info.push(
@@ -605,7 +605,7 @@ export class RecipeList {
 			const choicesHtml = Object.entries(machineInfo.choices)
 				.map(([key, choice]) => {
 					const currentValue = recipeModel.choices[key] ?? choice.min ?? 0;
-					let inputHtml = '';
+					let inputHtml;
 
 					if (choice.choices) {
 						// Render as dropdown
@@ -656,12 +656,12 @@ export class RecipeList {
 			shortInfoContent += `<span class="text-small white-text">${machineInfo.info}</span>`;
 		}
 
-		let iconCell =
+		const iconCell =
 			`<td><div class="icon-container"><item-icon data-id="${crafter.id}" data-action="crafter_click" data-iid="${recipeModel.iid}" data-amount="${machineCountsText}">` +
 			`${recipeModel.fixedCrafterCount !== undefined ? `<span class="probability">FIXED</span>` : ''}` +
 			`</item-icon></div></td>`;
 
-		let shortInfoCell = `<td><div class="short-info" data-iid="${recipeModel.iid}">${shortInfoContent}</div></td>`;
+		const shortInfoCell = `<td><div class="short-info" data-iid="${recipeModel.iid}">${shortInfoContent}</div></td>`;
 		return iconCell + shortInfoCell;
 	}
 
@@ -671,7 +671,7 @@ export class RecipeList {
 		level: number = 0
 	): string {
 		const currentRepository = get(repositoryStore);
-		let recipe = currentRepository!.GetById<Recipe>(recipeModel.recipeId);
+		const recipe = currentRepository!.GetById<Recipe>(recipeModel.recipeId);
 		return `
             <tr class="recipe-item" data-iid="${recipeModel.iid}" draggable="true">
                 ${this.renderRecipeShortInfo(recipe, recipeModel, group)}
@@ -842,7 +842,7 @@ export class RecipeList {
 	}
 
 	private renderLinks(links: { [key: string]: LinkAlgorithm }, group: RecipeGroupModel): string {
-		let goodsIds = Object.keys(links).sort();
+		const goodsIds = Object.keys(links).sort();
 		if (goodsIds.length === 0) return '';
 
 		const currentRepository = get(repositoryStore);
@@ -858,7 +858,7 @@ export class RecipeList {
 													.map((goodsId) => {
 														const goods = currentRepository!.GetById<Goods>(goodsId);
 														const algorithm = links[goodsId];
-														let overText =
+														const overText =
 															algorithm === LinkAlgorithm.Match
 																? ''
 																: ` data-amount="${linkAlgorithmNames[algorithm]}"`;

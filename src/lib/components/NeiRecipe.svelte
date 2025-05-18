@@ -8,8 +8,6 @@
 	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import McButton from '$lib/components/McButton.svelte';
-	import { currentPageStore } from '$lib/stores/currentPage.store';
-	import { repositoryStore } from '$lib/stores/repository.store';
 	import { NeiService } from '$lib/services/nei.service';
 
 	export let recipe: Recipe;

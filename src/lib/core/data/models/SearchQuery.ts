@@ -20,8 +20,8 @@ export class SearchQuery {
 		this.indexBits = new Int32Array(4);
 		this.mod = null;
 
-		for (var i = 0; i < this.words.length; i++) {
-			var word = this.words[i];
+		for (let i = 0; i < this.words.length; i++) {
+			let word = this.words[i];
 			if (word.startsWith('@')) {
 				this.mod = word.substring(1).toLowerCase();
 				this.words.splice(i, 1);
@@ -29,12 +29,12 @@ export class SearchQuery {
 				continue;
 			}
 			this.words[i] = word = word.toLowerCase();
-			var len = word.length;
-			var c1 = 0,
+			const len = word.length;
+			let c1 = 0,
 				c2 = 0;
-			for (var j = 0; j < len; j++) {
-				var char = word.charCodeAt(j);
-				var c0: number;
+			for (let j = 0; j < len; j++) {
+				const char = word.charCodeAt(j);
+				let c0: number;
 				if (char >= code0 && char <= code9) c0 = char - code0;
 				else if (char >= codea && char <= codez) c0 = char - codea + 10;
 				else if (char >= codeA && char <= codeZ) c0 = char - codeA + 10;
@@ -53,15 +53,15 @@ export class SearchQuery {
 	}
 
 	SetBit(bitId: number) {
-		var element = Math.trunc(bitId / 32);
-		var bit = 1 << bitId % 32;
+		const element = Math.trunc(bitId / 32);
+		const bit = 1 << bitId % 32;
 		this.indexBits[element] |= bit;
 	}
 
 	Match(text: string | null): boolean {
 		if (text === null) return false;
-		var textLower = text.toLowerCase();
-		for (var i = 0; i < this.words.length; i++) {
+		const textLower = text.toLowerCase();
+		for (let i = 0; i < this.words.length; i++) {
 			if (!textLower.includes(this.words[i])) return false;
 		}
 		return true;

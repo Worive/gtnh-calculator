@@ -8,17 +8,17 @@ export class OreDict extends RecipeObject {
 
 	constructor(repository: Repository, offset: number) {
 		super(repository, offset);
-		var slice = this.GetSlice(5);
+		const slice = this.GetSlice(5);
 		this.items = new Array(slice.length);
-		for (var i = 0; i < slice.length; i++) {
+		for (let i = 0; i < slice.length; i++) {
 			this.items[i] = repository.GetObject(slice[i], Item);
 		}
 	}
 
 	MatchSearchText(query: SearchQuery): boolean {
-		var items = this.items;
-		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
+		const items = this.items;
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
 			if (
 				this.repository.ObjectMatchQueryBits(query, item.objectOffset) &&
 				item.MatchSearchText(query)

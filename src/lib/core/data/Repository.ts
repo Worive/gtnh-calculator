@@ -32,7 +32,7 @@ export class Repository {
 		this.bytes = new Uint8Array(data);
 		this.elements = new Int32Array(data);
 		this.textReader = new TextDecoder();
-		let dataVersion = this.elements[0];
+		const dataVersion = this.elements[0];
 		if (dataVersion != DATA_VERSION)
 			throw new Error(
 				`Unsupported data version: ${dataVersion} (Required: ${DATA_VERSION}). This may be caused by the browser cache. Please try reloading using F5 or Ctrl+F5.`
@@ -51,16 +51,16 @@ export class Repository {
 	}
 
 	private FillObjectPositionMap(elements: Int32Array) {
-		for (var i = 0; i < elements.length; i++) {
-			var id = this.GetString(this.elements[elements[i] + 4]);
+		for (let i = 0; i < elements.length; i++) {
+			const id = this.GetString(this.elements[elements[i] + 4]);
 			this.objectPositionMap[id] = elements[i];
 		}
 	}
 
 	public GetById<T extends SearchableObject>(id: string): T | null {
 		if (!id) return null;
-		var idCode = id.charCodeAt(0);
-		var type: IMemMappedObjectPrototype<SearchableObject> =
+		const idCode = id.charCodeAt(0);
+		const type: IMemMappedObjectPrototype<SearchableObject> =
 			idCode == charCodeItem
 				? Item
 				: idCode == charCodeFluid
@@ -73,8 +73,8 @@ export class Repository {
 	}
 
 	public ObjectMatchQueryBits(query: SearchQuery, pointer: number): boolean {
-		var arr = query.indexBits;
-		for (var i = 0; i < 4; i++) {
+		const arr = query.indexBits;
+		for (let i = 0; i < 4; i++) {
 			if ((this.elements[pointer + i] & arr[i]) !== arr[i]) return false;
 		}
 		return true;
@@ -86,8 +86,8 @@ export class Repository {
 	}
 
 	private ReadString(pointer: number): string {
-		var length = this.elements[pointer];
-		var begin = pointer * 4 + 4;
+		const length = this.elements[pointer];
+		const begin = pointer * 4 + 4;
 		return this.textReader.decode(this.bytes.subarray(begin, begin + length));
 	}
 
@@ -98,7 +98,7 @@ export class Repository {
 	}
 
 	private ReadSlice(pointer: number): Int32Array {
-		var length = this.elements[pointer];
+		const length = this.elements[pointer];
 		return this.elements.subarray(pointer + 1, pointer + 1 + length);
 	}
 
@@ -127,7 +127,7 @@ export class Repository {
 	): T | null {
 		if (query === null) return this.GetObject(pointer, prototype);
 		if (!this.ObjectMatchQueryBits(query, pointer)) return null;
-		var inst = this.GetObject(pointer, prototype);
+		const inst = this.GetObject(pointer, prototype);
 		if (query.original.length === 1) return inst;
 		return inst.MatchSearchText(query) ? inst : null;
 	}

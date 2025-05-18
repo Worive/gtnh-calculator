@@ -17,7 +17,7 @@ export class ItemAllocator implements NeiRowAllocator<Goods> {
 		elementHeight: number,
 		rowY: number
 	): string {
-		var dom: string[] = [];
+		const dom: string[] = [];
 		const showNeiCallback = get(neiStore).showNeiCallback;
 		const isSelectingGoods = showNeiCallback?.onSelectGoods != null;
 		const selectGoodsAction = isSelectingGoods ? ' data-action="select"' : '';
@@ -25,8 +25,8 @@ export class ItemAllocator implements NeiRowAllocator<Goods> {
 		dom.push(
 			`<div class="nei-items-row icon-grid" style="--grid-pixel-width:${gridWidth}px; --grid-pixel-height:36px; top:${elementSize * rowY}px">`
 		);
-		for (var i = 0; i < elements.length; i++) {
-			var elem = elements[i];
+		for (let i = 0; i < elements.length; i++) {
+			const elem = elements[i];
 			const gridX = (i % elements.length) * 36 + 2;
 			const gridY = Math.floor(i / elements.length) * 36 + 2;
 			dom.push(

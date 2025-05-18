@@ -13,13 +13,13 @@ export class ModelObjectSerializer extends ModelObjectVisitor {
 		this.stack.push(this.current);
 		this.current = {};
 		obj.Visit(this);
-		let result = this.current;
+		const result = this.current;
 		this.current = this.stack.pop()!;
 		this.current[key] = result;
 	}
 
 	VisitArray(parent: ModelObject, key: string, array: ModelObject[]): void {
-		var arr = [];
+		const arr = [];
 		this.stack.push(this.current);
 		for (const obj of array) {
 			this.current = {};

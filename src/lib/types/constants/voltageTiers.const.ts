@@ -3,7 +3,7 @@ export type GtVoltageTier = {
 	voltage: number;
 };
 
-export var voltageTier: GtVoltageTier[] = [
+export const voltageTier: GtVoltageTier[] = [
 	{ name: 'LV', voltage: 32 },
 	{ name: 'MV', voltage: 128 },
 	{ name: 'HV', voltage: 512 },

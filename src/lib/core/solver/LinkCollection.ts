@@ -9,12 +9,12 @@ export class LinkCollection {
 
 	AddInput(goods: RecipeObject, amount: number, linkVar: string): void {
 		if (amount === 0) return;
-		let input = (this.input[goods.id] ||= {});
+		const input = (this.input[goods.id] ||= {});
 		input[linkVar] = (input[linkVar] || 0) + amount;
 	}
 
 	AddOutput(goods: RecipeObject, amount: number, linkVar: string): void {
-		let output = (this.output[goods.id] ||= {});
+		const output = (this.output[goods.id] ||= {});
 		output[linkVar] = (output[linkVar] || 0) - amount;
 	}
 
@@ -25,9 +25,9 @@ export class LinkCollection {
 		recipe: RecipeModel
 	): void {
 		if (amount === 0) return;
-		let inputOreDict = (this.inputOreDict[oreDict.id] ||= {});
+		const inputOreDict = (this.inputOreDict[oreDict.id] ||= {});
 		inputOreDict[linkVar] = (inputOreDict[linkVar] || 0) + amount;
-		let inputOreDictRecipe = (this.inputOreDictRecipe[oreDict.id] ||= []);
+		const inputOreDictRecipe = (this.inputOreDictRecipe[oreDict.id] ||= []);
 		inputOreDictRecipe.push(recipe);
 	}
 

@@ -11,10 +11,7 @@
 	import { TooltipService } from '$lib/services/tooltip.service';
 	import { NeiService } from '$lib/services/nei.service';
 	import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
-	import { afterUpdate, onDestroy, onMount, type SvelteComponent } from 'svelte';
-	import { Goods } from '$lib/core/data/models/Goods';
-	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
-	import { Recipe } from '$lib/core/data/models/Recipe';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import NeiRecipeTab from '$lib/components/nei/NeiRecipeTab.svelte';
 
 	$: show = $neiStore.visible;

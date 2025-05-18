@@ -30,13 +30,13 @@ export class Recipe extends SearchableObject {
 	}
 
 	private ComputeItems(): RecipeInOut[] {
-		var slice = this.GetSlice(5);
-		var elements = slice.length / 5;
-		var result: RecipeInOut[] = new Array(elements);
-		var index = 0;
-		for (var i = 0; i < elements; i++) {
-			var type: RecipeIoType = slice[index++];
-			var ptr = slice[index++];
+		const slice = this.GetSlice(5);
+		const elements = slice.length / 5;
+		const result: RecipeInOut[] = new Array(elements);
+		let index = 0;
+		for (let i = 0; i < elements; i++) {
+			const type: RecipeIoType = slice[index++];
+			const ptr = slice[index++];
 			result[i] = {
 				type: type,
 				goodsPtr: ptr,
@@ -50,13 +50,13 @@ export class Recipe extends SearchableObject {
 	}
 
 	MatchSearchText(query: SearchQuery): boolean {
-		var slice = this.GetSlice(5);
-		var count = slice.length / 5;
-		for (var i = 0; i < count; i++) {
-			var pointer = slice[i * 5 + 1];
+		const slice = this.GetSlice(5);
+		const count = slice.length / 5;
+		for (let i = 0; i < count; i++) {
+			const pointer = slice[i * 5 + 1];
 			if (!this.repository.ObjectMatchQueryBits(query, pointer)) continue;
-			var objType = RecipeIoTypePrototypes[slice[i * 5]];
-			var obj = this.repository.GetObject<RecipeObject>(pointer, objType);
+			const objType = RecipeIoTypePrototypes[slice[i * 5]];
+			const obj = this.repository.GetObject<RecipeObject>(pointer, objType);
 			if (obj.MatchSearchText(query)) return true;
 		}
 		return false;

@@ -16,7 +16,7 @@ export class NeiService {
 	static initialize() {
 		const repository = get(repositoryStore);
 
-		let allRecipeTypePointers = repository!.recipeTypes;
+		const allRecipeTypePointers = repository!.recipeTypes;
 
 		for (let i = 0; i < allRecipeTypePointers.length; i++) {
 			const recipeType = repository!.GetObject(allRecipeTypePointers[i], RecipeType);
@@ -94,7 +94,7 @@ export class NeiService {
 			currentGoods: goods
 		}));
 
-		let recipes: Set<Recipe> = new Set();
+		const recipes: Set<Recipe> = new Set();
 		if (goods instanceof OreDict) {
 			this.getAllOreDictRecipes(recipes, goods, mode);
 		} else if (goods instanceof Fluid) {
@@ -114,9 +114,9 @@ export class NeiService {
 		}
 
 		// Fill recipe lists
-		for (var recipe of recipes) {
-			var recipeType = recipe.recipeType;
-			var list = get(neiStore).mapRecipeTypeToRecipeList[recipeType.name];
+		for (const recipe of recipes) {
+			const recipeType = recipe.recipeType;
+			const list = get(neiStore).mapRecipeTypeToRecipeList[recipeType.name];
 			list.push(recipe);
 		}
 
@@ -134,26 +134,26 @@ export class NeiService {
 	}
 
 	private static getAllOreDictRecipes(set: Set<Recipe>, goods: OreDict, mode: ShowNeiMode): void {
-		for (var i = 0; i < goods.items.length; i++) {
+		for (let i = 0; i < goods.items.length; i++) {
 			this.addToSet(set, goods.items[i], mode);
 		}
 	}
 
 	private static getAllFluidRecipes(set: Set<Recipe>, goods: Fluid, mode: ShowNeiMode): void {
 		this.addToSet(set, goods, mode);
-		let containers = goods.containers;
+		const containers = goods.containers;
 
 		const repository = get(repositoryStore);
 
-		for (var i = 0; i < containers.length; i++) {
-			var container = repository!.GetObject(repository!.items[containers[i]], Item);
+		for (let i = 0; i < containers.length; i++) {
+			const container = repository!.GetObject(repository!.items[containers[i]], Item);
 			this.addToSet(set, container, mode);
 		}
 	}
 
 	private static addToSet(set: Set<Recipe>, goods: Goods, mode: ShowNeiMode) {
-		let list = mode == ShowNeiMode.Production ? goods.production : goods.consumption;
-		for (var i = 0; i < list.length; i++) set.add(get(repositoryStore)!.GetObject(list[i], Recipe));
+		const list = mode == ShowNeiMode.Production ? goods.production : goods.consumption;
+		for (let i = 0; i < list.length; i++) set.add(get(repositoryStore)!.GetObject(list[i], Recipe));
 	}
 
 	static select(goods: Goods): void {

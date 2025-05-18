@@ -3,7 +3,6 @@ import { type Model, type Solution } from 'javascript-lp-solver';
 import { LinkCollection } from '$lib/core/solver/LinkCollection';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import { Repository } from '$lib/core/data/Repository';
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import { Item } from '$lib/core/data/models/Item';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
@@ -22,7 +21,6 @@ import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { get } from 'svelte/store';
 import { repositoryStore } from '$lib/stores/repository.store';
-import type { SearchableObject } from '$lib/core/data/models/SearchableObject';
 
 export class CalculatorEngine {
 	private static createAndMatchLinks(
@@ -34,7 +32,7 @@ export class CalculatorEngine {
 			if (child instanceof RecipeModel) {
 				this.preProcessRecipe(child, model, collection);
 			} else if (child instanceof RecipeGroupModel) {
-				let childCollection: LinkCollection = new LinkCollection();
+				const childCollection: LinkCollection = new LinkCollection();
 				this.createAndMatchLinks(child, model, childCollection);
 				collection.Merge(childCollection);
 			}
@@ -42,15 +40,15 @@ export class CalculatorEngine {
 
 		console.debug('Raw collection', collection);
 
-		let matchedOutputs: { [key: string]: boolean } = {};
+		const matchedOutputs: { [key: string]: boolean } = {};
 		group.actualLinks = { ...group.links };
 
 		for (const key of Object.keys(collection.inputOreDict)) {
 			const currentRepository = get(repositoryStore);
 
-			var oreDict = currentRepository?.GetById<OreDict>(key)!;
+			const oreDict = currentRepository?.GetById<OreDict>(key)!;
 			for (const item of oreDict.items) {
-				let algorithm = group.links[item.id] || LinkAlgorithm.Match;
+				const algorithm = group.links[item.id] || LinkAlgorithm.Match;
 				if (collection.output[item.id] === undefined) continue;
 				// Despite the fact that we are ignoring the link, we still need to select the ore dict item to have the same item in production and consumption
 				for (const recipe of collection.inputOreDictRecipe[key])
@@ -72,7 +70,7 @@ export class CalculatorEngine {
 		}
 
 		for (const key of Object.keys(collection.input)) {
-			var algorithm = group.links[key] || LinkAlgorithm.Match;
+			const algorithm = group.links[key] || LinkAlgorithm.Match;
 			if (algorithm === LinkAlgorithm.Ignore || collection.output[key] === undefined) continue;
 
 			this.createLinkByAlgorithm(
@@ -88,7 +86,7 @@ export class CalculatorEngine {
 		}
 
 		for (const key in matchedOutputs) {
-			var linkName = `link_${group.iid}_${key}`;
+			const linkName = `link_${group.iid}_${key}`;
 			this.matchVariablesToConstraints(model, linkName, collection.output[key]);
 			delete collection.output[key];
 		}
@@ -102,15 +100,15 @@ export class CalculatorEngine {
 		collection: LinkCollection
 	) {
 		const currentRepository = get(repositoryStore);
-		let recipe = currentRepository?.GetById<Recipe>(recipeModel.recipeId);
+		const recipe = currentRepository?.GetById<Recipe>(recipeModel.recipeId);
 		if (!recipe) return;
 		recipeModel.recipe = recipe;
-		let varName = `recipe_${recipeModel.iid}`;
+		const varName = `recipe_${recipeModel.iid}`;
 		model.variables[varName] = { obj: 1 };
 		for (const slot of recipe.items) {
 			const goods = slot.goods;
-			let amount = slot.amount * slot.probability;
-			let container = goods instanceof Item && goods.container;
+			const amount = slot.amount * slot.probability;
+			const container = goods instanceof Item && goods.container;
 
 			if (slot.type == RecipeIoType.OreDictInput) {
 				collection.AddInputOreDict(goods, amount, varName, recipeModel);
@@ -133,7 +131,7 @@ export class CalculatorEngine {
 
 		recipeModel.overclockFactor = 1;
 
-		let gtRecipe = recipe.gtRecipe;
+		const gtRecipe = recipe.gtRecipe;
 		if (gtRecipe && gtRecipe.durationTicks > 0) {
 			let crafter = recipeModel.crafter
 				? (currentRepository?.GetById<Item>(recipeModel.crafter) ?? null)
@@ -141,40 +139,40 @@ export class CalculatorEngine {
 			if (crafter != null && !recipe.recipeType.multiblocks.includes(crafter)) crafter = null;
 			if (crafter === null && recipe.recipeType.singleblocks.length == 0)
 				crafter = recipe.recipeType.defaultCrafter;
-			let machineInfo = crafter
+			const machineInfo = crafter
 				? machines[crafter.name] || notImplementedMachine
 				: singleBlockMachine;
 			recipeModel.multiblockCrafter = crafter;
 			recipeModel.machineInfo = machineInfo;
 			recipeModel.ValidateChoices(machineInfo);
-			let actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
-			let machineParallels = this.getParameter(machineInfo.parallels, recipeModel, 1);
-			let energyModifier = this.getParameter(machineInfo.power, recipeModel);
-			let maxParallels = Math.max(
+			const actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
+			const machineParallels = this.getParameter(machineInfo.parallels, recipeModel, 1);
+			const energyModifier = this.getParameter(machineInfo.power, recipeModel);
+			const maxParallels = Math.max(
 				1,
 				Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier * gtRecipe.amperage))
 			);
-			let parallels = Math.min(maxParallels, machineParallels);
-			let overclockTiers = Math.min(
+			const parallels = Math.min(maxParallels, machineParallels);
+			const overclockTiers = Math.min(
 				recipeModel.voltageTier - gtRecipe.voltageTier,
 				Math.floor(Math.log2(maxParallels / parallels) / 2)
 			);
 			let overclockSpeed = 1;
 			let overclockPower = 1;
-			let perfectOverclocks = Math.min(
+			const perfectOverclocks = Math.min(
 				this.getParameter(machineInfo.perfectOverclock, recipeModel),
 				overclockTiers
 			);
-			let normalOverclocks = overclockTiers - perfectOverclocks;
+			const normalOverclocks = overclockTiers - perfectOverclocks;
 			if (perfectOverclocks > 0) {
 				overclockSpeed = Math.pow(4, perfectOverclocks);
 			}
 			if (normalOverclocks > 0) {
-				let coef = Math.pow(2, normalOverclocks);
+				const coef = Math.pow(2, normalOverclocks);
 				overclockSpeed *= coef;
 				overclockPower *= coef;
 			}
-			let speedModifier = this.getParameter(machineInfo.speed, recipeModel);
+			const speedModifier = this.getParameter(machineInfo.speed, recipeModel);
 			//console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
 			recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
 			recipeModel.powerFactor = (overclockPower * energyModifier) / speedModifier;
@@ -183,8 +181,8 @@ export class CalculatorEngine {
 			recipeModel.perfectOverclocks = perfectOverclocks;
 
 			if (recipeModel.fixedCrafterCount) {
-				let crafterName = `fixed_${recipeModel.iid}`;
-				let fixedRecipesPerMinute =
+				const crafterName = `fixed_${recipeModel.iid}`;
+				const fixedRecipesPerMinute =
 					(recipeModel.fixedCrafterCount * recipeModel.overclockFactor) /
 					recipe.gtRecipe.durationMinutes;
 				model.variables[varName][crafterName] = 1;
@@ -199,7 +197,7 @@ export class CalculatorEngine {
 		min: number = 0
 	): number {
 		if (typeof coefficient === 'number') return coefficient;
-		let coef = coefficient(recipeModel, recipeModel.choices);
+		const coef = coefficient(recipeModel, recipeModel.choices);
 		if (coef < min) return min;
 		return coef;
 	}
@@ -214,9 +212,9 @@ export class CalculatorEngine {
 		matchedOutputs: { [key: string]: boolean },
 		outputAmount: { [key: string]: number }
 	) {
-		var linkName = `link_${group.iid}_${goodsId}`;
+		const linkName = `link_${group.iid}_${goodsId}`;
 		this.matchVariablesToConstraints(model, linkName, collection[collectionKey]);
-		let amount = collection[collectionKey]['_amount'] || -outputAmount['_amount'] || 0;
+		const amount = collection[collectionKey]['_amount'] || -outputAmount['_amount'] || 0;
 		matchedOutputs[goodsId] = true;
 		delete collection[collectionKey];
 		group.actualLinks[goodsId] = algorithm;
@@ -246,13 +244,13 @@ export class CalculatorEngine {
 				this.applySolutionGroup(child, solution, model, feasible);
 		}
 
-		let flow: FlowInformation = new FlowInformation();
+		const flow: FlowInformation = new FlowInformation();
 		group.flow = flow;
 		for (const child of group.elements) {
 			flow.Merge(child.flow);
 		}
 		for (const link in group.actualLinks) {
-			let delta = (flow.input[link] || 0) - (flow.output[link] || 0);
+			const delta = (flow.input[link] || 0) - (flow.output[link] || 0);
 			if (delta > 0.01) {
 				flow.input[link] = delta;
 				delete flow.output[link];
@@ -267,29 +265,29 @@ export class CalculatorEngine {
 	}
 
 	private static applySolutionRecipe(recipeModel: RecipeModel, solution: Solution): void {
-		let flow: FlowInformation = new FlowInformation();
+		const flow: FlowInformation = new FlowInformation();
 		recipeModel.flow = flow;
-		let name = `recipe_${recipeModel.iid}`;
-		let recipe = recipeModel.recipe!;
-		let solutionValue = (solution[name] || 0) as number;
+		const name = `recipe_${recipeModel.iid}`;
+		const recipe = recipeModel.recipe!;
+		const solutionValue = (solution[name] || 0) as number;
 		recipeModel.recipesPerMinute = solutionValue;
 		recipeModel.crafterCount = 0;
 		for (const item of recipe.items) {
-			var goods: RecipeObject = item.goods;
+			let goods: RecipeObject = item.goods;
 			if (item.type == RecipeIoType.OreDictInput && recipeModel.selectedOreDicts[item.goods.id])
 				goods = recipeModel.selectedOreDicts[item.goods.id];
 
-			var isProduction =
+			const isProduction =
 				item.type == RecipeIoType.FluidOutput || item.type == RecipeIoType.ItemOutput;
-			let amount = item.amount * item.probability * solutionValue;
-			let container = goods instanceof Item && goods.container;
+			const amount = item.amount * item.probability * solutionValue;
+			const container = goods instanceof Item && goods.container;
 			if (container) {
 				flow.Add(container.fluid, amount * container.amount, isProduction);
 				flow.Add(container.empty, amount, isProduction);
 			} else flow.Add(goods, amount, isProduction);
 		}
 
-		let gtRecipe = recipe.gtRecipe;
+		const gtRecipe = recipe.gtRecipe;
 		if (gtRecipe && gtRecipe.durationTicks > 0) {
 			flow.energy[recipeModel.voltageTier] =
 				gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * recipeModel.powerFactor;
@@ -300,16 +298,16 @@ export class CalculatorEngine {
 
 	public static solvePage(page: PageModel): void {
 		try {
-			let model: Model = {
+			const model: Model = {
 				optimize: 'obj',
 				opType: 'min',
 				constraints: {},
 				variables: {}
 			};
-			let timeUnit = page.settings.timeUnit;
-			let timeScale = timeUnit === 'sec' ? 60 : timeUnit === 'tick' ? 20 * 60 : 1;
+			const timeUnit = page.settings.timeUnit;
+			const timeScale = timeUnit === 'sec' ? 60 : timeUnit === 'tick' ? 20 * 60 : 1;
 			page.timeScale = timeScale;
-			let collection: LinkCollection = new LinkCollection();
+			const collection: LinkCollection = new LinkCollection();
 			for (const product of page.products) {
 				if (product.amount > 0) {
 					collection.input[product.goodsId] = { _amount: -product.amount };
@@ -320,7 +318,7 @@ export class CalculatorEngine {
 			this.createAndMatchLinks(page.rootGroup, model, collection);
 			console.log('Solve model', model);
 
-			let solution = solver.Solve(model);
+			const solution = solver.Solve(model);
 			console.log('Solve solution', solution);
 			page.status = solution.feasible ? (solution.bounded ? 'solved' : 'unbounded') : 'infeasible';
 			this.applySolutionGroup(page.rootGroup, solution, model, solution.feasible);
