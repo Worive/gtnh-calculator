@@ -5,7 +5,7 @@
 	import { repositoryStore } from '$lib/stores/repository.store.js';
 	import { SearchQuery } from '$lib/core/data/models/SearchQuery.js';
 	import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-	import type { GroupedRecipe } from '$lib/types/grouped-recipe';
+	import type { GroupedRecipesDict } from '$lib/types/grouped-recipes-dict';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import NeiRecipeGroup from '$lib/components/nei/NeiRecipeGroup.svelte';
 
@@ -13,7 +13,7 @@
 
 	$: groupedRecipes = getGroupedRecipes($neiStore.search);
 
-	function getGroupedRecipes(search: string | null): GroupedRecipe {
+	function getGroupedRecipes(search: string | null): GroupedRecipesDict {
 		if ($neiStore.currentGoods instanceof Goods) {
 			let goods: Int32Array;
 
@@ -30,7 +30,7 @@
 				.filter((recipe): recipe is Recipe => recipe !== undefined)
 				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true))
 				.sort(Recipe.sortByNei)
-				.reduce((result: GroupedRecipe, recipe: Recipe) => {
+				.reduce((result: GroupedRecipesDict, recipe: Recipe) => {
 					const key = recipe.recipeType.name;
 
 					if (!result[key]) {
@@ -42,7 +42,7 @@
 
 					result[key].recipes.push(recipe);
 					return result;
-				}, {} as GroupedRecipe);
+				}, {} as GroupedRecipesDict);
 		}
 
 		return {};

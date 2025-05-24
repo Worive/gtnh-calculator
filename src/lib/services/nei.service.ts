@@ -11,6 +11,10 @@ import { OreDict } from '$lib/core/data/models/OreDict';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import { Item } from '$lib/core/data/models/Item';
 import { Goods } from '$lib/core/data/models/Goods';
+import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
+import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
+import type { NeiTab } from '$lib/types/nei-tab';
+import type { Repository } from '$lib/core/data/Repository';
 
 export class NeiService {
 	static initialize() {
@@ -27,17 +31,47 @@ export class NeiService {
 				return state;
 			});
 		}
+
+		if (repository) {
+			neiStore.update((state) => ({
+				...state,
+				tabs: [this.getAllItemsTab(repository), this.getAllRecipesTab(repository)]
+			}));
+
+			this.changeTab(0);
+		}
 	}
 
-	static getSingleRecipeDOM(recipe: Recipe): string {
-		const recipeType = recipe.recipeType;
+	static changeTab(index: number): void {
+		console.debug('Change NEI tab to index:', index);
 
-		const builder = get(neiStore).mapRecipeTypeToRecipeList[recipeType.name];
+		if (index < 0 || index >= get(neiStore).tabs.length) {
+			console.warn('Invalid NEI tab index:', index);
+			return;
+		}
 
-		const width = builder.CalculateWidth();
-		const height = builder.CalculateHeight(recipe);
+		neiStore.update((state) => ({
+			...state,
+			activeTabIndex: index
+		}));
+	}
 
-		return builder.BuildRowDom([recipe], width, height, 0);
+	private static getAllItemsTab(repository: Repository): NeiTab {
+		return {
+			name: 'All Items',
+			iconId: repository.GetObject(repository.service[0], Item).iconId,
+			component: NeiItemsTab,
+			visible: () => true
+		};
+	}
+
+	private static getAllRecipesTab(repository: Repository): NeiTab {
+		return {
+			name: 'All Recipes',
+			iconId: repository.GetObject(repository.service[1], Item).iconId,
+			component: NeiAllRecipesTab,
+			visible: (store) => store.currentGoods !== null
+		};
 	}
 
 	static show(

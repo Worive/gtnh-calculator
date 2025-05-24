@@ -1,23 +1,11 @@
 <script lang="ts">
 	import { neiStore } from '$lib/stores/nei.store';
-	import type { NeiTab } from '$lib/types/nei-tab';
-	import { Item } from '$lib/core/data/models/Item';
-	import { get } from 'svelte/store';
-	import { repositoryStore } from '$lib/stores/repository.store';
-	import { SearchQuery } from '$lib/core/data/models/SearchQuery';
-	import type { NeiFiller } from '$lib/types/nei-filler';
-	import { NeiGrid } from '$lib/core/data/models/NeiGrid';
-	import type { NeiRecipeMap } from '$lib/types/nei-recipe-map';
 	import { TooltipService } from '$lib/services/tooltip.service';
 	import { NeiService } from '$lib/services/nei.service';
-	import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
 	import McButton from '$lib/components/McButton.svelte';
 
 	$: show = $neiStore.visible;
-
-	$: repository = $repositoryStore;
 
 	let panelContainer: HTMLDivElement;
 	let gridElement: HTMLDivElement;
@@ -51,73 +39,11 @@
 		window.removeEventListener('resize', snapWidth);
 	});
 
-	var FillNeiAllRecipes: NeiFiller = function (
-		grid: NeiGrid,
-		search: SearchQuery | null,
-		recipes: NeiRecipeMap
-	) {
-		for (const recipeType of get(neiStore).allRecipeTypes) {
-			var list = recipes[recipeType.name];
-			if (list.length > 0) {
-				{
-					let allocator = grid.BeginAllocation(list.allocator);
-					allocator.Add(recipeType);
-				}
+	$: activeTab =
+		$neiStore.activeTabIndex !== null ? $neiStore.tabs[$neiStore.activeTabIndex] : null;
 
-				{
-					let allocator = grid.BeginAllocation(list);
-					for (let i = 0; i < list.length; i++) {
-						if (search == null || repository!.IsObjectMatchingSearch(list[i], search))
-							allocator.Add(list[i]);
-					}
-				}
-			}
-		}
-	};
-
-	let tabs: NeiTab[] = [];
-
-	let repositoryDefined = $repositoryStore !== null;
-
-	repositoryStore.subscribe((value) => {
-		if (!repositoryDefined && !(value === null)) {
-			repositoryDefined = true;
-
-			tabs = [
-				{
-					name: 'All Items',
-					filler: null,
-					iconId: value!.GetObject(value!.service[0], Item).iconId,
-					isVisible: () => true,
-					dom: null
-				},
-				{
-					name: 'All Recipes',
-					filler: FillNeiAllRecipes,
-					iconId: value!.GetObject(value!.service[1], Item).iconId,
-					isVisible: () => get(neiStore).currentGoods !== null,
-					dom: null
-				}
-			];
-		}
-	});
-
-	function switchTab(index: number): void {
-		const activeTabIndex = get(neiStore).activeTabIndex;
-		if (index === activeTabIndex) return;
-
-		neiStore.update((state) => ({
-			...state,
-			activeTabIndex: index
-		}));
-	}
-
-	$: activeTab = $neiStore.activeTabIndex;
-
-	function isTabActive(index: number): boolean {
-		const activeTabIndex = activeTab;
-
-		return activeTabIndex === index;
+	function isTabActive(tabId: string): boolean {
+		return tabId === activeTab?.name;
 	}
 </script>
 
@@ -125,19 +51,20 @@
 	<div id="nei" class="panel-tab-container" bind:this={panelContainer}>
 		<div class="panel-tab-bar">
 			<div id="nei-tabs" class="panel-tabs">
-				{#each tabs as tab, index}
-					<div
-						class="panel-tab {isTabActive(index) ? 'active' : ''}"
-						bind:this={tab.dom}
-						on:click={() => switchTab(index)}
-						on:mouseenter={() => TooltipService.show(tab.dom, { header: tab.name })}
-					>
-						<icon
-							class="icon"
-							style="--pos-x:{(tab.iconId % 256) * -32}px; --pos-y:{Math.floor(tab.iconId / 256) *
-								-32}px"
-						></icon>
-					</div>
+				{#each $neiStore.tabs as tab, index}
+					{#if tab.visible($neiStore)}
+						<div
+							class="panel-tab {isTabActive(tab.name) ? 'active' : ''}"
+							on:click={() => NeiService.changeTab(index)}
+							on:mouseenter={(e) => TooltipService.show(e.currentTarget, { header: tab.name })}
+						>
+							<icon
+								class="icon"
+								style="--pos-x:{(tab.iconId % 256) * -32}px; --pos-y:{Math.floor(tab.iconId / 256) *
+									-32}px"
+							></icon>
+						</div>
+					{/if}
 				{/each}
 			</div>
 		</div>
@@ -156,10 +83,8 @@
 				<McButton on:click={() => NeiService.hide()}>x</McButton>
 			</div>
 
-			{#if $neiStore.activeTabIndex === 0}
-				<NeiItemsTab bind:containerElement={gridElement} />
-			{:else if $neiStore.activeTabIndex === 1}
-				<NeiAllRecipesTab />
+			{#if activeTab}
+				<svelte:component this={activeTab.component} />
 			{/if}
 		</div>
 	</div>
