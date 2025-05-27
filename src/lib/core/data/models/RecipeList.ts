@@ -425,7 +425,7 @@ export class RecipeList {
 		// Handle drag over
 		document.addEventListener('dragover', (e) => {
 			e.preventDefault();
-			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group');
+			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group, .group-buttons');
 			if (dropZone) {
 				dropZone.classList.add('drag-over');
 			}
@@ -433,7 +433,7 @@ export class RecipeList {
 
 		// Handle drag leave
 		document.addEventListener('dragleave', (e) => {
-			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group');
+			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group, .group-buttons');
 			if (dropZone) {
 				dropZone.classList.remove('drag-over');
 			}
@@ -442,7 +442,7 @@ export class RecipeList {
 		// Handle drop
 		document.addEventListener('drop', (e) => {
 			e.preventDefault();
-			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group');
+			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group, .group-buttons');
 			if (!dropZone) return;
 
 			dropZone.classList.remove('drag-over');
@@ -850,7 +850,7 @@ export class RecipeList {
 		const currentRepository = get(repositoryStore);
 
 		return `
-            <tr class="group-links">
+            <tr class="group-buttons" data-iid="${group.iid}">
                 <td colspan="6">
                     <div class="hgroup">
                         <span class="links-label" data-tooltip="link">Links: (?)</span>
