@@ -70,7 +70,7 @@ export function formatAmount(amount: number): string {
     } else if (amount >= 1e8) {
         suffix = 'M';
         divisor = 1e6;
-    } else if (amount >= 1e6) {
+    } else if (amount >= 1e5) {
         suffix = 'K';
         divisor = 1000;
     }

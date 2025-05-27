@@ -170,7 +170,7 @@ machines["Precise Auto-Assembler MT-3662"] = {
     },
     power: 1,
     parallels: (recipe, choices) => {
-        return Math.pow(2, (choices.precisionTier - 1) * 16);
+        return Math.pow(2, choices.precisionTier) * 16;
     },
     choices: {precisionTier: {
         description: "Precision Tier",
