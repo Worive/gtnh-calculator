@@ -7,6 +7,8 @@ import type { PageModel } from '$lib/core/data/models/PageModel';
 import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { get } from 'svelte/store';
+import { SearchQuery } from '$lib/core/data/models/SearchQuery';
+import { RecipeModel } from '$lib/core/data/models/RecipeModel';
 
 let nextIid = 0;
 
@@ -126,4 +128,31 @@ export function DownloadCurrentPage() {
 	a.click();
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
+}
+
+function SearchGroup(query:SearchQuery, group:RecipeGroupModel, idMap:{[key:string]:boolean})
+{
+	for (let element of group.elements) {
+		if (element instanceof RecipeGroupModel) {
+			SearchGroup(query, element, idMap);
+		} else if (element instanceof RecipeModel) {
+			if (!element.recipe)
+				continue;
+			for (let item of element.recipe.items) {
+				if (item.goods.id in idMap)
+					continue;
+				idMap[item.goods.id] = item.goods.MatchSearchText(query);
+			}
+		}
+	}
+}
+
+export function Search(text:string):{[key:string]:boolean}
+{
+	const page = get(currentPageStore);
+
+	let result:{[key:string]:boolean} = {}
+	let query = new SearchQuery(text);
+	SearchGroup(query, page.rootGroup, result);
+	return result;
 }

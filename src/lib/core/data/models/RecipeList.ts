@@ -4,7 +4,8 @@ import {
 	DownloadCurrentPage,
 	DragAndDrop,
 	GetByIid,
-	UpdateProject
+	UpdateProject,
+	Search,
 } from '$lib/legacy/page';
 import { ProductModel } from '$lib/core/data/models/ProductModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
@@ -36,15 +37,24 @@ export class RecipeList {
 	private productItemsContainer: HTMLElement;
 	private recipeItemsContainer: HTMLElement;
 	private statusMessageElement: HTMLElement;
+	private searchContainer: HTMLElement;
+	private searchInput: HTMLInputElement;
+	private searchClose: HTMLElement;
+	private searchHighlightStyle:HTMLStyleElement;
 	private actionHandlers: Map<string, ActionHandler> = new Map();
 
 	constructor() {
 		this.productItemsContainer = document.querySelector('.product-items')!;
 		this.recipeItemsContainer = document.querySelector('.recipe-list')!;
 		this.statusMessageElement = document.querySelector('.status-message') as HTMLElement;
+		this.searchContainer = document.querySelector('.search-container')!;
+		this.searchInput = document.getElementById('recipe-search') as HTMLInputElement;
+		this.searchClose = document.getElementById('recipe-search-close')!;
+		this.searchHighlightStyle = document.getElementById('item-icon-search-style') as HTMLStyleElement;
 		this.setupActionHandlers();
 		this.setupGlobalEventListeners();
 		this.setupDragAndDrop();
+		this.setupSearch();
 
 		// Listen for project changes
 		addProjectChangeListener(() => {
@@ -452,6 +462,60 @@ export class RecipeList {
 			if (draggedIid && targetIid) {
 				DragAndDrop(draggedIid, targetIid);
 			}
+		});
+	}
+
+	private setupSearch() {
+		// Hide search by default
+		this.searchContainer.classList.add('hidden');
+
+		// Show search on Ctrl+F
+		document.addEventListener('keydown', (e: KeyboardEvent) => {
+			if (e.ctrlKey && e.key === 'f') {
+				e.preventDefault(); // Prevent browser's default find behavior
+				this.searchContainer.classList.remove('hidden');
+				this.searchInput.focus(); // Focus the input when shown
+			}
+		});
+
+		// Hide search when clicking X
+		this.searchClose.addEventListener('click', () => {
+			this.searchContainer.classList.add('hidden');
+			this.searchInput.value = ''; // Clear the input when hiding
+			this.searchHighlightStyle.textContent = ''; // Clear the highlight style
+		});
+
+		// Hide search when pressing Escape
+		document.addEventListener('keydown', (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && !this.searchContainer.classList.contains('hidden')) {
+				this.searchContainer.classList.add('hidden');
+				this.searchInput.value = ''; // Clear the input when hiding
+				this.searchHighlightStyle.textContent = ''; // Clear the highlight style
+			}
+		});
+
+		// Handle search text changes
+		this.searchInput.addEventListener('input', (e: Event) => {
+			const searchText = (e.target as HTMLInputElement).value;
+			if (searchText == "") {
+				this.searchHighlightStyle.textContent = '';
+				return;
+			}
+			const results = Search(searchText);
+
+			// Build the CSS for matched items
+			const matchedIds = Object.entries(results)
+				.filter(([_, matched]) => matched)
+				.map(([id, _]) => id);
+
+			// Create the CSS rule for all matched items
+			const cssRule = matchedIds.length > 0
+				? matchedIds.map(id => `item-icon[data-id="${id}"]`).join(',\n') +
+				` {\n    box-shadow: 0 0 0 2px #ee6b6e;\n    background-color: #ee6b6e20;\n}`
+				: '';
+
+			// Update the style element
+			this.searchHighlightStyle.textContent = cssRule;
 		});
 	}
 

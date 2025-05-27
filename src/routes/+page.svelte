@@ -65,6 +65,10 @@
 				>
 			</span>
 		</div>
+		<div class="search-container">
+			<input type="text" id="recipe-search" placeholder="Search...">
+			<button id="recipe-search-close" class="mc-button">x</button>
+		</div>
 	</div>
 
 	<div id="panels">
