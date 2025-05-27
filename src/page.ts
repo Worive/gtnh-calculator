@@ -3,6 +3,7 @@ import { SolvePage } from "./solver.js";
 import { showConfirmDialog } from './dialogues.js';
 import { Machine, singleBlockMachine } from "./machines.js";
 import { Choice } from "./machines.js";
+import { SearchQuery } from "./searchQuery.js";
 
 let nextIid = 0;
 
@@ -349,6 +350,31 @@ export class PageModel extends ModelObject
         }
         return false;
     }
+}
+
+function SearchGroup(query:SearchQuery, group:RecipeGroupModel, idMap:{[key:string]:boolean})
+{
+    for (let element of group.elements) {
+        if (element instanceof RecipeGroupModel) {
+            SearchGroup(query, element, idMap);
+        } else if (element instanceof RecipeModel) {
+            if (!element.recipe)
+                continue;
+            for (let item of element.recipe.items) {
+                if (item.goods.id in idMap)
+                    continue;
+                idMap[item.goods.id] = item.goods.MatchSearchText(query);
+            }
+        }
+    }
+}
+
+export function Search(text:string):{[key:string]:boolean}
+{
+    let result:{[key:string]:boolean} = {}
+    let query = new SearchQuery(text);
+    SearchGroup(query, page.rootGroup, result);
+    return result;
 }
 
 export function DragAndDrop(sourceIid:number, targetIid:number)
