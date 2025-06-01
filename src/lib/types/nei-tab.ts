@@ -5,5 +5,6 @@ export interface NeiTab {
 	name: string;
 	iconId: number;
 	component: Component;
+	componentProps?: Record<string, any>;
 	visible: (store: NeiStore) => boolean;
 }

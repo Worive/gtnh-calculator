@@ -84,7 +84,7 @@
 			</div>
 
 			{#if activeTab}
-				<svelte:component this={activeTab.component} />
+				<svelte:component this={activeTab.component} {...activeTab?.componentProps}/>
 			{/if}
 		</div>
 	</div>

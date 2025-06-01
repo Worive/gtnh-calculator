@@ -1,52 +1,12 @@
 <script lang="ts">
-	import { Goods } from '$lib/core/data/models/Goods.js';
-	import { Recipe } from '$lib/core/data/models/Recipe.js';
 	import { neiStore } from '$lib/stores/nei.store.js';
-	import { repositoryStore } from '$lib/stores/repository.store.js';
-	import { SearchQuery } from '$lib/core/data/models/SearchQuery.js';
-	import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-	import type { GroupedRecipesDict } from '$lib/types/grouped-recipes-dict';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import NeiRecipeGroup from '$lib/components/nei/NeiRecipeGroup.svelte';
+	import { NeiService } from '$lib/services/nei.service.js';
 
 	$: mode = $neiStore.currentMode;
 
-	$: groupedRecipes = getGroupedRecipes($neiStore.search);
-
-	function getGroupedRecipes(search: string | null): GroupedRecipesDict {
-		if ($neiStore.currentGoods instanceof Goods) {
-			let goods: Int32Array;
-
-			if (mode === ShowNeiMode.Production) {
-				goods = $neiStore.currentGoods.production;
-			} else if (mode === ShowNeiMode.Consumption) {
-				goods = $neiStore.currentGoods.consumption;
-			} else {
-				throw new Error('Unknown NEI mode: ' + mode);
-			}
-
-			return Array.from(goods)
-				.map((pointer) => $repositoryStore?.GetObject(pointer, Recipe))
-				.filter((recipe): recipe is Recipe => recipe !== undefined)
-				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true))
-				.sort(Recipe.sortByNei)
-				.reduce((result: GroupedRecipesDict, recipe: Recipe) => {
-					const key = recipe.recipeType.name;
-
-					if (!result[key]) {
-						result[key] = {
-							type: recipe.recipeType,
-							recipes: []
-						};
-					}
-
-					result[key].recipes.push(recipe);
-					return result;
-				}, {} as GroupedRecipesDict);
-		}
-
-		return {};
-	}
+	$: groupedRecipes = NeiService.getGroupedRecipes(mode, $neiStore.search);
 </script>
 
 <div class="recipe-list">

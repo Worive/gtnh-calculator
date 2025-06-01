@@ -15,6 +15,9 @@ import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
 import type { NeiTab } from '$lib/types/nei-tab';
 import type { Repository } from '$lib/core/data/Repository';
+import type { GroupedRecipesDict } from '$lib/types/grouped-recipes-dict';
+import { SearchQuery } from '$lib/core/data/models/SearchQuery';
+import NeiRecipesTab from '$lib/components/nei/NeiRecipesTab.svelte';
 
 export class NeiService {
 	static initialize() {
@@ -40,6 +43,44 @@ export class NeiService {
 
 			this.changeTab(0);
 		}
+	}
+
+	static getGroupedRecipes(mode: ShowNeiMode, search: string | null): GroupedRecipesDict {
+		const nei = get(neiStore);
+		const repository = get(repositoryStore);
+
+		if (nei.currentGoods instanceof Goods) {
+			let goods: Int32Array;
+
+			if (mode === ShowNeiMode.Production) {
+				goods = nei.currentGoods.production;
+			} else if (mode === ShowNeiMode.Consumption) {
+				goods = nei.currentGoods.consumption;
+			} else {
+				throw new Error('Unknown NEI mode: ' + mode);
+			}
+
+			return Array.from(goods)
+				.map((pointer) => repository?.GetObject(pointer, Recipe))
+				.filter((recipe): recipe is Recipe => recipe !== undefined)
+				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true))
+				.sort(Recipe.sortByNei)
+				.reduce((result: GroupedRecipesDict, recipe: Recipe) => {
+					const key = recipe.recipeType.name;
+
+					if (!result[key]) {
+						result[key] = {
+							type: recipe.recipeType,
+							recipes: []
+						};
+					}
+
+					result[key].recipes.push(recipe);
+					return result;
+				}, {} as GroupedRecipesDict);
+		}
+
+		return {};
 	}
 
 	static changeTab(index: number): void {
@@ -84,11 +125,7 @@ export class NeiService {
 		if (callback != null) {
 			neiStore.update((state) => ({
 				...state,
-				showNeiCallback: callback
-			}));
-
-			neiStore.update((state) => ({
-				...state,
+				showNeiCallback: callback,
 				history: []
 			}));
 		} else {
@@ -147,13 +184,6 @@ export class NeiService {
 			});
 		}
 
-		// Fill recipe lists
-		for (const recipe of recipes) {
-			const recipeType = recipe.recipeType;
-			const list = get(neiStore).mapRecipeTypeToRecipeList[recipeType.name];
-			list.push(recipe);
-		}
-
 		neiStore.update((state) => ({
 			...state,
 			search: null
@@ -165,6 +195,45 @@ export class NeiService {
 			...state,
 			activeTabIndex: newTabIndex
 		}));
+
+		const nei = get(neiStore);
+
+		this.updateTabsWithRecipes(nei.currentMode, nei.search);
+	}
+
+	private static updateTabsWithRecipes(mode: ShowNeiMode, search: string|null): void {
+		const repository = get(repositoryStore);
+
+		if (!repository) {
+			return;
+		}
+
+		const groupedRecipes = this.getGroupedRecipes(mode, search);
+
+		const tabs =
+			[
+				this.getAllItemsTab(repository),
+				this.getAllRecipesTab(repository)
+			]
+
+		for (const recipeGroup of Object.values(groupedRecipes)) {
+			const recipeType = recipeGroup.type;
+
+			tabs.push({
+				name: recipeType.name,
+				iconId: recipeType.defaultCrafter.iconId,
+				component: NeiRecipesTab,
+				componentProps: {
+					recipes: recipeGroup.recipes
+				},
+				visible: () => true,
+			})
+		}
+
+		neiStore.update((state) => ({
+			...state,
+			tabs: tabs,
+		}))
 	}
 
 	private static getAllOreDictRecipes(set: Set<Recipe>, goods: OreDict, mode: ShowNeiMode): void {

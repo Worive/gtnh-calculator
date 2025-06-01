@@ -33,5 +33,5 @@ export const neiStore = writable<NeiStore>({
 	activeTabIndex: 0,
 	search: null,
 	currentGrid: null,
-	tabs: []
+	tabs: [],
 });
