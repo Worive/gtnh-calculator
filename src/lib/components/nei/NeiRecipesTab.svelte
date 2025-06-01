@@ -6,9 +6,9 @@
 </script>
 
 <div class="recipe-list">
-		<div class="recipe-group">
-			<NeiRecipeGroup recipes={recipes} />
-		</div>
+	<div class="recipe-group">
+		<NeiRecipeGroup {recipes} />
+	</div>
 </div>
 
 <style>

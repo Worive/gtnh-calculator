@@ -201,7 +201,7 @@ export class NeiService {
 		this.updateTabsWithRecipes(nei.currentMode, nei.search);
 	}
 
-	private static updateTabsWithRecipes(mode: ShowNeiMode, search: string|null): void {
+	private static updateTabsWithRecipes(mode: ShowNeiMode, search: string | null): void {
 		const repository = get(repositoryStore);
 
 		if (!repository) {
@@ -210,11 +210,7 @@ export class NeiService {
 
 		const groupedRecipes = this.getGroupedRecipes(mode, search);
 
-		const tabs =
-			[
-				this.getAllItemsTab(repository),
-				this.getAllRecipesTab(repository)
-			]
+		const tabs = [this.getAllItemsTab(repository), this.getAllRecipesTab(repository)];
 
 		for (const recipeGroup of Object.values(groupedRecipes)) {
 			const recipeType = recipeGroup.type;
@@ -226,14 +222,14 @@ export class NeiService {
 				componentProps: {
 					recipes: recipeGroup.recipes
 				},
-				visible: () => true,
-			})
+				visible: () => true
+			});
 		}
 
 		neiStore.update((state) => ({
 			...state,
-			tabs: tabs,
-		}))
+			tabs: tabs
+		}));
 	}
 
 	private static getAllOreDictRecipes(set: Set<Recipe>, goods: OreDict, mode: ShowNeiMode): void {

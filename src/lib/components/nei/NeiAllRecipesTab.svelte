@@ -18,7 +18,6 @@
 						{#if block?.id}
 							<ItemIcon dataId={block.id} />
 						{/if}
-
 					{/each}
 
 					{#each groupedRecipe.type.multiblocks as block}
