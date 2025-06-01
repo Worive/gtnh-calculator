@@ -9,6 +9,7 @@
 	import { repositoryStore } from '$lib/stores/repository.store';
 	import { globalCycle } from '$lib/stores/globalCycle';
 	import { highlightedId } from '$lib/stores/highlightedId';
+	import { formatAmount } from '$lib/utils/Formatting.js';
 
 	const { dataId, action, probability, amount } = $props<{
 		dataId: string;
@@ -119,7 +120,7 @@
 	{/if}
 
 	{#if amount !== null && amount !== 1}
-		<span class="item-amount">{amount}</span>
+		<span class="item-amount">{formatAmount(amount)}</span>
 	{/if}
 </button>
 
