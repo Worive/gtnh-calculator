@@ -15,11 +15,16 @@
 			<div class="header">
 				<div class="recipe-group-machines">
 					{#each groupedRecipe.type.singleblocks as block}
-						<ItemIcon dataId={block.id} />
+						{#if block?.id}
+							<ItemIcon dataId={block.id} />
+						{/if}
+
 					{/each}
 
 					{#each groupedRecipe.type.multiblocks as block}
-						<ItemIcon dataId={block.id} />
+						{#if block?.id}
+							<ItemIcon dataId={block.id} />
+						{/if}
 					{/each}
 				</div>
 				<p>{recipeTypeName}</p>
