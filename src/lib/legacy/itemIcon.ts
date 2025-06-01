@@ -102,7 +102,13 @@ export class IconBox extends HTMLElement {
 
 			// Update tooltip if this element is currently being hovered
 			if (TooltipService.isHovered(this)) {
-				TooltipService.show(this, { goods: obj });
+				const actionType = this.getAttribute('data-action');
+				const actionText = actionType ? actions[actionType] : undefined;
+
+				TooltipService.show(this, {
+					goods: obj,
+					action: actionText ?? 'Left/Right click to view Production/Consumption for this item'
+				});
 				this.UpdateHighlightStyle();
 			}
 		}
