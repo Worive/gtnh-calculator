@@ -263,7 +263,7 @@ select:hover {
 	padding: 8px;
 	border-radius: 4px;
 	position: relative;
-    width: calc(100% - 350px);
+	width: calc(100% - 350px);
 }
 
 .status-message:not(.solved) {
@@ -321,19 +321,19 @@ select:hover {
 }
 
 .search-container {
-    position: absolute;
-    top: 8px;
-    right: 20px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    background-color:#0489C1;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	position: absolute;
+	top: 8px;
+	right: 20px;
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	background-color: #0489c1;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .search-container.hidden {
-    display: none;
+	display: none;
 }

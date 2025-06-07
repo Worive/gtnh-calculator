@@ -5,7 +5,7 @@ import {
 	DragAndDrop,
 	GetByIid,
 	UpdateProject,
-	Search,
+	Search
 } from '$lib/legacy/page';
 import { ProductModel } from '$lib/core/data/models/ProductModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
@@ -40,7 +40,7 @@ export class RecipeList {
 	private searchContainer: HTMLElement;
 	private searchInput: HTMLInputElement;
 	private searchClose: HTMLElement;
-	private searchHighlightStyle:HTMLStyleElement;
+	private searchHighlightStyle: HTMLStyleElement;
 	private actionHandlers: Map<string, ActionHandler> = new Map();
 
 	constructor() {
@@ -50,7 +50,9 @@ export class RecipeList {
 		this.searchContainer = document.querySelector('.search-container')!;
 		this.searchInput = document.getElementById('recipe-search') as HTMLInputElement;
 		this.searchClose = document.getElementById('recipe-search-close')!;
-		this.searchHighlightStyle = document.getElementById('item-icon-search-style') as HTMLStyleElement;
+		this.searchHighlightStyle = document.getElementById(
+			'item-icon-search-style'
+		) as HTMLStyleElement;
 		this.setupActionHandlers();
 		this.setupGlobalEventListeners();
 		this.setupDragAndDrop();
@@ -435,7 +437,9 @@ export class RecipeList {
 		// Handle drag over
 		document.addEventListener('dragover', (e) => {
 			e.preventDefault();
-			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group, .group-buttons');
+			const dropZone = (e.target as HTMLElement)?.closest(
+				'.recipe-item, .recipe-group, .group-buttons'
+			);
 			if (dropZone) {
 				dropZone.classList.add('drag-over');
 			}
@@ -443,7 +447,9 @@ export class RecipeList {
 
 		// Handle drag leave
 		document.addEventListener('dragleave', (e) => {
-			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group, .group-buttons');
+			const dropZone = (e.target as HTMLElement)?.closest(
+				'.recipe-item, .recipe-group, .group-buttons'
+			);
 			if (dropZone) {
 				dropZone.classList.remove('drag-over');
 			}
@@ -452,7 +458,9 @@ export class RecipeList {
 		// Handle drop
 		document.addEventListener('drop', (e) => {
 			e.preventDefault();
-			const dropZone = (e.target as HTMLElement)?.closest('.recipe-item, .recipe-group, .group-buttons');
+			const dropZone = (e.target as HTMLElement)?.closest(
+				'.recipe-item, .recipe-group, .group-buttons'
+			);
 			if (!dropZone) return;
 
 			dropZone.classList.remove('drag-over');
@@ -497,7 +505,7 @@ export class RecipeList {
 		// Handle search text changes
 		this.searchInput.addEventListener('input', (e: Event) => {
 			const searchText = (e.target as HTMLInputElement).value;
-			if (searchText == "") {
+			if (searchText == '') {
 				this.searchHighlightStyle.textContent = '';
 				return;
 			}
@@ -509,10 +517,11 @@ export class RecipeList {
 				.map(([id, _]) => id);
 
 			// Create the CSS rule for all matched items
-			const cssRule = matchedIds.length > 0
-				? matchedIds.map(id => `item-icon[data-id="${id}"]`).join(',\n') +
-				` {\n    box-shadow: 0 0 0 2px #ee6b6e;\n    background-color: #ee6b6e20;\n}`
-				: '';
+			const cssRule =
+				matchedIds.length > 0
+					? matchedIds.map((id) => `item-icon[data-id="${id}"]`).join(',\n') +
+						` {\n    box-shadow: 0 0 0 2px #ee6b6e;\n    background-color: #ee6b6e20;\n}`
+					: '';
 
 			// Update the style element
 			this.searchHighlightStyle.textContent = cssRule;

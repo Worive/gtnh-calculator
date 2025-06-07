@@ -33,8 +33,7 @@ export function DragAndDrop(sourceIid: number, targetIid: number) {
 	)
 		return;
 	var targetObject = GetByIid(targetIid);
-	if (targetObject === null || !(targetObject.current instanceof RecipeGroupEntry))
-		return;
+	if (targetObject === null || !(targetObject.current instanceof RecipeGroupEntry)) return;
 	if (draggingObject.current instanceof RecipeGroupModel && !draggingObject.current.collapsed)
 		return;
 	console.log('DragAndDrop', draggingObject, targetObject);
@@ -130,28 +129,28 @@ export function DownloadCurrentPage() {
 	URL.revokeObjectURL(url);
 }
 
-function SearchGroup(query:SearchQuery, group:RecipeGroupModel, idMap:{[key:string]:boolean})
-{
+function SearchGroup(
+	query: SearchQuery,
+	group: RecipeGroupModel,
+	idMap: { [key: string]: boolean }
+) {
 	for (let element of group.elements) {
 		if (element instanceof RecipeGroupModel) {
 			SearchGroup(query, element, idMap);
 		} else if (element instanceof RecipeModel) {
-			if (!element.recipe)
-				continue;
+			if (!element.recipe) continue;
 			for (let item of element.recipe.items) {
-				if (item.goods.id in idMap)
-					continue;
+				if (item.goods.id in idMap) continue;
 				idMap[item.goods.id] = item.goods.MatchSearchText(query);
 			}
 		}
 	}
 }
 
-export function Search(text:string):{[key:string]:boolean}
-{
+export function Search(text: string): { [key: string]: boolean } {
 	const page = get(currentPageStore);
 
-	let result:{[key:string]:boolean} = {}
+	let result: { [key: string]: boolean } = {};
 	let query = new SearchQuery(text);
 	SearchGroup(query, page.rootGroup, result);
 	return result;

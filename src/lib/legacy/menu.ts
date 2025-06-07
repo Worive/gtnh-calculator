@@ -127,7 +127,7 @@ export class PageManager {
 	private render() {
 		this.pageListContainer.innerHTML = '';
 
-		this.pages.forEach(pageName => {
+		this.pages.forEach((pageName) => {
 			if (pageName === this.currentPage) {
 				const container = document.createElement('div');
 				container.className = 'active-page';
