@@ -8,7 +8,7 @@ import { OreDict } from '$lib/core/data/models/OreDict';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import type { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject.interface';
-import type { RecipeInOut } from '$lib/types/models/Recipe';
+import type { RecipeInOut } from '$lib/types/recipe/RecipeInOut';
 
 const RecipeIoTypePrototypes: IMemMappedObjectPrototype<RecipeObject>[] = [
 	Item,

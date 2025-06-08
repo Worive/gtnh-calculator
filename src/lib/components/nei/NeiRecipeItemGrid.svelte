@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
-	import type { RecipeInOut } from '$lib/types/models/Recipe';
+	import type { RecipeInOut } from '$lib/types/recipe/RecipeInOut';
 	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import { elementSize } from '$lib/constants/nei';

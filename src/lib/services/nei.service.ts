@@ -15,7 +15,7 @@ import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
 import type { Tab } from '$lib/types/nei/tab';
 import type { Repository } from '$lib/core/data/Repository';
-import type { GroupedRecipesDict } from '$lib/types/grouped-recipes-dict';
+import type { GroupedRecipes } from '$lib/types/recipe/grouped-recipes';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
 import NeiRecipesTab from '$lib/components/nei/NeiRecipesTab.svelte';
 
@@ -45,7 +45,7 @@ export class NeiService {
 		}
 	}
 
-	static getGroupedRecipes(mode: ShowNeiMode, search: string | null): GroupedRecipesDict {
+	static getGroupedRecipes(mode: ShowNeiMode, search: string | null): GroupedRecipes {
 		const nei = get(neiStore);
 		const repository = get(repositoryStore);
 
@@ -65,7 +65,7 @@ export class NeiService {
 				.filter((recipe): recipe is Recipe => recipe !== undefined)
 				.filter((recipe) => (search ? recipe.MatchSearchText(new SearchQuery(search)) : true))
 				.sort(Recipe.sortByNei)
-				.reduce((result: GroupedRecipesDict, recipe: Recipe) => {
+				.reduce((result: GroupedRecipes, recipe: Recipe) => {
 					const key = recipe.recipeType.name;
 
 					if (!result[key]) {
@@ -77,7 +77,7 @@ export class NeiService {
 
 					result[key].recipes.push(recipe);
 					return result;
-				}, {} as GroupedRecipesDict);
+				}, {} as GroupedRecipes);
 		}
 
 		return {};
