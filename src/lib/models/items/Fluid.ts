@@ -1,4 +1,4 @@
-import { Goods } from '$lib/core/data/models/Goods';
+import { Goods } from '$lib/models/items/Goods';
 
 export class Fluid extends Goods {
 	get isGas(): boolean {

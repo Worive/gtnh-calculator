@@ -1,5 +1,5 @@
-import type { ModelObject } from '$lib/core/data/models/ModelObject';
-import { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
+import type { ModelObject } from '$lib/models/base/ModelObject';
+import { ModelObjectVisitor } from '$lib/models/base/ModelObjectVisitor';
 
 export class ModelObjectSerializer extends ModelObjectVisitor {
 	stack: object[] = [];

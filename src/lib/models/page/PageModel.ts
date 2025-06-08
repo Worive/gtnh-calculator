@@ -1,7 +1,7 @@
-import { ModelObject } from '$lib/core/data/models/ModelObject';
-import { ProductModel } from '$lib/core/data/models/ProductModel';
-import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
+import { ModelObject } from '$lib/models/base/ModelObject';
+import { ProductModel } from '$lib/models/page/ProductModel';
+import { RecipeGroupModel } from '$lib/models/recipe/RecipeGroupModel';
+import type { ModelObjectVisitor } from '$lib/models/base/ModelObjectVisitor';
 import type { Settings } from '$lib/types/config/Settings';
 import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 

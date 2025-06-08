@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Recipe } from '$lib/core/data/models/Recipe';
+	import type { Recipe } from '$lib/models/recipe/Recipe';
 	import { get } from 'svelte/store';
 	import { neiStore } from '$lib/stores/nei.store';
 	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';

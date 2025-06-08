@@ -1,6 +1,6 @@
-import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
-import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
-import { RecipeModel } from '$lib/core/data/models/RecipeModel';
+import { RecipeGroupEntry } from '$lib/models/recipe/RecipeGroupEntry';
+import type { ModelObjectVisitor } from '$lib/models/base/ModelObjectVisitor';
+import { RecipeModel } from '$lib/models/recipe/RecipeModel';
 import type { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 
 export class RecipeGroupModel extends RecipeGroupEntry {

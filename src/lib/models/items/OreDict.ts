@@ -1,7 +1,7 @@
-import { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import { RecipeObject } from '$lib/models/recipe/RecipeObject';
 import type { Repository } from '$lib/core/data/Repository';
-import { Item } from '$lib/core/data/models/Item';
-import { SearchQuery } from '$lib/core/data/models/SearchQuery';
+import { Item } from '$lib/models/items/Item';
+import { SearchQuery } from '$lib/models/search/SearchQuery';
 
 export class OreDict extends RecipeObject {
 	items: Item[];

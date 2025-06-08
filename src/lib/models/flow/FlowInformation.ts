@@ -1,4 +1,4 @@
-import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
 
 export class FlowInformation {
 	input: { [key: string]: number } = {};

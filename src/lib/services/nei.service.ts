@@ -1,22 +1,22 @@
 import { neiStore } from '$lib/stores/nei.store';
 import { get } from 'svelte/store';
 import { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
-import { RecipeType } from '$lib/core/data/models/RecipeType';
-import { Recipe } from '$lib/core/data/models/Recipe';
+import { RecipeType } from '$lib/models/recipe/RecipeType';
+import { Recipe } from '$lib/models/recipe/Recipe';
 import { repositoryStore } from '$lib/stores/repository.store';
-import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import type { ShowCallback } from '$lib/types/nei/show-callback';
-import { OreDict } from '$lib/core/data/models/OreDict';
-import { Fluid } from '$lib/core/data/models/Fluid';
-import { Item } from '$lib/core/data/models/Item';
-import { Goods } from '$lib/core/data/models/Goods';
+import { OreDict } from '$lib/models/items/OreDict';
+import { Fluid } from '$lib/models/items/Fluid';
+import { Item } from '$lib/models/items/Item';
+import { Goods } from '$lib/models/items/Goods';
 import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
 import type { Tab } from '$lib/types/nei/tab';
 import type { Repository } from '$lib/core/data/Repository';
 import type { GroupedRecipes } from '$lib/types/recipe/grouped-recipes';
-import { SearchQuery } from '$lib/core/data/models/SearchQuery';
+import { SearchQuery } from '$lib/models/search/SearchQuery';
 import NeiRecipesTab from '$lib/components/nei/NeiRecipesTab.svelte';
 
 export class NeiService {

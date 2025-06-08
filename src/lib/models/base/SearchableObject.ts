@@ -1,5 +1,5 @@
-import { MemMappedObject } from '$lib/core/data/models/MemMappedObject';
-import type { SearchQuery } from '$lib/core/data/models/SearchQuery';
+import { MemMappedObject } from '$lib/models/base/MemMappedObject';
+import type { SearchQuery } from '$lib/models/search/SearchQuery';
 
 export abstract class SearchableObject extends MemMappedObject {
 	id: string = this.GetString(4);

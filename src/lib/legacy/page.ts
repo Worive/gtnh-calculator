@@ -1,14 +1,14 @@
-import { ModelObjectSerializer } from '$lib/core/data/models/ModelObjectSerializer';
-import { ModelObjectIidScanner } from '$lib/core/data/models/ModelObjectIidScanner';
+import { ModelObjectSerializer } from '$lib/models/base/ModelObjectSerializer';
+import { ModelObjectIidScanner } from '$lib/models/base/ModelObjectIidScanner';
 import type { iidScanResult } from '$lib/types/core/iid-scan-result';
-import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
-import type { PageModel } from '$lib/core/data/models/PageModel';
+import { RecipeGroupModel } from '$lib/models/recipe/RecipeGroupModel';
+import { RecipeGroupEntry } from '$lib/models/recipe/RecipeGroupEntry';
+import type { PageModel } from '$lib/models/page/PageModel';
 import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { get } from 'svelte/store';
-import { SearchQuery } from '$lib/core/data/models/SearchQuery';
-import { RecipeModel } from '$lib/core/data/models/RecipeModel';
+import { SearchQuery } from '$lib/models/search/SearchQuery';
+import { RecipeModel } from '$lib/models/recipe/RecipeModel';
 
 let nextIid = 0;
 

@@ -1,4 +1,4 @@
-import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
 import type { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 
 export type History = {

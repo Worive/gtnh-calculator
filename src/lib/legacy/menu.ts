@@ -5,7 +5,7 @@ import {
 	UpdateProject
 } from '$lib/legacy/page.js';
 import { showConfirmDialog } from '$lib/stores/dialog.store';
-import { PageModel } from '$lib/core/data/models/PageModel';
+import { PageModel } from '$lib/models/page/PageModel';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { get } from 'svelte/store';
 import { currentPageStore } from '$lib/stores/currentPage.store';

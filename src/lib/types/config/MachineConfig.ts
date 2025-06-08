@@ -1,4 +1,4 @@
-import type { RecipeModel } from '$lib/core/data/models/RecipeModel';
+import type { RecipeModel } from '$lib/models/recipe/RecipeModel';
 
 export type MachineCoefficient =
 	| number

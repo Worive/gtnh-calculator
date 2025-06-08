@@ -1,6 +1,6 @@
 <script lang="ts">
 	import NeiRecipeGroup from '$lib/components/nei/NeiRecipeGroup.svelte';
-	import type { Recipe } from '$lib/core/data/models/Recipe';
+	import type { Recipe } from '$lib/models/recipe/Recipe';
 
 	export let recipes: Recipe[];
 </script>

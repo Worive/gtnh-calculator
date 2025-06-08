@@ -1,4 +1,4 @@
-import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
+import type { ModelObjectVisitor } from '$lib/models/base/ModelObjectVisitor';
 
 let nextIid = 0;
 

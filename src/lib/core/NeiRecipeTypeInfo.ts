@@ -3,12 +3,12 @@ import { elementSize } from '$lib/constants/nei';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
 import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
-import type { RecipeType } from '$lib/core/data/models/RecipeType';
-import type { Recipe } from '$lib/core/data/models/Recipe';
+import type { RecipeType } from '$lib/models/recipe/RecipeType';
+import type { Recipe } from '$lib/models/recipe/Recipe';
 import type { RecipeIo } from '$lib/types/recipe/recipe-io';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
-import { Fluid } from '$lib/core/data/models/Fluid';
-import { Goods } from '$lib/core/data/models/Goods';
+import { Fluid } from '$lib/models/items/Fluid';
+import { Goods } from '$lib/models/items/Goods';
 import { voltageTier } from '$lib/constants/voltage-tiers';
 import { formatAmount } from '$lib/utils/Formatting';
 

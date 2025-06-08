@@ -1,5 +1,5 @@
-import type { Recipe } from '$lib/core/data/models/Recipe';
-import type { RecipeModel } from '$lib/core/data/models/RecipeModel';
+import type { Recipe } from '$lib/models/recipe/Recipe';
+import type { RecipeModel } from '$lib/models/recipe/RecipeModel';
 import type { MachineCoefficient } from '$lib/types/config/MachineConfig';
 import {
 	CoilTierChoice,

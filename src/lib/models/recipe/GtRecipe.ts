@@ -1,4 +1,4 @@
-import { MemMappedObject } from '$lib/core/data/models/MemMappedObject';
+import { MemMappedObject } from '$lib/models/base/MemMappedObject';
 
 export class GtRecipe extends MemMappedObject {
 	get voltage(): number {

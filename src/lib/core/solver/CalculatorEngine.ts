@@ -1,10 +1,10 @@
-import type { PageModel } from '$lib/core/data/models/PageModel';
+import type { PageModel } from '$lib/models/page/PageModel';
 import { type Model, type Solution } from 'javascript-lp-solver';
 import { LinkCollection } from '$lib/core/solver/LinkCollection';
-import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import type { Recipe } from '$lib/core/data/models/Recipe';
-import { Item } from '$lib/core/data/models/Item';
+import { RecipeGroupModel } from '$lib/models/recipe/RecipeGroupModel';
+import { RecipeModel } from '$lib/models/recipe/RecipeModel';
+import type { Recipe } from '$lib/models/recipe/Recipe';
+import { Item } from '$lib/models/items/Item';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import {
 	machines,
@@ -13,11 +13,11 @@ import {
 } from '$lib/constants/machines';
 import { voltageTier } from '$lib/constants/voltage-tiers';
 import type { MachineCoefficient } from '$lib/types/config/MachineConfig';
-import type { OreDict } from '$lib/core/data/models/OreDict';
+import type { OreDict } from '$lib/models/items/OreDict';
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 import solver from 'javascript-lp-solver';
-import { FlowInformation } from '$lib/core/data/models/FlowInformation';
-import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import { FlowInformation } from '$lib/models/flow/FlowInformation';
+import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { get } from 'svelte/store';
 import { repositoryStore } from '$lib/stores/repository.store';

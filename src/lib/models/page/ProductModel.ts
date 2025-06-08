@@ -1,5 +1,5 @@
-import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
-import { ModelObject } from '$lib/core/data/models/ModelObject';
+import type { ModelObjectVisitor } from '$lib/models/base/ModelObjectVisitor';
+import { ModelObject } from '$lib/models/base/ModelObject';
 
 export class ProductModel extends ModelObject {
 	goodsId: string;

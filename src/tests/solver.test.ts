@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { setupRepository } from './setup';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import { PageModel } from '$lib/core/data/models/PageModel';
+import { RecipeModel } from '$lib/models/recipe/RecipeModel';
+import { RecipeGroupModel } from '$lib/models/recipe/RecipeGroupModel';
+import { PageModel } from '$lib/models/page/PageModel';
 import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
 
 function loadTestFiles(): string[] {

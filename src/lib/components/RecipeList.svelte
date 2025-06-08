@@ -3,7 +3,7 @@
 	import { voltageTier } from '$lib/constants/voltage-tiers';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import { repositoryStore } from '$lib/stores/repository.store';
-	import { Goods } from '$lib/core/data/models/Goods';
+	import { Goods } from '$lib/models/items/Goods';
 	import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 	import { linkAlgorithmNames } from '$lib/constants/solver';
 

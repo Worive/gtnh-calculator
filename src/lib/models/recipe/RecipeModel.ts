@@ -1,7 +1,7 @@
-import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
-import type { Recipe } from '$lib/core/data/models/Recipe';
-import type { Item } from '$lib/core/data/models/Item';
-import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
+import { RecipeGroupEntry } from '$lib/models/recipe/RecipeGroupEntry';
+import type { Recipe } from '$lib/models/recipe/Recipe';
+import type { Item } from '$lib/models/items/Item';
+import type { ModelObjectVisitor } from '$lib/models/base/ModelObjectVisitor';
 import type { Choice, MachineConfig } from '$lib/types/config/MachineConfig';
 import { singleBlockMachine } from '$lib/constants/machines';
 

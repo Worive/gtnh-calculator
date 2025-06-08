@@ -1,5 +1,5 @@
-import type { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import type { RecipeModel } from '$lib/models/recipe/RecipeModel';
+import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
 
 export class LinkCollection {
 	output: { [key: string]: { [key: string]: number } } = {};

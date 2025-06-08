@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { repositoryStore } from '$lib/stores/repository.store';
-	import { SearchQuery } from '$lib/core/data/models/SearchQuery';
-	import { Fluid } from '$lib/core/data/models/Fluid';
+	import { SearchQuery } from '$lib/models/search/SearchQuery';
+	import { Fluid } from '$lib/models/items/Fluid';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
-	import type { Goods } from '$lib/core/data/models/Goods';
-	import { Item } from '$lib/core/data/models/Item';
+	import type { Goods } from '$lib/models/items/Goods';
+	import { Item } from '$lib/models/items/Item';
 	import VirtualScroll from '$lib/components/nei/VirtualScroll.svelte';
 	import { neiStore } from '$lib/stores/nei.store';
 

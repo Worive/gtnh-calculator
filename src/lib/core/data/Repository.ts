@@ -1,10 +1,10 @@
-import type { MemMappedObject } from '$lib/core/data/models/MemMappedObject';
-import type { SearchableObject } from '$lib/core/data/models/SearchableObject';
-import { Item } from '$lib/core/data/models/Item';
-import { Fluid } from '$lib/core/data/models/Fluid';
-import { Recipe } from '$lib/core/data/models/Recipe';
-import type { SearchQuery } from '$lib/core/data/models/SearchQuery';
-import { OreDict } from '$lib/core/data/models/OreDict';
+import type { MemMappedObject } from '$lib/models/base/MemMappedObject';
+import type { SearchableObject } from '$lib/models/base/SearchableObject';
+import { Item } from '$lib/models/items/Item';
+import { Fluid } from '$lib/models/items/Fluid';
+import { Recipe } from '$lib/models/recipe/Recipe';
+import type { SearchQuery } from '$lib/models/search/SearchQuery';
+import { OreDict } from '$lib/models/items/OreDict';
 import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject.interface';
 import { repositoryStore } from '$lib/stores/repository.store';
 

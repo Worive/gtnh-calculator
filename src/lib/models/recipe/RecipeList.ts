@@ -7,20 +7,20 @@ import {
 	UpdateProject,
 	Search
 } from '$lib/legacy/page';
-import { ProductModel } from '$lib/core/data/models/ProductModel';
-import { PageModel } from '$lib/core/data/models/PageModel';
+import { ProductModel } from '$lib/models/page/ProductModel';
+import { PageModel } from '$lib/models/page/PageModel';
 import { IconBox } from '$lib/legacy/itemIcon';
-import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
+import { RecipeGroupModel } from '$lib/models/recipe/RecipeGroupModel';
 import type { ShowCallback } from '$lib/types/nei/show-callback';
-import type { Recipe } from '$lib/core/data/models/Recipe';
-import { Goods } from '$lib/core/data/models/Goods';
+import type { Recipe } from '$lib/models/recipe/Recipe';
+import { Goods } from '$lib/models/items/Goods';
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
-import { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import type { Item } from '$lib/core/data/models/Item';
+import { RecipeModel } from '$lib/models/recipe/RecipeModel';
+import type { Item } from '$lib/models/items/Item';
 import { HideDropdown, ShowDropdown } from '$lib/legacy/dropdown';
 import { TooltipService } from '$lib/services/tooltip.service';
-import { Fluid } from '$lib/core/data/models/Fluid';
-import type { FlowInformation } from '$lib/core/data/models/FlowInformation';
+import { Fluid } from '$lib/models/items/Fluid';
+import type { FlowInformation } from '$lib/models/flow/FlowInformation';
 import { type GtVoltageTier, voltageTier } from '$lib/constants/voltage-tiers';
 import { linkAlgorithmNames } from '$lib/constants/solver';
 import type { ActionHandler } from '$lib/types/ui/action-handler';

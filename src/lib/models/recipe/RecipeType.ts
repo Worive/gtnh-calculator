@@ -1,5 +1,5 @@
-import { MemMappedObject } from '$lib/core/data/models/MemMappedObject';
-import { Item } from '$lib/core/data/models/Item';
+import { MemMappedObject } from '$lib/models/base/MemMappedObject';
+import { Item } from '$lib/models/items/Item';
 import type { Repository } from '$lib/core/data/Repository';
 
 export class RecipeType extends MemMappedObject {

@@ -1,7 +1,7 @@
 import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
 import type { GridAllocator } from '$lib/types/nei/grid-allocator';
 import type { GridContents } from '$lib/types/nei/grid-contents';
-import { NeiGridRow } from '$lib/core/data/models/NeiGridRow';
+import { NeiGridRow } from '$lib/models/nei/NeiGridRow';
 
 export class NeiGrid implements GridAllocator<any> {
 	rows: NeiGridRow[] = [];

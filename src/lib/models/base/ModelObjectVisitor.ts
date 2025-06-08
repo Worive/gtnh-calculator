@@ -1,4 +1,4 @@
-import type { ModelObject } from '$lib/core/data/models/ModelObject';
+import type { ModelObject } from '$lib/models/base/ModelObject';
 
 export abstract class ModelObjectVisitor {
 	abstract VisitData(parent: ModelObject, key: string, data: any): void;

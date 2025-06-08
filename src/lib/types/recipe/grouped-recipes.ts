@@ -1,5 +1,5 @@
-import type { RecipeType } from '$lib/core/data/models/RecipeType';
-import { Recipe } from '$lib/core/data/models/Recipe';
+import type { RecipeType } from '$lib/models/recipe/RecipeType';
+import { Recipe } from '$lib/models/recipe/Recipe';
 
 export interface GroupedRecipes {
 	[key: string]: GroupedRecipe;

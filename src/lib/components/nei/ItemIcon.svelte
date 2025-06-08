@@ -2,8 +2,8 @@
 	import { onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
 	import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-	import { OreDict } from '$lib/core/data/models/OreDict';
-	import { Goods } from '$lib/core/data/models/Goods';
+	import { OreDict } from '$lib/models/items/OreDict';
+	import { Goods } from '$lib/models/items/Goods';
 	import { NeiService } from '$lib/services/nei.service';
 	import { TooltipService } from '$lib/services/tooltip.service';
 	import { repositoryStore } from '$lib/stores/repository.store';

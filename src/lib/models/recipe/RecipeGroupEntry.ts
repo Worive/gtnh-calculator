@@ -1,5 +1,5 @@
-import { ModelObject } from '$lib/core/data/models/ModelObject';
-import { FlowInformation } from '$lib/core/data/models/FlowInformation';
+import { ModelObject } from '$lib/models/base/ModelObject';
+import { FlowInformation } from '$lib/models/flow/FlowInformation';
 
 const emptyFlow: FlowInformation = new FlowInformation();
 

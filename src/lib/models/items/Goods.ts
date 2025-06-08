@@ -1,5 +1,5 @@
-import type { SearchQuery } from '$lib/core/data/models/SearchQuery';
-import { RecipeObject } from '$lib/core/data/models/RecipeObject';
+import type { SearchQuery } from '$lib/models/search/SearchQuery';
+import { RecipeObject } from '$lib/models/recipe/RecipeObject';
 
 export abstract class Goods extends RecipeObject {
 	get name(): string {

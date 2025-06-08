@@ -1,5 +1,5 @@
-import { Goods } from '$lib/core/data/models/Goods';
-import { FluidContainer } from '$lib/core/data/models/FluidContainer';
+import { Goods } from '$lib/models/items/Goods';
+import { FluidContainer } from '$lib/models/items/FluidContainer';
 
 export class Item extends Goods {
 	get stackSize(): number {

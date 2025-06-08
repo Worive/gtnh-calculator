@@ -1,6 +1,6 @@
-import { MemMappedObject } from '$lib/core/data/models/MemMappedObject';
-import { Item } from '$lib/core/data/models/Item';
-import { Fluid } from '$lib/core/data/models/Fluid';
+import { MemMappedObject } from '$lib/models/base/MemMappedObject';
+import { Item } from '$lib/models/items/Item';
+import { Fluid } from '$lib/models/items/Fluid';
 
 export class FluidContainer extends MemMappedObject {
 	get fluid(): Fluid {
