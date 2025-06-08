@@ -1,6 +1,6 @@
 import { ModelObjectSerializer } from '$lib/core/data/models/ModelObjectSerializer';
 import { ModelObjectIidScanner } from '$lib/core/data/models/ModelObjectIidScanner';
-import type { iidScanResult } from '$lib/types/iidScanResult';
+import type { iidScanResult } from '$lib/types/core/iid-scan-result';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
 import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
 import type { PageModel } from '$lib/core/data/models/PageModel';

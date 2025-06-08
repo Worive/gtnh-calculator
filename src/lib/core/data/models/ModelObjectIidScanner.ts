@@ -1,4 +1,4 @@
-import type { iidScanResult } from '$lib/types/iidScanResult';
+import type { iidScanResult } from '$lib/types/core/iid-scan-result';
 import { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
 import type { ModelObject } from '$lib/core/data/models/ModelObject';
 
