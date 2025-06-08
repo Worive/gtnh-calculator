@@ -5,7 +5,7 @@ import { Fluid } from '$lib/models/items/Fluid';
 import { Recipe } from '$lib/models/recipe/Recipe';
 import type { SearchQuery } from '$lib/models/search/SearchQuery';
 import { OreDict } from '$lib/models/items/OreDict';
-import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject.interface';
+import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject';
 import { repositoryStore } from '$lib/stores/repository.store';
 
 const charCodeItem = 'i'.charCodeAt(0);

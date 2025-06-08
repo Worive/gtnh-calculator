@@ -7,7 +7,7 @@ import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
 import { Goods } from '$lib/models/items/Goods';
 import { Fluid } from '$lib/models/items/Fluid';
 import { Item } from '$lib/models/items/Item';
-import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject.interface';
+import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject';
 import type { RecipeType } from '$lib/models/recipe/RecipeType';
 import { Recipe } from '$lib/models/recipe/Recipe';
 import { OreDict } from '$lib/models/items/OreDict';
