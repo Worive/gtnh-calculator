@@ -6,7 +6,7 @@
 	import { RecipeIoType } from '$lib/types/enums/recipeIoType';
 	import type { RecipeIo } from '$lib/types/recipe/recipeIo';
 	import { voltageTier } from '$lib/constants/voltageTiers';
-	import { formatAmount } from '$lib/utils/Formatting';
+	import { formatAmount } from '$lib/utils/formatting';
 	import McButton from '$lib/components/McButton.svelte';
 	import { NeiService } from '$lib/services/nei.service';
 

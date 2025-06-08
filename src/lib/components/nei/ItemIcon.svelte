@@ -9,7 +9,7 @@
 	import { repositoryStore } from '$lib/stores/recipe/repository.store';
 	import { globalCycle } from '$lib/stores/nei/globalCycle';
 	import { highlightedId } from '$lib/stores/ui/highlightedId';
-	import { formatAmount } from '$lib/utils/Formatting';
+	import { formatAmount } from '$lib/utils/formatting';
 
 	const { dataId, action, probability, amount } = $props<{
 		dataId: string;

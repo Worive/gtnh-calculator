@@ -10,7 +10,7 @@ import { RecipeIoType } from '$lib/types/enums/recipeIoType';
 import { Fluid } from '$lib/models/items/fluid';
 import { Goods } from '$lib/models/items/goods';
 import { voltageTier } from '$lib/constants/voltageTiers';
-import { formatAmount } from '$lib/utils/Formatting';
+import { formatAmount } from '$lib/utils/formatting';
 
 export class NeiRecipeTypeInfo extends Array implements RowAllocator<Recipe> {
 	type: RecipeType;

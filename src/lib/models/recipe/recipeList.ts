@@ -25,7 +25,7 @@ import { type GtVoltageTier, voltageTier } from '$lib/constants/voltageTiers';
 import { linkAlgorithmNames } from '$lib/constants/solver';
 import type { ActionHandler } from '$lib/types/ui/actionHandler';
 import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
-import { formatAmount } from '$lib/utils/Formatting';
+import { formatAmount } from '$lib/utils/formatting';
 import { get } from 'svelte/store';
 import { currentPageStore } from '$lib/stores/ui/currentPage.store';
 import { repositoryStore } from '$lib/stores/recipe/repository.store';
