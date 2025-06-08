@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { RecipeModel } from '$lib/models/recipe/recipeModel';
 import { RecipeGroupModel } from '$lib/models/recipe/recipeGroupModel';
 import { PageModel } from '$lib/models/page/pageModel';
-import { CalculatorEngine } from '$lib/core/solver/calculatorEngine';
+import { CalculatorEngine } from '$lib/services/solver/calculatorEngine';
 
 function loadTestFiles(): string[] {
 	const testDir = path.resolve('tests');

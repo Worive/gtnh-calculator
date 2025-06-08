@@ -1,5 +1,5 @@
 import type { Component } from 'svelte';
-import type { NeiStore } from '$lib/stores/nei.store';
+import type { NeiStore } from '$lib/stores/nei/nei.store';
 
 export interface Tab {
 	name: string;

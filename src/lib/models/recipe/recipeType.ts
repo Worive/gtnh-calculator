@@ -1,6 +1,6 @@
 import { MemMappedObject } from '$lib/models/base/memMappedObject';
 import { Item } from '$lib/models/items/item';
-import type { Repository } from '$lib/core/data/repository';
+import type { Repository } from '$lib/services/data/repository';
 
 export class RecipeType extends MemMappedObject {
 	singleblocks: Item[] = [];

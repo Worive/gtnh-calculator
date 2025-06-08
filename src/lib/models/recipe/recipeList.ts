@@ -18,7 +18,7 @@ import { LinkAlgorithm } from '$lib/types/enums/linkAlgorithm';
 import { RecipeModel } from '$lib/models/recipe/recipeModel';
 import type { Item } from '$lib/models/items/item';
 import { HideDropdown, ShowDropdown } from '$lib/legacy/dropdown';
-import { TooltipService } from '$lib/services/tooltip.service';
+import { TooltipService } from '$lib/services/ui/tooltip.service';
 import { Fluid } from '$lib/models/items/fluid';
 import type { FlowInformation } from '$lib/models/flow/flowInformation';
 import { type GtVoltageTier, voltageTier } from '$lib/constants/voltageTiers';
@@ -27,8 +27,8 @@ import type { ActionHandler } from '$lib/types/ui/actionHandler';
 import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
 import { formatAmount } from '$lib/utils/Formatting';
 import { get } from 'svelte/store';
-import { currentPageStore } from '$lib/stores/currentPage.store';
-import { repositoryStore } from '$lib/stores/repository.store';
+import { currentPageStore } from '$lib/stores/ui/currentPage.store';
+import { repositoryStore } from '$lib/stores/recipe/repository.store';
 import { NeiService } from '$lib/services/nei.service';
 
 export class RecipeList {

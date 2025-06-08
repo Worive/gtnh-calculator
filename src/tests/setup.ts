@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as zlib from 'zlib';
-import { Repository } from '$lib/core/data/repository';
+import { Repository } from '$lib/services/data/repository';
 
 export async function setupRepository() {
 	await import('$lib/legacy/machines');

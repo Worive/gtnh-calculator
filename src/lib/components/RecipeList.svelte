@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { currentPageStore } from '$lib/stores/currentPage.store.js';
+	import { currentPageStore } from '$lib/stores/ui/currentPage.store.js';
 	import { voltageTier } from '$lib/constants/voltageTiers';
 	import { formatAmount } from '$lib/utils/Formatting';
-	import { repositoryStore } from '$lib/stores/repository.store';
+	import { repositoryStore } from '$lib/stores/recipe/repository.store';
 	import { Goods } from '$lib/models/items/goods';
 	import { LinkAlgorithm } from '$lib/types/enums/linkAlgorithm';
 	import { linkAlgorithmNames } from '$lib/constants/solver';

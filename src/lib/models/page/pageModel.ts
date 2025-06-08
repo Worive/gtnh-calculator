@@ -3,7 +3,7 @@ import { ProductModel } from '$lib/models/page/productModel';
 import { RecipeGroupModel } from '$lib/models/recipe/recipeGroupModel';
 import type { ModelObjectVisitor } from '$lib/models/base/modelObjectVisitor';
 import type { Settings } from '$lib/types/config/settings';
-import { CalculatorEngine } from '$lib/core/solver/calculatorEngine';
+import { CalculatorEngine } from '$lib/services/solver/calculatorEngine';
 
 export class PageModel extends ModelObject {
 	name: string = 'New Page';

@@ -1,4 +1,4 @@
-import type { Repository } from '$lib/core/data/repository';
+import type { Repository } from '$lib/services/data/repository';
 
 export interface IMemMappedObjectPrototype<T extends MemMappedObject> {
 	new (repository: Repository, offset: number): T;

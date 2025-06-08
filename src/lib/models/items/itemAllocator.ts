@@ -1,7 +1,7 @@
 import type { RowAllocator } from '$lib/types/nei/rowAllocator';
 import { Goods } from '$lib/models/items/goods';
 import { get } from 'svelte/store';
-import { neiStore } from '$lib/stores/nei.store';
+import { neiStore } from '$lib/stores/nei/nei.store';
 import { elementSize } from '$lib/constants/nei';
 
 export class ItemAllocator implements RowAllocator<Goods> {

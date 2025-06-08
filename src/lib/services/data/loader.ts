@@ -1,12 +1,12 @@
 import { base } from '$app/paths';
 import { browser } from '$app/environment';
 
-export class DataLoader {
+export class Loader {
 	private static atlasPromise: Promise<HTMLImageElement> | null = null;
 
 	static loadAtlas(src: string = `${base}/data/atlas.webp`): Promise<HTMLImageElement> {
 		if (this.atlasPromise) return this.atlasPromise;
-		if (!browser) throw new Error('DataLoader.loadAtlas() can only run in the browser');
+		if (!browser) throw new Error('Loader.loadAtlas() can only run in the browser');
 
 		this.atlasPromise = new Promise((resolve, reject) => {
 			const img = new Image();

@@ -1,4 +1,4 @@
 import { writable } from 'svelte/store';
-import type { Repository } from '$lib/core/data/repository';
+import type { Repository } from '$lib/services/data/repository';
 
 export const repositoryStore = writable<Repository | null>(null);

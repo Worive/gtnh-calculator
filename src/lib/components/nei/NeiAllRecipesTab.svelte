@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { neiStore } from '$lib/stores/nei.store.js';
+	import { neiStore } from '$lib/stores/nei/nei.store.js';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import NeiRecipeGroup from '$lib/components/nei/NeiRecipeGroup.svelte';
 	import { NeiService } from '$lib/services/nei.service.js';

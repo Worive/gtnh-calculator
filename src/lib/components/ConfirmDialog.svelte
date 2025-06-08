@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialogStore } from '../stores/dialog.store';
+	import { dialogStore } from '../stores/ui/dialog.store';
 	import McButton from '$lib/components/McButton.svelte';
 
 	function handleClick(result: 'option1' | 'option2' | 'cancel') {

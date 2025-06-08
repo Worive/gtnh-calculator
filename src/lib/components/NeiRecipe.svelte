@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Recipe } from '$lib/models/recipe/recipe';
 	import { get } from 'svelte/store';
-	import { neiStore } from '$lib/stores/nei.store';
+	import { neiStore } from '$lib/stores/nei/nei.store';
 	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';
 	import { RecipeIoType } from '$lib/types/enums/recipeIoType';
 	import type { RecipeIo } from '$lib/types/recipe/recipeIo';

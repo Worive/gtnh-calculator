@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { globalCycle } from '$lib/stores/globalCycle';
+	import { globalCycle } from '$lib/stores/nei/globalCycle';
 
 	onMount(() => {
 		console.log();

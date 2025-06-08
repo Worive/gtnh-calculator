@@ -1,7 +1,7 @@
-import { RecipeTypeAllocator } from '$lib/core/recipeTypeAllocator';
+import { RecipeTypeAllocator } from '$lib/services/ui/recipeTypeAllocator';
 import { elementSize } from '$lib/constants/nei';
 import { get } from 'svelte/store';
-import { neiStore } from '$lib/stores/nei.store';
+import { neiStore } from '$lib/stores/nei/nei.store';
 import type { RowAllocator } from '$lib/types/nei/rowAllocator';
 import type { RecipeType } from '$lib/models/recipe/recipeType';
 import type { Recipe } from '$lib/models/recipe/recipe';

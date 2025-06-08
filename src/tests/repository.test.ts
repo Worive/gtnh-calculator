@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import type { Item } from '$lib/models/items/item';
 import type { Fluid } from '$lib/models/items/fluid';
 import { get } from 'svelte/store';
-import { repositoryStore } from '$lib/stores/repository.store';
+import { repositoryStore } from '$lib/stores/recipe/repository.store';
 
 describe('Repository', () => {
 	beforeAll(async () => {

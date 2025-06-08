@@ -1,3 +1,3 @@
-import type { NeiRecipeTypeInfo } from '$lib/core/neiRecipeTypeInfo';
+import type { NeiRecipeTypeInfo } from '$lib/services/ui/neiRecipeTypeInfo';
 
 export type RecipeMap = { [type: string]: NeiRecipeTypeInfo };

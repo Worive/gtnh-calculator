@@ -1,4 +1,4 @@
-import { tooltipStore } from '$lib/stores/tooltip.store';
+import { tooltipStore } from '$lib/stores/ui/tooltip.store';
 import type { TooltipContent } from '$lib/types/ui/tooltip';
 import { get } from 'svelte/store';
 import type { Goods } from '$lib/models/items/goods';

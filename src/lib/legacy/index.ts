@@ -1,9 +1,9 @@
 // keep the file a module even though everything is now inside a function
 import { NeiService } from '$lib/services/nei.service';
-import { Repository } from '$lib/core/data/repository';
-import { DataLoader } from '$lib/core/dataLoader';
+import { Repository } from '$lib/services/data/repository';
+import { Loader } from '$lib/services/data/loader';
 import { get } from 'svelte/store';
-import { repositoryStore } from '$lib/stores/repository.store';
+import { repositoryStore } from '$lib/stores/recipe/repository.store';
 
 export {};
 
@@ -13,7 +13,7 @@ export {};
 
 	try {
 		/* ---------- 1. load the atlas image ---------- */
-		await DataLoader.loadAtlas();
+		await Loader.loadAtlas();
 
 		/* ---------- 2. load repository + binary data in parallel ---------- */
 		const [response] = await Promise.all([

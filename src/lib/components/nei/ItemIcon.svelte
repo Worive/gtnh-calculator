@@ -5,10 +5,10 @@
 	import { OreDict } from '$lib/models/items/oreDict';
 	import { Goods } from '$lib/models/items/goods';
 	import { NeiService } from '$lib/services/nei.service';
-	import { TooltipService } from '$lib/services/tooltip.service';
-	import { repositoryStore } from '$lib/stores/repository.store';
-	import { globalCycle } from '$lib/stores/globalCycle';
-	import { highlightedId } from '$lib/stores/highlightedId';
+	import { TooltipService } from '$lib/services/ui/tooltip.service';
+	import { repositoryStore } from '$lib/stores/recipe/repository.store';
+	import { globalCycle } from '$lib/stores/nei/globalCycle';
+	import { highlightedId } from '$lib/stores/ui/highlightedId';
 	import { formatAmount } from '$lib/utils/Formatting';
 
 	const { dataId, action, probability, amount } = $props<{

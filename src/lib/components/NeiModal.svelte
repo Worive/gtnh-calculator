@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { neiStore } from '$lib/stores/nei.store';
-	import { TooltipService } from '$lib/services/tooltip.service';
+	import { neiStore } from '$lib/stores/nei/nei.store';
+	import { TooltipService } from '$lib/services/ui/tooltip.service';
 	import { NeiService } from '$lib/services/nei.service';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import McButton from '$lib/components/McButton.svelte';

@@ -1,4 +1,4 @@
-import type { Repository } from '$lib/core/data/repository';
+import type { Repository } from '$lib/services/data/repository';
 import type { IMemMappedObjectPrototype } from '$lib/types/core/memMappedObject';
 
 export class MemMappedObject {

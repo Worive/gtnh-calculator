@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tooltipStore } from '../stores/tooltip.store';
+	import { tooltipStore } from '../stores/ui/tooltip.store';
 	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
 
 	let tooltipElement: HTMLElement;

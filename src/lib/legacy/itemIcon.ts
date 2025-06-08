@@ -1,10 +1,10 @@
-import { TooltipService } from '$lib/services/tooltip.service';
+import { TooltipService } from '$lib/services/ui/tooltip.service';
 import type { RecipeObject } from '$lib/models/recipe/recipeObject';
 import { OreDict } from '$lib/models/items/oreDict';
 import { Goods } from '$lib/models/items/goods';
 import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
 import { get } from 'svelte/store';
-import { repositoryStore } from '$lib/stores/repository.store';
+import { repositoryStore } from '$lib/stores/recipe/repository.store';
 import { NeiService } from '$lib/services/nei.service';
 
 // Global cycling state

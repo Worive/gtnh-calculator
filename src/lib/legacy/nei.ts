@@ -1,6 +1,6 @@
-import { TooltipService } from '$lib/services/tooltip.service';
+import { TooltipService } from '$lib/services/ui/tooltip.service';
 import { get } from 'svelte/store';
-import { neiStore } from '$lib/stores/nei.store';
+import { neiStore } from '$lib/stores/nei/nei.store';
 import type { RowAllocator } from '$lib/types/nei/rowAllocator';
 import type { ShowCallback } from '$lib/types/nei/showCallback';
 import type { RecipeObject } from '$lib/models/recipe/recipeObject';
@@ -13,7 +13,7 @@ import { Recipe } from '$lib/models/recipe/recipe';
 import { OreDict } from '$lib/models/items/oreDict';
 import { SearchQuery } from '$lib/models/search/searchQuery';
 import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
-import { repositoryStore } from '$lib/stores/repository.store';
+import { repositoryStore } from '$lib/stores/recipe/repository.store';
 import type { RecipeMap } from '$lib/types/nei/recipeMap';
 
 const repository = get(repositoryStore);

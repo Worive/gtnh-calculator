@@ -1,6 +1,6 @@
 import type { PageModel } from '$lib/models/page/pageModel';
 import { type Model, type Solution } from 'javascript-lp-solver';
-import { LinkCollection } from '$lib/core/solver/linkCollection';
+import { LinkCollection } from '$lib/services/solver/linkCollection';
 import { RecipeGroupModel } from '$lib/models/recipe/recipeGroupModel';
 import { RecipeModel } from '$lib/models/recipe/recipeModel';
 import type { Recipe } from '$lib/models/recipe/recipe';
@@ -14,9 +14,9 @@ import { LinkAlgorithm } from '$lib/types/enums/linkAlgorithm';
 import solver from 'javascript-lp-solver';
 import { FlowInformation } from '$lib/models/flow/flowInformation';
 import type { RecipeObject } from '$lib/models/recipe/recipeObject';
-import { currentPageStore } from '$lib/stores/currentPage.store';
+import { currentPageStore } from '$lib/stores/ui/currentPage.store';
 import { get } from 'svelte/store';
-import { repositoryStore } from '$lib/stores/repository.store';
+import { repositoryStore } from '$lib/stores/recipe/repository.store';
 
 export class CalculatorEngine {
 	private static createAndMatchLinks(
