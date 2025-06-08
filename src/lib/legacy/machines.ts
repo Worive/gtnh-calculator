@@ -8,7 +8,7 @@ import {
 	notImplementedMachine,
 	PipeCasingTierChoice
 } from '$lib/constants/machines.const';
-import { TIER_LV, TIER_UEV } from '$lib/constants/voltageTiers.const';
+import { TIER_LV, TIER_UEV } from '$lib/constants/voltage-tiers.const';
 
 function IsRecipeType(recipe: RecipeModel, type: string): boolean {
 	return recipe.recipe ? recipe.recipe.recipeType.name == type : false;

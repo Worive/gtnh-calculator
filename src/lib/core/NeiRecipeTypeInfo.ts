@@ -9,7 +9,7 @@ import type { RecipeInOut } from '$lib/types/models/Recipe';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import { Goods } from '$lib/core/data/models/Goods';
-import { voltageTier } from '$lib/constants/voltageTiers.const';
+import { voltageTier } from '$lib/constants/voltage-tiers.const';
 import { formatAmount } from '$lib/utils/Formatting';
 
 export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> {
