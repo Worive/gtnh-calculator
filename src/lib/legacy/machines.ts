@@ -7,8 +7,8 @@ import {
 	MAX_OVERCLOCK,
 	notImplementedMachine,
 	PipeCasingTierChoice
-} from '$lib/constants/machines.const';
-import { TIER_LV, TIER_UEV } from '$lib/constants/voltage-tiers.const';
+} from '$lib/constants/machines';
+import { TIER_LV, TIER_UEV } from '$lib/constants/voltage-tiers';
 
 function IsRecipeType(recipe: RecipeModel, type: string): boolean {
 	return recipe.recipe ? recipe.recipe.recipeType.name == type : false;

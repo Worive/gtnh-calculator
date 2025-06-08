@@ -1,5 +1,5 @@
 import { RecipeTypeAllocator } from '$lib/core/RecipeTypeAllocator';
-import { elementSize } from '$lib/constants/nei.consts';
+import { elementSize } from '$lib/constants/nei';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
 import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
@@ -9,7 +9,7 @@ import type { RecipeInOut } from '$lib/types/models/Recipe';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import { Goods } from '$lib/core/data/models/Goods';
-import { voltageTier } from '$lib/constants/voltage-tiers.const';
+import { voltageTier } from '$lib/constants/voltage-tiers';
 import { formatAmount } from '$lib/utils/Formatting';
 
 export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> {
