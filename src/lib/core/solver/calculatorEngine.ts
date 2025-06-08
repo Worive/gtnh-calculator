@@ -6,11 +6,7 @@ import { RecipeModel } from '$lib/models/recipe/recipeModel';
 import type { Recipe } from '$lib/models/recipe/recipe';
 import { Item } from '$lib/models/items/item';
 import { RecipeIoType } from '$lib/types/enums/recipeIoType';
-import {
-	machines,
-	notImplementedMachine,
-	singleBlockMachine
-} from '$lib/constants/machines';
+import { machines, notImplementedMachine, singleBlockMachine } from '$lib/constants/machines';
 import { voltageTier } from '$lib/constants/voltageTiers';
 import type { MachineCoefficient } from '$lib/types/config/machineConfig';
 import type { OreDict } from '$lib/models/items/oreDict';
