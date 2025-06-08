@@ -1,19 +1,19 @@
 <script lang="ts">
 	import type { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
-	import type { RecipeInOut } from '$lib/types/recipe/RecipeInOut';
+	import type { RecipeIo } from '$lib/types/recipe/recipe-io';
 	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import { elementSize } from '$lib/constants/nei';
 
 	export let recipeTypeInfo: NeiRecipeTypeInfo;
 
-	export let items: RecipeInOut[];
+	export let items: RecipeIo[];
 	export let dimensionOffset: number = 0;
 
 	const dimX = recipeTypeInfo.dimensions[dimensionOffset];
 	const dimY = recipeTypeInfo.dimensions[dimensionOffset + 1];
 
-	function getProbability(item: RecipeInOut): number | null {
+	function getProbability(item: RecipeIo): number | null {
 		if (item.probability >= 1) {
 			return null;
 		}
@@ -25,11 +25,11 @@
 		return item.probability;
 	}
 
-	function getItemGridX(item: RecipeInOut): number {
+	function getItemGridX(item: RecipeIo): number {
 		return (item.slot % dimX) + 1;
 	}
 
-	function getItemGridY(item: RecipeInOut): number {
+	function getItemGridY(item: RecipeIo): number {
 		return (Math.floor(item.slot / dimX) % dimY) + 1;
 	}
 </script>

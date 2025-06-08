@@ -5,7 +5,7 @@ import { neiStore } from '$lib/stores/nei.store';
 import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
 import type { RecipeType } from '$lib/core/data/models/RecipeType';
 import type { Recipe } from '$lib/core/data/models/Recipe';
-import type { RecipeInOut } from '$lib/types/recipe/RecipeInOut';
+import type { RecipeIo } from '$lib/types/recipe/recipe-io';
 import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import { Goods } from '$lib/core/data/models/Goods';
@@ -41,7 +41,7 @@ export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> 
 
 	BuildRecipeItemGrid(
 		dom: string[],
-		items: RecipeInOut[],
+		items: RecipeIo[],
 		index: number,
 		type: RecipeIoType,
 		dimensionOffset: number
@@ -82,7 +82,7 @@ export class NeiRecipeTypeInfo extends Array implements NeiRowAllocator<Recipe> 
 
 	BuildRecipeIoDom(
 		dom: string[],
-		items: RecipeInOut[],
+		items: RecipeIo[],
 		index: number,
 		item: RecipeIoType,
 		fluid: RecipeIoType,

@@ -4,7 +4,7 @@
 	import { neiStore } from '$lib/stores/nei.store';
 	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';
 	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
-	import type { RecipeInOut } from '$lib/types/recipe/RecipeInOut';
+	import type { RecipeIo } from '$lib/types/recipe/recipe-io';
 	import { voltageTier } from '$lib/constants/voltage-tiers';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import McButton from '$lib/components/McButton.svelte';
@@ -18,7 +18,7 @@
 	const showNeiCallback = get(neiStore).showNeiCallback;
 	const canSelectRecipe = showNeiCallback?.onSelectRecipe != null;
 
-	function itemsFilteredByType(items: RecipeInOut[], types: RecipeIoType[]): RecipeInOut[] {
+	function itemsFilteredByType(items: RecipeIo[], types: RecipeIoType[]): RecipeIo[] {
 		return items.filter((item) => types.includes(item.type));
 	}
 

@@ -8,7 +8,7 @@ import { OreDict } from '$lib/core/data/models/OreDict';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import type { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject.interface';
-import type { RecipeInOut } from '$lib/types/recipe/RecipeInOut';
+import type { RecipeIo } from '$lib/types/recipe/recipe-io';
 
 const RecipeIoTypePrototypes: IMemMappedObjectPrototype<RecipeObject>[] = [
 	Item,
@@ -23,16 +23,16 @@ export class Recipe extends SearchableObject {
 	get gtRecipe(): GtRecipe {
 		return this.GetObject(7, GtRecipe);
 	}
-	private computedIo: RecipeInOut[] | undefined;
+	private computedIo: RecipeIo[] | undefined;
 
-	get items(): RecipeInOut[] {
+	get items(): RecipeIo[] {
 		return this.computedIo ?? (this.computedIo = this.ComputeItems());
 	}
 
-	private ComputeItems(): RecipeInOut[] {
+	private ComputeItems(): RecipeIo[] {
 		const slice = this.GetSlice(5);
 		const elements = slice.length / 5;
-		const result: RecipeInOut[] = new Array(elements);
+		const result: RecipeIo[] = new Array(elements);
 		let index = 0;
 		for (let i = 0; i < elements; i++) {
 			const type: RecipeIoType = slice[index++];
