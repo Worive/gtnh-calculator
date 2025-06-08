@@ -1,5 +1,5 @@
 import { tooltipStore } from '$lib/stores/tooltip.store';
-import type { TooltipContent } from '$lib/types/tooltip';
+import type { TooltipContent } from '$lib/types/ui/tooltip';
 import { get } from 'svelte/store';
 import type { Goods } from '$lib/core/data/models/Goods';
 import type { Recipe } from '$lib/core/data/models/Recipe';
