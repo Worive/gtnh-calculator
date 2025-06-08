@@ -12,7 +12,7 @@ import {
 	singleBlockMachine
 } from '$lib/constants/machines';
 import { voltageTier } from '$lib/constants/voltage-tiers';
-import type { MachineCoefficient } from '$lib/types/models/Machine';
+import type { MachineCoefficient } from '$lib/types/config/MachineConfig';
 import type { OreDict } from '$lib/core/data/models/OreDict';
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
 import solver from 'javascript-lp-solver';

@@ -4,7 +4,7 @@ export type MachineCoefficient =
 	| number
 	| ((recipe: RecipeModel, choices: { [key: string]: number }) => number);
 
-export type Machine = {
+export type MachineConfig = {
 	choices?: { [key: string]: Choice };
 	perfectOverclock: MachineCoefficient;
 	speed: MachineCoefficient;

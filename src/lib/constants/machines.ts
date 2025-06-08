@@ -1,4 +1,4 @@
-import type { Choice, Machine } from '$lib/types/models/Machine';
+import type { Choice, MachineConfig } from '$lib/types/config/MachineConfig';
 
 export const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
 
@@ -36,19 +36,19 @@ export const PipeCasingTierChoice: Choice = {
 	]
 };
 
-export const machines: Record<string, Machine> = {};
+export const machines: Record<string, MachineConfig> = {};
 
-export const singleBlockMachine: Machine = {
+export const singleBlockMachine: MachineConfig = {
 	perfectOverclock: 0,
 	speed: 1,
 	power: 1,
 	parallels: 1
 };
 
-export const notImplementedMachine: Machine = {
+export const notImplementedMachine: MachineConfig = {
 	perfectOverclock: 0,
 	speed: 1,
 	power: 1,
 	parallels: 1,
-	info: 'Machine not implemented (Calculated as a singleblock)'
+	info: 'MachineConfig not implemented (Calculated as a singleblock)'
 };

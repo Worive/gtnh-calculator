@@ -1,6 +1,6 @@
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import type { RecipeModel } from '$lib/core/data/models/RecipeModel';
-import type { MachineCoefficient } from '$lib/types/models/Machine';
+import type { MachineCoefficient } from '$lib/types/config/MachineConfig';
 import {
 	CoilTierChoice,
 	machines,
@@ -655,7 +655,7 @@ machines['Absolute Baryonic Perfection Purification Unit'] = {
 	speed: 1,
 	power: 1,
 	parallels: 1,
-	info: 'Machine not implemented'
+	info: 'MachineConfig not implemented'
 };
 
 machines['High Energy Laser Purification Unit'] = {
@@ -663,7 +663,7 @@ machines['High Energy Laser Purification Unit'] = {
 	speed: 1,
 	power: 1,
 	parallels: 1,
-	info: 'Machine not implemented'
+	info: 'MachineConfig not implemented'
 };
 
 machines['Pyrolyse Oven'] = {

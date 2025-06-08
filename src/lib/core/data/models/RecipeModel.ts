@@ -2,7 +2,7 @@ import { RecipeGroupEntry } from '$lib/core/data/models/RecipeGroupEntry';
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import type { Item } from '$lib/core/data/models/Item';
 import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
-import type { Choice, Machine } from '$lib/types/models/Machine';
+import type { Choice, MachineConfig } from '$lib/types/config/MachineConfig';
 import { singleBlockMachine } from '$lib/constants/machines';
 
 export class RecipeModel extends RecipeGroupEntry {
@@ -22,7 +22,7 @@ export class RecipeModel extends RecipeGroupEntry {
 	overclockTiers: number = 0;
 	perfectOverclocks: number = 0;
 	selectedOreDicts: { [key: string]: Item } = {};
-	machineInfo: Machine = singleBlockMachine;
+	machineInfo: MachineConfig = singleBlockMachine;
 	multiblockCrafter: Item | null = null;
 
 	Visit(visitor: ModelObjectVisitor): void {
@@ -46,7 +46,7 @@ export class RecipeModel extends RecipeGroupEntry {
 		}
 	}
 
-	ValidateChoices(machineInfo: Machine): void {
+	ValidateChoices(machineInfo: MachineConfig): void {
 		if (!machineInfo.choices) {
 			this.choices = {};
 			return;
