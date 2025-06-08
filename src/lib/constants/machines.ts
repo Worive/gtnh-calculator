@@ -1,4 +1,4 @@
-import type { Choice, MachineConfig } from '$lib/types/config/MachineConfig';
+import type { Choice, MachineConfig } from '$lib/types/config/machineConfig';
 
 export const MAX_OVERCLOCK = Number.POSITIVE_INFINITY;
 

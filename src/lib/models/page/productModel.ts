@@ -1,0 +1,21 @@
+import type { ModelObjectVisitor } from '$lib/models/base/modelObjectVisitor';
+import { ModelObject } from '$lib/models/base/modelObject';
+
+export class ProductModel extends ModelObject {
+	goodsId: string;
+	amount: number = 1;
+
+	Visit(visitor: ModelObjectVisitor): void {
+		visitor.VisitData(this, 'goodsId', this.goodsId);
+		visitor.VisitData(this, 'amount', this.amount);
+	}
+
+	constructor(source: any = undefined) {
+		super();
+		this.goodsId = '';
+		if (source instanceof Object) {
+			if (typeof source.goodsId === 'string') this.goodsId = source.goodsId;
+			if (typeof source.amount === 'number') this.amount = source.amount;
+		}
+	}
+}

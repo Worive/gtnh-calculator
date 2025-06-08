@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { Recipe } from '$lib/models/recipe/Recipe';
+	import type { Recipe } from '$lib/models/recipe/recipe';
 	import { get } from 'svelte/store';
 	import { neiStore } from '$lib/stores/nei.store';
 	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';
-	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
-	import type { RecipeIo } from '$lib/types/recipe/recipe-io';
-	import { voltageTier } from '$lib/constants/voltage-tiers';
+	import { RecipeIoType } from '$lib/types/enums/recipeIoType';
+	import type { RecipeIo } from '$lib/types/recipe/recipeIo';
+	import { voltageTier } from '$lib/constants/voltageTiers';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import McButton from '$lib/components/McButton.svelte';
 	import { NeiService } from '$lib/services/nei.service';

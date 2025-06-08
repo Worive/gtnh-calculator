@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { setupRepository } from './setup';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { RecipeModel } from '$lib/models/recipe/RecipeModel';
-import { RecipeGroupModel } from '$lib/models/recipe/RecipeGroupModel';
-import { PageModel } from '$lib/models/page/PageModel';
-import { CalculatorEngine } from '$lib/core/solver/CalculatorEngine';
+import { RecipeModel } from '$lib/models/recipe/recipeModel';
+import { RecipeGroupModel } from '$lib/models/recipe/recipeGroupModel';
+import { PageModel } from '$lib/models/page/pageModel';
+import { CalculatorEngine } from '$lib/core/solver/calculatorEngine';
 
 function loadTestFiles(): string[] {
 	const testDir = path.resolve('tests');

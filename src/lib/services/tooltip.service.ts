@@ -1,8 +1,8 @@
 import { tooltipStore } from '$lib/stores/tooltip.store';
 import type { TooltipContent } from '$lib/types/ui/tooltip';
 import { get } from 'svelte/store';
-import type { Goods } from '$lib/models/items/Goods';
-import type { Recipe } from '$lib/models/recipe/Recipe';
+import type { Goods } from '$lib/models/items/goods';
+import type { Recipe } from '$lib/models/recipe/recipe';
 
 export class TooltipService {
 	static show(

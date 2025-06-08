@@ -1,6 +1,6 @@
-import type { Recipe } from '$lib/models/recipe/Recipe';
-import type { RecipeModel } from '$lib/models/recipe/RecipeModel';
-import type { MachineCoefficient } from '$lib/types/config/MachineConfig';
+import type { Recipe } from '$lib/models/recipe/recipe';
+import type { RecipeModel } from '$lib/models/recipe/recipeModel';
+import type { MachineCoefficient } from '$lib/types/config/machineConfig';
 import {
 	CoilTierChoice,
 	machines,
@@ -8,7 +8,7 @@ import {
 	notImplementedMachine,
 	PipeCasingTierChoice
 } from '$lib/constants/machines';
-import { TIER_LV, TIER_UEV } from '$lib/constants/voltage-tiers';
+import { TIER_LV, TIER_UEV } from '$lib/constants/voltageTiers';
 
 function IsRecipeType(recipe: RecipeModel, type: string): boolean {
 	return recipe.recipe ? recipe.recipe.recipeType.name == type : false;

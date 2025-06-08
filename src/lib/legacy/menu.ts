@@ -5,8 +5,8 @@ import {
 	UpdateProject
 } from '$lib/legacy/page.js';
 import { showConfirmDialog } from '$lib/stores/dialog.store';
-import { PageModel } from '$lib/models/page/PageModel';
-import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import { PageModel } from '$lib/models/page/pageModel';
+import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
 import { get } from 'svelte/store';
 import { currentPageStore } from '$lib/stores/currentPage.store';
 import { NeiService } from '$lib/services/nei.service';

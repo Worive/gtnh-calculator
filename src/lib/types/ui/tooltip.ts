@@ -1,4 +1,4 @@
-import type { Recipe } from '$lib/models/recipe/Recipe';
+import type { Recipe } from '$lib/models/recipe/recipe';
 
 export interface TooltipPosition {
 	left: number;

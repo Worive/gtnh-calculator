@@ -1,7 +1,7 @@
 // keep the file a module even though everything is now inside a function
 import { NeiService } from '$lib/services/nei.service';
-import { Repository } from '$lib/core/data/Repository';
-import { DataLoader } from '$lib/core/DataLoader';
+import { Repository } from '$lib/core/data/repository';
+import { DataLoader } from '$lib/core/dataLoader';
 import { get } from 'svelte/store';
 import { repositoryStore } from '$lib/stores/repository.store';
 

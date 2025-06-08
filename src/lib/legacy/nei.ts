@@ -1,20 +1,20 @@
 import { TooltipService } from '$lib/services/tooltip.service';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
-import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
-import type { ShowCallback } from '$lib/types/nei/show-callback';
-import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
-import { Goods } from '$lib/models/items/Goods';
-import { Fluid } from '$lib/models/items/Fluid';
-import { Item } from '$lib/models/items/Item';
-import type { IMemMappedObjectPrototype } from '$lib/types/core/MemMappedObject';
-import type { RecipeType } from '$lib/models/recipe/RecipeType';
-import { Recipe } from '$lib/models/recipe/Recipe';
-import { OreDict } from '$lib/models/items/OreDict';
-import { SearchQuery } from '$lib/models/search/SearchQuery';
-import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import type { RowAllocator } from '$lib/types/nei/rowAllocator';
+import type { ShowCallback } from '$lib/types/nei/showCallback';
+import type { RecipeObject } from '$lib/models/recipe/recipeObject';
+import { Goods } from '$lib/models/items/goods';
+import { Fluid } from '$lib/models/items/fluid';
+import { Item } from '$lib/models/items/item';
+import type { IMemMappedObjectPrototype } from '$lib/types/core/memMappedObject';
+import type { RecipeType } from '$lib/models/recipe/recipeType';
+import { Recipe } from '$lib/models/recipe/recipe';
+import { OreDict } from '$lib/models/items/oreDict';
+import { SearchQuery } from '$lib/models/search/searchQuery';
+import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
 import { repositoryStore } from '$lib/stores/repository.store';
-import type { RecipeMap } from '$lib/types/nei/recipe-map';
+import type { RecipeMap } from '$lib/types/nei/recipeMap';
 
 const repository = get(repositoryStore);
 const nei = document.getElementById('nei')!;
@@ -89,7 +89,7 @@ window.addEventListener('resize', Resize);
 
 type NeiFiller = (grid: NeiGrid, search: SearchQuery | null, recipes: RecipeMap) => void;
 
-class ItemAllocator implements NeiRowAllocator<Goods> {
+class ItemAllocator implements RowAllocator<Goods> {
 	CalculateWidth(): number {
 		return 1;
 	}
@@ -350,9 +350,9 @@ class NeiGridRow {
 	height: number = 1;
 	elementWidth: number = 1;
 	elements: NeiGridContents[] = [];
-	allocator: NeiRowAllocator<any> | null = null;
+	allocator: RowAllocator<any> | null = null;
 
-	Clear(y: number, allocator: NeiRowAllocator<any> | null, elementWidth: number) {
+	Clear(y: number, allocator: RowAllocator<any> | null, elementWidth: number) {
 		this.allocator = allocator;
 		this.y = y;
 		this.height = 1;
@@ -375,7 +375,7 @@ class NeiGrid implements NeiGridAllocator<any> {
 	rowCount: number = 0;
 	width: number = 1;
 	height: number = 0;
-	allocator: NeiRowAllocator<NeiGridContents> | null = null;
+	allocator: RowAllocator<NeiGridContents> | null = null;
 	currentRow: NeiGridRow | null = null;
 	elementWidth: number = 1;
 	elementsPerRow: number = 1;
@@ -390,7 +390,7 @@ class NeiGrid implements NeiGridAllocator<any> {
 		this.elementsPerRow = 1;
 	}
 
-	BeginAllocation<T extends NeiGridContents>(allocator: NeiRowAllocator<T>): NeiGridAllocator<T> {
+	BeginAllocation<T extends NeiGridContents>(allocator: RowAllocator<T>): NeiGridAllocator<T> {
 		this.FinishRow();
 		this.allocator = allocator;
 		this.elementWidth = allocator.CalculateWidth();

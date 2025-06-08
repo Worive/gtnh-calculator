@@ -1,8 +1,8 @@
 import { TooltipService } from '$lib/services/tooltip.service';
-import type { RecipeObject } from '$lib/models/recipe/RecipeObject';
-import { OreDict } from '$lib/models/items/OreDict';
-import { Goods } from '$lib/models/items/Goods';
-import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
+import type { RecipeObject } from '$lib/models/recipe/recipeObject';
+import { OreDict } from '$lib/models/items/oreDict';
+import { Goods } from '$lib/models/items/goods';
+import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
 import { get } from 'svelte/store';
 import { repositoryStore } from '$lib/stores/repository.store';
 import { NeiService } from '$lib/services/nei.service';

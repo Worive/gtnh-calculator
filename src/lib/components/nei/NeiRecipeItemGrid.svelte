@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { NeiRecipeTypeInfo } from '$lib/core/NeiRecipeTypeInfo';
-	import type { RecipeIo } from '$lib/types/recipe/recipe-io';
-	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
+	import type { NeiRecipeTypeInfo } from '$lib/core/neiRecipeTypeInfo';
+	import type { RecipeIo } from '$lib/types/recipe/recipeIo';
+	import { RecipeIoType } from '$lib/types/enums/recipeIoType';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import { elementSize } from '$lib/constants/nei';
 

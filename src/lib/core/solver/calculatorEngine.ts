@@ -1,0 +1,333 @@
+import type { PageModel } from '$lib/models/page/pageModel';
+import { type Model, type Solution } from 'javascript-lp-solver';
+import { LinkCollection } from '$lib/core/solver/linkCollection';
+import { RecipeGroupModel } from '$lib/models/recipe/recipeGroupModel';
+import { RecipeModel } from '$lib/models/recipe/recipeModel';
+import type { Recipe } from '$lib/models/recipe/recipe';
+import { Item } from '$lib/models/items/item';
+import { RecipeIoType } from '$lib/types/enums/recipeIoType';
+import {
+	machines,
+	notImplementedMachine,
+	singleBlockMachine
+} from '$lib/constants/machines';
+import { voltageTier } from '$lib/constants/voltageTiers';
+import type { MachineCoefficient } from '$lib/types/config/machineConfig';
+import type { OreDict } from '$lib/models/items/oreDict';
+import { LinkAlgorithm } from '$lib/types/enums/linkAlgorithm';
+import solver from 'javascript-lp-solver';
+import { FlowInformation } from '$lib/models/flow/flowInformation';
+import type { RecipeObject } from '$lib/models/recipe/recipeObject';
+import { currentPageStore } from '$lib/stores/currentPage.store';
+import { get } from 'svelte/store';
+import { repositoryStore } from '$lib/stores/repository.store';
+
+export class CalculatorEngine {
+	private static createAndMatchLinks(
+		group: RecipeGroupModel,
+		model: Model,
+		collection: LinkCollection
+	) {
+		for (const child of group.elements) {
+			if (child instanceof RecipeModel) {
+				this.preProcessRecipe(child, model, collection);
+			} else if (child instanceof RecipeGroupModel) {
+				const childCollection: LinkCollection = new LinkCollection();
+				this.createAndMatchLinks(child, model, childCollection);
+				collection.Merge(childCollection);
+			}
+		}
+
+		console.debug('Raw collection', collection);
+
+		const matchedOutputs: { [key: string]: boolean } = {};
+		group.actualLinks = { ...group.links };
+
+		for (const key of Object.keys(collection.inputOreDict)) {
+			const currentRepository = get(repositoryStore);
+
+			const oreDict = currentRepository?.GetById<OreDict>(key)!;
+			for (const item of oreDict.items) {
+				const algorithm = group.links[item.id] || LinkAlgorithm.Match;
+				if (collection.output[item.id] === undefined) continue;
+				// Despite the fact that we are ignoring the link, we still need to select the ore dict item to have the same item in production and consumption
+				for (const recipe of collection.inputOreDictRecipe[key])
+					recipe.selectedOreDicts[key] = item;
+				if (algorithm === LinkAlgorithm.Ignore) continue;
+
+				this.createLinkByAlgorithm(
+					model,
+					algorithm,
+					group,
+					item.id,
+					key,
+					collection.inputOreDict,
+					matchedOutputs,
+					collection.output[item.id]
+				);
+				break;
+			}
+		}
+
+		for (const key of Object.keys(collection.input)) {
+			const algorithm = group.links[key] || LinkAlgorithm.Match;
+			if (algorithm === LinkAlgorithm.Ignore || collection.output[key] === undefined) continue;
+
+			this.createLinkByAlgorithm(
+				model,
+				algorithm,
+				group,
+				key,
+				key,
+				collection.input,
+				matchedOutputs,
+				collection.output[key]
+			);
+		}
+
+		for (const key in matchedOutputs) {
+			const linkName = `link_${group.iid}_${key}`;
+			this.matchVariablesToConstraints(model, linkName, collection.output[key]);
+			delete collection.output[key];
+		}
+
+		return collection;
+	}
+
+	private static preProcessRecipe(
+		recipeModel: RecipeModel,
+		model: Model,
+		collection: LinkCollection
+	) {
+		const currentRepository = get(repositoryStore);
+		const recipe = currentRepository?.GetById<Recipe>(recipeModel.recipeId);
+		if (!recipe) return;
+		recipeModel.recipe = recipe;
+		const varName = `recipe_${recipeModel.iid}`;
+		model.variables[varName] = { obj: 1 };
+		for (const slot of recipe.items) {
+			const goods = slot.goods;
+			const amount = slot.amount * slot.probability;
+			const container = goods instanceof Item && goods.container;
+
+			if (slot.type == RecipeIoType.OreDictInput) {
+				collection.AddInputOreDict(goods, amount, varName, recipeModel);
+			} else if (container) {
+				if (slot.type == RecipeIoType.ItemOutput) {
+					collection.AddOutput(container.fluid, amount * container.amount, varName);
+					collection.AddOutput(container.empty, amount, varName);
+				} else if (slot.type == RecipeIoType.ItemInput) {
+					collection.AddInput(container.fluid, amount * container.amount, varName);
+					collection.AddInput(container.empty, amount, varName);
+				}
+			} else {
+				if (slot.type == RecipeIoType.ItemOutput || slot.type == RecipeIoType.FluidOutput) {
+					collection.AddOutput(goods, amount, varName);
+				} else if (slot.type == RecipeIoType.ItemInput || slot.type == RecipeIoType.FluidInput) {
+					collection.AddInput(goods, amount, varName);
+				}
+			}
+		}
+
+		recipeModel.overclockFactor = 1;
+
+		const gtRecipe = recipe.gtRecipe;
+		if (gtRecipe && gtRecipe.durationTicks > 0) {
+			let crafter = recipeModel.crafter
+				? (currentRepository?.GetById<Item>(recipeModel.crafter) ?? null)
+				: null;
+			if (crafter != null && !recipe.recipeType.multiblocks.includes(crafter)) crafter = null;
+			if (crafter === null && recipe.recipeType.singleblocks.length == 0)
+				crafter = recipe.recipeType.defaultCrafter;
+			const machineInfo = crafter
+				? machines[crafter.name] || notImplementedMachine
+				: singleBlockMachine;
+			recipeModel.multiblockCrafter = crafter;
+			recipeModel.machineInfo = machineInfo;
+			recipeModel.ValidateChoices(machineInfo);
+			const actualVoltage = voltageTier[recipeModel.voltageTier].voltage;
+			const machineParallels = this.getParameter(machineInfo.parallels, recipeModel, 1);
+			const energyModifier = this.getParameter(machineInfo.power, recipeModel);
+			const maxParallels = Math.max(
+				1,
+				Math.floor(actualVoltage / (gtRecipe.voltage * energyModifier * gtRecipe.amperage))
+			);
+			const parallels = Math.min(maxParallels, machineParallels);
+			const overclockTiers = Math.min(
+				recipeModel.voltageTier - gtRecipe.voltageTier,
+				Math.floor(Math.log2(maxParallels / parallels) / 2)
+			);
+			let overclockSpeed = 1;
+			let overclockPower = gtRecipe.amperage;
+			const perfectOverclocks = Math.min(
+				this.getParameter(machineInfo.perfectOverclock, recipeModel),
+				overclockTiers
+			);
+			const normalOverclocks = overclockTiers - perfectOverclocks;
+			if (perfectOverclocks > 0) {
+				overclockSpeed = Math.pow(4, perfectOverclocks);
+			}
+			if (normalOverclocks > 0) {
+				const coef = Math.pow(2, normalOverclocks);
+				overclockSpeed *= coef;
+				overclockPower *= coef;
+			}
+			const speedModifier = this.getParameter(machineInfo.speed, recipeModel);
+			//console.log({machineParallels, maxParallels, parallels, overclockTiers, overclockSpeed, overclockPower, energyModifier, speedModifier});
+			recipeModel.overclockFactor = overclockSpeed * speedModifier * parallels;
+			recipeModel.powerFactor = (overclockPower * energyModifier) / speedModifier;
+			recipeModel.parallels = parallels;
+			recipeModel.overclockTiers = overclockTiers;
+			recipeModel.perfectOverclocks = perfectOverclocks;
+
+			if (recipeModel.fixedCrafterCount) {
+				const crafterName = `fixed_${recipeModel.iid}`;
+				const fixedRecipesPerMinute =
+					(recipeModel.fixedCrafterCount * recipeModel.overclockFactor) /
+					recipe.gtRecipe.durationMinutes;
+				model.variables[varName][crafterName] = 1;
+				model.constraints[crafterName] = { equal: fixedRecipesPerMinute };
+			}
+		}
+	}
+
+	private static getParameter(
+		coefficient: MachineCoefficient,
+		recipeModel: RecipeModel,
+		min: number = 0
+	): number {
+		if (typeof coefficient === 'number') return coefficient;
+		const coef = coefficient(recipeModel, recipeModel.choices);
+		if (coef < min) return min;
+		return coef;
+	}
+
+	private static createLinkByAlgorithm(
+		model: Model,
+		algorithm: LinkAlgorithm,
+		group: RecipeGroupModel,
+		goodsId: string,
+		collectionKey: string,
+		collection: { [key: string]: { [key: string]: number } },
+		matchedOutputs: { [key: string]: boolean },
+		outputAmount: { [key: string]: number }
+	) {
+		const linkName = `link_${group.iid}_${goodsId}`;
+		this.matchVariablesToConstraints(model, linkName, collection[collectionKey]);
+		const amount = collection[collectionKey]['_amount'] || -outputAmount['_amount'] || 0;
+		matchedOutputs[goodsId] = true;
+		delete collection[collectionKey];
+		group.actualLinks[goodsId] = algorithm;
+		model.constraints[linkName] = { equal: amount };
+	}
+
+	private static matchVariablesToConstraints(
+		model: Model,
+		name: string,
+		variableList: { [key: string]: number }
+	): void {
+		for (const key in variableList) {
+			if (key === '_amount') continue;
+			model.variables[key][name] = (model.variables[key][name] || 0) + variableList[key];
+		}
+	}
+
+	private static applySolutionGroup(
+		group: RecipeGroupModel,
+		solution: Solution,
+		model: Model,
+		feasible: boolean
+	): void {
+		for (const child of group.elements) {
+			if (child instanceof RecipeModel) this.applySolutionRecipe(child, solution);
+			else if (child instanceof RecipeGroupModel)
+				this.applySolutionGroup(child, solution, model, feasible);
+		}
+
+		const flow: FlowInformation = new FlowInformation();
+		group.flow = flow;
+		for (const child of group.elements) {
+			flow.Merge(child.flow);
+		}
+		for (const link in group.actualLinks) {
+			const delta = (flow.input[link] || 0) - (flow.output[link] || 0);
+			if (delta > 0.01) {
+				flow.input[link] = delta;
+				delete flow.output[link];
+			} else if (delta < -0.01) {
+				flow.output[link] = -delta;
+				delete flow.input[link];
+			} else {
+				delete flow.input[link];
+				delete flow.output[link];
+			}
+		}
+	}
+
+	private static applySolutionRecipe(recipeModel: RecipeModel, solution: Solution): void {
+		const flow: FlowInformation = new FlowInformation();
+		recipeModel.flow = flow;
+		const name = `recipe_${recipeModel.iid}`;
+		const recipe = recipeModel.recipe!;
+		const solutionValue = (solution[name] || 0) as number;
+		recipeModel.recipesPerMinute = solutionValue;
+		recipeModel.crafterCount = 0;
+		for (const item of recipe.items) {
+			let goods: RecipeObject = item.goods;
+			if (item.type == RecipeIoType.OreDictInput && recipeModel.selectedOreDicts[item.goods.id])
+				goods = recipeModel.selectedOreDicts[item.goods.id];
+
+			const isProduction =
+				item.type == RecipeIoType.FluidOutput || item.type == RecipeIoType.ItemOutput;
+			const amount = item.amount * item.probability * solutionValue;
+			const container = goods instanceof Item && goods.container;
+			if (container) {
+				flow.Add(container.fluid, amount * container.amount, isProduction);
+				flow.Add(container.empty, amount, isProduction);
+			} else flow.Add(goods, amount, isProduction);
+		}
+
+		const gtRecipe = recipe.gtRecipe;
+		if (gtRecipe && gtRecipe.durationTicks > 0) {
+			flow.energy[recipeModel.voltageTier] =
+				gtRecipe.durationMinutes * gtRecipe.voltage * solutionValue * recipeModel.powerFactor;
+			recipeModel.crafterCount =
+				(solutionValue * gtRecipe.durationMinutes) / recipeModel.overclockFactor;
+		}
+	}
+
+	public static solvePage(page: PageModel): void {
+		try {
+			const model: Model = {
+				optimize: 'obj',
+				opType: 'min',
+				constraints: {},
+				variables: {}
+			};
+			const timeUnit = page.settings.timeUnit;
+			const timeScale = timeUnit === 'sec' ? 60 : timeUnit === 'tick' ? 20 * 60 : 1;
+			page.timeScale = timeScale;
+			const collection: LinkCollection = new LinkCollection();
+			for (const product of page.products) {
+				if (product.amount > 0) {
+					collection.input[product.goodsId] = { _amount: -product.amount };
+				} else {
+					collection.output[product.goodsId] = { _amount: product.amount };
+				}
+			}
+			this.createAndMatchLinks(page.rootGroup, model, collection);
+			console.log('Solve model', model);
+
+			const solution = solver.Solve(model);
+			console.log('Solve solution', solution);
+			page.status = solution.feasible ? (solution.bounded ? 'solved' : 'unbounded') : 'infeasible';
+			this.applySolutionGroup(page.rootGroup, solution, model, solution.feasible);
+
+			currentPageStore.set(page);
+
+			console.log('Page solved', get(currentPageStore));
+		} catch (error) {
+			console.error('Error solving page', error);
+		}
+	}
+}

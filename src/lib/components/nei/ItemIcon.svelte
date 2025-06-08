@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
-	import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-	import { OreDict } from '$lib/models/items/OreDict';
-	import { Goods } from '$lib/models/items/Goods';
+	import { ShowNeiMode } from '$lib/types/enums/showNeiMode';
+	import { OreDict } from '$lib/models/items/oreDict';
+	import { Goods } from '$lib/models/items/goods';
 	import { NeiService } from '$lib/services/nei.service';
 	import { TooltipService } from '$lib/services/tooltip.service';
 	import { repositoryStore } from '$lib/stores/repository.store';
