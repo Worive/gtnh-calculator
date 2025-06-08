@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Tooltip from '$lib/components/Tooltip.svelte';
-	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
-	import NeiModal from '$lib/components/NeiModal.svelte';
+	import Tooltip from '$lib/components/ui/Tooltip.svelte';
+	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+	import NeiModal from '$lib/components/nei/NeiModal.svelte';
 
 	onMount(async () => {
 		await import('$lib/legacy/index');

@@ -2,12 +2,12 @@
 	import type { Recipe } from '$lib/models/recipe/recipe';
 	import { get } from 'svelte/store';
 	import { neiStore } from '$lib/stores/nei/nei.store';
-	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';
+	import NeiRecipeItemGrid from '$lib/components/nei/grid/NeiRecipeItemGrid.svelte';
 	import { RecipeIoType } from '$lib/types/enums/recipeIoType';
 	import type { RecipeIo } from '$lib/types/recipe/recipeIo';
 	import { voltageTier } from '$lib/constants/voltageTiers';
 	import { formatAmount } from '$lib/utils/formatting';
-	import McButton from '$lib/components/McButton.svelte';
+	import McButton from '$lib/components/ui/McButton.svelte';
 	import { NeiService } from '$lib/services/nei.service';
 
 	export let recipe: Recipe;

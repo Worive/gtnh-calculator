@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { tooltipStore } from '../stores/ui/tooltip.store';
-	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
+	import { tooltipStore } from '../../stores/ui/tooltip.store';
+	import NeiRecipe from '$lib/components/nei/NeiRecipe.svelte';
 
 	let tooltipElement: HTMLElement;
 	let position = { left: 0, top: 0 };

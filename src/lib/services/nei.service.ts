@@ -11,13 +11,13 @@ import { OreDict } from '$lib/models/items/oreDict';
 import { Fluid } from '$lib/models/items/fluid';
 import { Item } from '$lib/models/items/item';
 import { Goods } from '$lib/models/items/goods';
-import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
-import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
+import NeiItemsTab from '$lib/components/nei/tabs/NeiItemsTab.svelte';
+import NeiAllRecipesTab from '$lib/components/nei/tabs/NeiAllRecipesTab.svelte';
 import type { Tab } from '$lib/types/nei/tab';
 import type { Repository } from '$lib/services/data/repository';
-import type { GroupedRecipes } from '$lib/types/recipe/grouped-recipes';
+import type { GroupedRecipes } from '$lib/types/recipe/groupedRecipes';
 import { SearchQuery } from '$lib/models/search/searchQuery';
-import NeiRecipesTab from '$lib/components/nei/NeiRecipesTab.svelte';
+import NeiRecipesTab from '$lib/components/nei/tabs/NeiRecipesTab.svelte';
 
 export class NeiService {
 	static initialize() {

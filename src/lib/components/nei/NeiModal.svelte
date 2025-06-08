@@ -3,7 +3,7 @@
 	import { TooltipService } from '$lib/services/ui/tooltip.service';
 	import { NeiService } from '$lib/services/nei.service';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import McButton from '$lib/components/McButton.svelte';
+	import McButton from '$lib/components/ui/McButton.svelte';
 
 	$: show = $neiStore.visible;
 

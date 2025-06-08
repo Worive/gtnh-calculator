@@ -1,5 +1,5 @@
 <script lang="ts">
-	import NeiRecipe from '$lib/components/NeiRecipe.svelte';
+	import NeiRecipe from '$lib/components/nei/NeiRecipe.svelte';
 	import { Recipe } from '$lib/models/recipe/recipe.js';
 
 	const { recipes } = $props<{

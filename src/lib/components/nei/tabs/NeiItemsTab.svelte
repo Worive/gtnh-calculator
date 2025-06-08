@@ -5,7 +5,7 @@
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
 	import type { Goods } from '$lib/models/items/goods';
 	import { Item } from '$lib/models/items/item';
-	import VirtualScroll from '$lib/components/nei/VirtualScroll.svelte';
+	import VirtualScroll from '$lib/components/nei/grid/VirtualScroll.svelte';
 	import { neiStore } from '$lib/stores/nei/nei.store';
 
 	export let containerElement: HTMLDivElement | null = null;
