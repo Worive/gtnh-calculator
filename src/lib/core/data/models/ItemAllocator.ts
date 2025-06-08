@@ -1,4 +1,4 @@
-import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
+import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
 import { Goods } from '$lib/core/data/models/Goods';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';

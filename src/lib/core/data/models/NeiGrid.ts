@@ -1,14 +1,14 @@
-import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
-import type { NeiGridAllocator } from '$lib/types/nei-grid-allocator';
-import type { NeiGridContents } from '$lib/types/nei-grid-contents';
+import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
+import type { GridAllocator } from '$lib/types/nei/grid-allocator';
+import type { GridContents } from '$lib/types/nei/grid-contents';
 import { NeiGridRow } from '$lib/core/data/models/NeiGridRow';
 
-export class NeiGrid implements NeiGridAllocator<any> {
+export class NeiGrid implements GridAllocator<any> {
 	rows: NeiGridRow[] = [];
 	rowCount: number = 0;
 	width: number = 1;
 	height: number = 0;
-	allocator: NeiRowAllocator<NeiGridContents> | null = null;
+	allocator: NeiRowAllocator<GridContents> | null = null;
 	currentRow: NeiGridRow | null = null;
 	elementWidth: number = 1;
 	elementsPerRow: number = 1;
@@ -23,7 +23,7 @@ export class NeiGrid implements NeiGridAllocator<any> {
 		this.elementsPerRow = 1;
 	}
 
-	BeginAllocation<T extends NeiGridContents>(allocator: NeiRowAllocator<T>): NeiGridAllocator<T> {
+	BeginAllocation<T extends GridContents>(allocator: NeiRowAllocator<T>): GridAllocator<T> {
 		this.FinishRow();
 		this.allocator = allocator;
 		this.elementWidth = allocator.CalculateWidth();
@@ -49,7 +49,7 @@ export class NeiGrid implements NeiGridAllocator<any> {
 		return row;
 	}
 
-	Add<T extends NeiGridContents>(element: T) {
+	Add<T extends GridContents>(element: T) {
 		let row = this.currentRow;
 		if (row === null || row.elements.length >= this.elementsPerRow) row = this.NextRow();
 		const height = this.allocator?.CalculateHeight(element) ?? 1;

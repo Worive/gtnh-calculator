@@ -1,5 +1,5 @@
 import { elementSize } from '$lib/constants/nei';
-import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
+import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
 import type { RecipeType } from '$lib/core/data/models/RecipeType';
 
 export class RecipeTypeAllocator implements NeiRowAllocator<RecipeType> {

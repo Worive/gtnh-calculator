@@ -11,7 +11,7 @@ import { ProductModel } from '$lib/core/data/models/ProductModel';
 import { PageModel } from '$lib/core/data/models/PageModel';
 import { IconBox } from '$lib/legacy/itemIcon';
 import { RecipeGroupModel } from '$lib/core/data/models/RecipeGroupModel';
-import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
+import type { ShowCallback } from '$lib/types/nei/show-callback';
 import type { Recipe } from '$lib/core/data/models/Recipe';
 import { Goods } from '$lib/core/data/models/Goods';
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
@@ -88,7 +88,7 @@ export class RecipeList {
 
 				const mode = event.type === 'click' ? ShowNeiMode.Production : ShowNeiMode.Consumption;
 				if (event.type === 'contextmenu') event.preventDefault();
-				const callback: ShowNeiCallback = {
+				const callback: ShowCallback = {
 					onSelectRecipe: (recipe: Recipe) => {
 						this.addRecipe(recipe, obj);
 					}
@@ -529,7 +529,7 @@ export class RecipeList {
 	}
 
 	private showNeiForProductSelection() {
-		const callback: ShowNeiCallback = {
+		const callback: ShowCallback = {
 			onSelectGoods: (goods: Goods) => {
 				this.addProduct(goods, 1);
 			}
@@ -539,7 +539,7 @@ export class RecipeList {
 	}
 
 	private showNeiForRecipeSelection(targetGroup: RecipeGroupModel) {
-		const callback: ShowNeiCallback = {
+		const callback: ShowCallback = {
 			onSelectRecipe: (recipe: Recipe) => {
 				this.addRecipe(recipe, targetGroup);
 			}

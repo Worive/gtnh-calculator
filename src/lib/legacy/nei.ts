@@ -1,8 +1,8 @@
 import { TooltipService } from '$lib/services/tooltip.service';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
-import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
-import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
+import type { NeiRowAllocator } from '$lib/types/nei/row-allocator';
+import type { ShowCallback } from '$lib/types/nei/show-callback';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { Goods } from '$lib/core/data/models/Goods';
 import { Fluid } from '$lib/core/data/models/Fluid';
@@ -14,7 +14,7 @@ import { OreDict } from '$lib/core/data/models/OreDict';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
 import { repositoryStore } from '$lib/stores/repository.store';
-import type { NeiRecipeMap } from '$lib/types/nei-recipe-map';
+import type { RecipeMap } from '$lib/types/nei/recipe-map';
 
 const repository = get(repositoryStore);
 const nei = document.getElementById('nei')!;
@@ -87,7 +87,7 @@ let unitWidth = 0,
 let scrollWidth = GetScrollbarWidth();
 window.addEventListener('resize', Resize);
 
-type NeiFiller = (grid: NeiGrid, search: SearchQuery | null, recipes: NeiRecipeMap) => void;
+type NeiFiller = (grid: NeiGrid, search: SearchQuery | null, recipes: RecipeMap) => void;
 
 class ItemAllocator implements NeiRowAllocator<Goods> {
 	CalculateWidth(): number {
@@ -149,7 +149,7 @@ function FillNeiItemsWith<T extends Goods>(
 var FillNeiAllRecipes: NeiFiller = function (
 	grid: NeiGrid,
 	search: SearchQuery | null,
-	recipes: NeiRecipeMap
+	recipes: RecipeMap
 ) {
 	for (const recipeType of get(neiStore).allRecipeTypes) {
 		var list = recipes[recipeType.name];
@@ -171,7 +171,7 @@ var FillNeiAllRecipes: NeiFiller = function (
 };
 
 function FillNeiSpecificRecipes(recipeType: RecipeType): NeiFiller {
-	return function (grid: NeiGrid, search: SearchQuery | null, recipes: NeiRecipeMap) {
+	return function (grid: NeiGrid, search: SearchQuery | null, recipes: RecipeMap) {
 		var list = recipes[recipeType.name];
 		let allocator = grid.BeginAllocation(list);
 		for (let i = 0; i < list.length; i++)
@@ -255,7 +255,7 @@ function Back() {
 export function ShowNei(
 	goods: RecipeObject | null,
 	mode: ShowNeiMode,
-	callback: ShowNeiCallback | null = null
+	callback: ShowCallback | null = null
 ) {
 	console.debug('ShowNei', goods, mode, callback);
 

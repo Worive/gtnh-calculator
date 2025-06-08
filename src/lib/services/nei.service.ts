@@ -6,14 +6,14 @@ import { Recipe } from '$lib/core/data/models/Recipe';
 import { repositoryStore } from '$lib/stores/repository.store';
 import type { RecipeObject } from '$lib/core/data/models/RecipeObject';
 import { ShowNeiMode } from '$lib/types/enums/ShowNeiMode';
-import type { ShowNeiCallback } from '$lib/types/show-nei-callback';
+import type { ShowCallback } from '$lib/types/nei/show-callback';
 import { OreDict } from '$lib/core/data/models/OreDict';
 import { Fluid } from '$lib/core/data/models/Fluid';
 import { Item } from '$lib/core/data/models/Item';
 import { Goods } from '$lib/core/data/models/Goods';
 import NeiItemsTab from '$lib/components/nei/NeiItemsTab.svelte';
 import NeiAllRecipesTab from '$lib/components/nei/NeiAllRecipesTab.svelte';
-import type { NeiTab } from '$lib/types/nei-tab';
+import type { Tab } from '$lib/types/nei/tab';
 import type { Repository } from '$lib/core/data/Repository';
 import type { GroupedRecipesDict } from '$lib/types/grouped-recipes-dict';
 import { SearchQuery } from '$lib/core/data/models/SearchQuery';
@@ -97,7 +97,7 @@ export class NeiService {
 		}));
 	}
 
-	private static getAllItemsTab(repository: Repository): NeiTab {
+	private static getAllItemsTab(repository: Repository): Tab {
 		return {
 			name: 'All Items',
 			iconId: repository.GetObject(repository.service[0], Item).iconId,
@@ -106,7 +106,7 @@ export class NeiService {
 		};
 	}
 
-	private static getAllRecipesTab(repository: Repository): NeiTab {
+	private static getAllRecipesTab(repository: Repository): Tab {
 		return {
 			name: 'All Recipes',
 			iconId: repository.GetObject(repository.service[1], Item).iconId,
@@ -118,7 +118,7 @@ export class NeiService {
 	static show(
 		goods: RecipeObject | null,
 		mode: ShowNeiMode,
-		callback: ShowNeiCallback | null = null
+		callback: ShowCallback | null = null
 	): void {
 		console.debug('ShowNei', goods, mode, callback);
 
