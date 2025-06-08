@@ -3,7 +3,7 @@
 	import type { RecipeInOut } from '$lib/types/models/Recipe';
 	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 	import ItemIcon from '$lib/components/nei/ItemIcon.svelte';
-	import { elementSize } from '$lib/types/constants/nei.consts';
+	import { elementSize } from '$lib/constants/nei.consts';
 
 	export let recipeTypeInfo: NeiRecipeTypeInfo;
 

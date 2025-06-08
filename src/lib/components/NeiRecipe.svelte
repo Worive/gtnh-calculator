@@ -5,7 +5,7 @@
 	import NeiRecipeItemGrid from '$lib/components/nei/NeiRecipeItemGrid.svelte';
 	import { RecipeIoType } from '$lib/types/enums/RecipeIoType';
 	import type { RecipeInOut } from '$lib/types/models/Recipe';
-	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
+	import { voltageTier } from '$lib/constants/voltageTiers.const';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import McButton from '$lib/components/McButton.svelte';
 	import { NeiService } from '$lib/services/nei.service';

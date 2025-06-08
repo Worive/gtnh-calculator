@@ -2,7 +2,7 @@ import type { NeiRowAllocator } from '$lib/types/nei-row-allocator.interface';
 import { Goods } from '$lib/core/data/models/Goods';
 import { get } from 'svelte/store';
 import { neiStore } from '$lib/stores/nei.store';
-import { elementSize } from '$lib/types/constants/nei.consts';
+import { elementSize } from '$lib/constants/nei.consts';
 
 export class ItemAllocator implements NeiRowAllocator<Goods> {
 	CalculateWidth(): number {

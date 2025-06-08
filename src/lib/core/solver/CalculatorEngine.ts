@@ -10,8 +10,8 @@ import {
 	machines,
 	notImplementedMachine,
 	singleBlockMachine
-} from '$lib/types/constants/machines.const';
-import { voltageTier } from '$lib/types/constants/voltageTiers.const';
+} from '$lib/constants/machines.const';
+import { voltageTier } from '$lib/constants/voltageTiers.const';
 import type { MachineCoefficient } from '$lib/types/models/Machine';
 import type { OreDict } from '$lib/core/data/models/OreDict';
 import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';

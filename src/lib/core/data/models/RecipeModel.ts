@@ -3,7 +3,7 @@ import type { Recipe } from '$lib/core/data/models/Recipe';
 import type { Item } from '$lib/core/data/models/Item';
 import type { ModelObjectVisitor } from '$lib/core/data/models/ModelObjectVisitor';
 import type { Choice, Machine } from '$lib/types/models/Machine';
-import { singleBlockMachine } from '$lib/types/constants/machines.const';
+import { singleBlockMachine } from '$lib/constants/machines.const';
 
 export class RecipeModel extends RecipeGroupEntry {
 	type: string = 'recipe';

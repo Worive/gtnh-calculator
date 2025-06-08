@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { cycleInterval } from '$lib/types/constants/nei.consts';
+import { cycleInterval } from '$lib/constants/nei.consts';
 
 export const globalCycle = (() => {
 	const { subscribe, update } = writable(0);

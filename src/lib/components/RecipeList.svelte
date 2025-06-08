@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { currentPageStore } from '$lib/stores/currentPage.store.js';
-	import { voltageTier } from '$lib/types/constants/voltageTiers.const';
+	import { voltageTier } from '$lib/constants/voltageTiers.const';
 	import { formatAmount } from '$lib/utils/Formatting';
 	import { repositoryStore } from '$lib/stores/repository.store';
 	import { Goods } from '$lib/core/data/models/Goods';
 	import { LinkAlgorithm } from '$lib/types/enums/LinkAlgorithm';
-	import { linkAlgorithmNames } from '$lib/types/constants/solver.const';
+	import { linkAlgorithmNames } from '$lib/constants/solver.const';
 
 	$: page = $currentPageStore;
 	$: flow = $currentPageStore.rootGroup.flow;
